@@ -1,20 +1,27 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import Navigation from './src/navigation/AppNavigator';
+import { initDatabase } from './src/database/database';
 
 export default function App() {
+  // 初始化数据库
+  React.useEffect(() => {
+    const init = async () => {
+      try {
+        await initDatabase();
+        console.log('✅ App initialized');
+      } catch (error) {
+        console.error('❌ App initialization failed:', error);
+      }
+    };
+
+    init();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar style="light" />
+      <Navigation />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
