@@ -2,10 +2,10 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import HomeScreen from './screens/HomeScreen';
-import MusicScreen from './screens/MusicScreen';
-import MovieScreen from './screens/MovieScreen';
-import StatsScreen from './screens/StatsScreen';
+import HomeScreen from '../screens/HomeScreen';
+import MusicScreen from '../screens/MusicScreen';
+import MovieScreen from '../screens/MovieScreen';
+import StatsScreen from '../screens/StatsScreen';
 
 const Tab = createBottomTabNavigator();
 

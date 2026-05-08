@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator, FlatList } from 'react-native';
-import { searchOMDBByTitle, getOMDBMovieDetails } from '../services/api';
-import { insertMovie } from '../database/database';
-import { createNotionPage, formatMovieForNotion } from '../services/api';
+import { searchOMDBByTitle, getOMDBMovieDetails } from '../../services/api';
+import { insertMovie } from '../../database/database';
+import { createNotionPage, formatMovieForNotion } from '../../services/api';
 
 interface Props {
   visible: boolean;

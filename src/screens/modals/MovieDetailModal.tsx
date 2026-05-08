@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
-import { updateMovie } from '../database/database';
-import { formatMovieForNotion, updateNotionPage } from '../services/api';
+import { updateMovie } from '../../database/database';
+import { formatMovieForNotion, updateNotionPage } from '../../services/api';
 
 interface Props {
   visible: boolean;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
-import { updateVinyl } from '../database/database';
-import { formatVinylForNotion, updateNotionPage } from '../services/api';
+import { updateVinyl } from '../../database/database';
+import { formatVinylForNotion, updateNotionPage } from '../../services/api';
 
 interface Props {
   visible: boolean;

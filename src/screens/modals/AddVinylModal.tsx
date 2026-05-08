@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { insertVinyl } from '../database/database';
-import { searchDiscogsByBarcode, searchDiscogsByQuery, getDiscogsRelease } from '../services/api';
-import { createNotionPage, formatVinylForNotion } from '../services/api';
+import { insertVinyl } from '../../database/database';
+import { searchDiscogsByBarcode, searchDiscogsByQuery, getDiscogsRelease } from '../../services/api';
+import { createNotionPage, formatVinylForNotion } from '../../services/api';
 
 interface Props {
   visible: boolean;
