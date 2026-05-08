@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "MediaVault",
+    "slug": "MediaVault",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ziweili.mediavault"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sqlite",
+      "expo-barcode-scanner"
+    ],
+    "extra": {
+      "DISCOGS_TOKEN": "${process.env.DISCOGS_TOKEN}",
+      "NOTION_API_KEY": "${process.env.NOTION_API_KEY}",
+      "NOTION_VINYLS_DB_ID": "${process.env.NOTION_VINYLS_DB_ID}",
+      "NOTION_MOVIES_DB_ID": "${process.env.NOTION_MOVIES_DB_ID}",
+      "OMDB_API_KEY": "${process.env.OMDB_API_KEY}"
+    }
+  }
+}
