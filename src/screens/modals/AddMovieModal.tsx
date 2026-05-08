@@ -86,7 +86,7 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
         );
 
         if (pageId) {
-          const { updateMovie } = require('../database/database');
+          const { updateMovie } = require('../../database/database');
           await updateMovie(movieId, { notion_page_id: pageId });
         }
       } catch (error) {
