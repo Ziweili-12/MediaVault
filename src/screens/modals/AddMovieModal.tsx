@@ -165,7 +165,7 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
                 ))}
               </View>
             </View>
-          )}          )}
+          )}
 
           {selectedMovie && (
             <>

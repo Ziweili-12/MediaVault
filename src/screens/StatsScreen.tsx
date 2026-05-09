@@ -156,12 +156,12 @@ const styles = StyleSheet.create({
   metricValue: { fontSize: 28, fontWeight: '800', letterSpacing: -1, lineHeight: 30, marginBottom: 4 },
   metricLabel: { fontSize: 12, fontWeight: '500' },
   chartCard: {
-    borderRadius: 20, padding: 22, paddingTop: 28, marginBottom: 20, borderWidth: 1,
+    borderRadius: 20, padding: 22, paddingTop: 24, marginBottom: 20, borderWidth: 1,
   },
-  chartTitle: { fontSize: 15, fontWeight: '600', marginBottom: 28, letterSpacing: -0.2 },
+  chartTitle: { fontSize: 15, fontWeight: '600', marginBottom: 36, letterSpacing: -0.2 },
   chartBars: {
     flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'flex-end', height: 200, gap: 14,
+    alignItems: 'flex-end', height: 220, gap: 16,
   },
   chartBarWrapper: { flex: 1, alignItems: 'center', height: '100%', justifyContent: 'flex-end' },
   chartValueLabel: {
