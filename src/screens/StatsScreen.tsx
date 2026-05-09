@@ -1,302 +1,177 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useColorScheme } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getVinylStats, getMovieStats } from '../database/database';
 
+const themes = {
+  dark: { bg: '#000', card: '#1c1c1e', border: 'rgba(255,255,255,0.08)', text: '#fff', secondary: 'rgba(255,255,255,0.55)' },
+  light: { bg: '#f2f2f7', card: '#fff', border: 'rgba(0,0,0,0.06)', text: '#000', secondary: 'rgba(0,0,0,0.45)' },
+};
+
 export default function StatsScreen() {
+  const scheme = useColorScheme();
+  const isDark = scheme === 'dark';
+  const c = isDark ? themes.dark : themes.light;
+
   const [vinylStats, setVinylStats] = useState<any>(null);
   const [movieStats, setMovieStats] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'music' | 'movie'>('music');
 
-  useEffect(() => {
-    loadAllStats();
-  }, []);
+  useEffect(() => { loadAllStats(); }, []);
 
   const loadAllStats = async () => {
     try {
-      const vStats = await getVinylStats();
-      setVinylStats(vStats);
-
-      const mStats = await getMovieStats();
-      setMovieStats(mStats);
+      setVinylStats(await getVinylStats());
+      setMovieStats(await getMovieStats());
     } catch (error) {
-      console.error('❌ Failed to load stats:', error);
+      console.error('Failed to load stats:', error);
     }
   };
 
-  // 模拟月度数据（实际应该从数据库查询）
   const monthlyData = [40, 60, 45, 80, 65, 55, 75, 50];
-
   const maxValue = Math.max(...monthlyData);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>统计</Text>
-      </View>
+    <SafeAreaView style={[styles.container, { backgroundColor: c.bg }]} edges={['top']}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={[styles.headerTitle, { color: c.text }]}>统计</Text>
 
-      {/* Segment切换 */}
-      <View style={styles.segmentContainer}>
-        <View style={styles.segment}>
-          <TouchableOpacity
-            style={[styles.segmentItem, activeTab === 'music' && styles.segmentActive]}
-            onPress={() => setActiveTab('music')}
-          >
-            <Text style={[styles.segmentText, activeTab === 'music' && styles.segmentTextActive]}>音乐</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.segmentItem, activeTab === 'movie' && styles.segmentActive]}
-            onPress={() => setActiveTab('movie')}
-          >
-            <Text style={[styles.segmentText, activeTab === 'movie' && styles.segmentTextActive]}>影视</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {activeTab === 'music' && vinylStats && (
-        <>
-          {/* 指标卡 */}
-          <View style={styles.metricGrid}>
-            <View style={styles.metricCard}>
-              <Text style={[styles.metricValue, styles.blue]}>{vinylStats.total}</Text>
-              <Text style={styles.metricLabel}>黑胶总数</Text>
-            </View>
-            <View style={styles.metricCard}>
-              <Text style={[styles.metricValue, styles.green]}>¥{vinylStats.totalSpent?.toFixed(0)}</Text>
-              <Text style={styles.metricLabel}>总花费</Text>
-            </View>
-            <View style={styles.metricCard}>
-              <Text style={[styles.metricValue, styles.purple]}>{vinylStats.artistCount}</Text>
-              <Text style={styles.metricLabel}>艺术家</Text>
-            </View>
+        <View style={styles.segmentContainer}>
+          <View style={[styles.segment, { backgroundColor: c.card, borderColor: c.border }]}>
+            {(['music', 'movie'] as const).map((tab) => (
+              <TouchableOpacity
+                key={tab}
+                style={[styles.segmentItem, activeTab === tab && styles.segmentActive]}
+                onPress={() => setActiveTab(tab)}
+              >
+                <Text style={[styles.segmentText, { color: c.secondary }, activeTab === tab && { color: c.text }]}>
+                  {tab === 'music' ? '音乐' : '影视'}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
+        </View>
 
-          {/* 月度趋势图 */}
-          <View style={styles.chartCard}>
-            <Text style={styles.chartTitle}>月度购买趋势 · 2026</Text>
-            <View style={styles.chartBars}>
-              {monthlyData.map((value, index) => (
-                <View key={index} style={styles.chartBarWrapper}>
-                  <View
-                    style={[
+        {activeTab === 'music' && vinylStats && (
+          <>
+            <View style={styles.metricGrid}>
+              <View style={[styles.metricCard, { backgroundColor: c.card, borderColor: c.border }]}>
+                <Text style={[styles.metricValue, { color: '#0a84ff' }]}>{vinylStats.total}</Text>
+                <Text style={[styles.metricLabel, { color: c.secondary }]}>黑胶总数</Text>
+              </View>
+              <View style={[styles.metricCard, { backgroundColor: c.card, borderColor: c.border }]}>
+                <Text style={[styles.metricValue, { color: '#30d158' }]}>¥{vinylStats.totalSpent?.toFixed(0)}</Text>
+                <Text style={[styles.metricLabel, { color: c.secondary }]}>总花费</Text>
+              </View>
+              <View style={[styles.metricCard, { backgroundColor: c.card, borderColor: c.border }]}>
+                <Text style={[styles.metricValue, { color: '#bf5af2' }]}>{vinylStats.artistCount}</Text>
+                <Text style={[styles.metricLabel, { color: c.secondary }]}>艺术家</Text>
+              </View>
+            </View>
+
+            <View style={[styles.chartCard, { backgroundColor: c.card, borderColor: c.border }]}>
+              <Text style={[styles.chartTitle, { color: c.secondary }]}>月度购买趋势 · 2026</Text>
+              <View style={styles.chartBars}>
+                {monthlyData.map((value, index) => (
+                  <View key={index} style={styles.chartBarWrapper}>
+                    <View style={[
                       styles.chartBar,
                       { height: `${(value / maxValue) * 100}%` },
                       index === 6 && { backgroundColor: '#30d158' },
-                    ]}
-                  />
-                  <Text style={styles.chartBarLabel}>
-                    {`${index + 1}月`}
-                  </Text>
-                </View>
-              ))}
+                    ]} />
+                    <Text style={[styles.chartBarLabel, { color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }]}>
+                      {index + 1}月
+                    </Text>
+                  </View>
+                ))}
+              </View>
             </View>
-          </View>
-        </>
-      )}
+          </>
+        )}
 
-      {activeTab === 'movie' && movieStats && (
-        <>
-          {/* 指标卡 */}
-          <View style={styles.metricGrid}>
-            <View style={styles.metricCard}>
-              <Text style={[styles.metricValue, styles.blue]}>{movieStats.total}</Text>
-              <Text style={styles.metricLabel}>观影总数</Text>
+        {activeTab === 'movie' && movieStats && (
+          <>
+            <View style={styles.metricGrid}>
+              <View style={[styles.metricCard, { backgroundColor: c.card, borderColor: c.border }]}>
+                <Text style={[styles.metricValue, { color: '#0a84ff' }]}>{movieStats.total}</Text>
+                <Text style={[styles.metricLabel, { color: c.secondary }]}>观影总数</Text>
+              </View>
+              <View style={[styles.metricCard, { backgroundColor: c.card, borderColor: c.border }]}>
+                <Text style={[styles.metricValue, { color: '#30d158' }]}>{movieStats.movieCount}</Text>
+                <Text style={[styles.metricLabel, { color: c.secondary }]}>电影</Text>
+              </View>
+              <View style={[styles.metricCard, { backgroundColor: c.card, borderColor: c.border }]}>
+                <Text style={[styles.metricValue, { color: '#bf5af2' }]}>{movieStats.seriesCount}</Text>
+                <Text style={[styles.metricLabel, { color: c.secondary }]}>剧集</Text>
+              </View>
             </View>
-            <View style={styles.metricCard}>
-              <Text style={[styles.metricValue, styles.green]}>{movieStats.movieCount}</Text>
-              <Text style={styles.metricLabel}>电影</Text>
-            </View>
-            <View style={styles.metricCard}>
-              <Text style={[styles.metricValue, styles.purple]}>{movieStats.seriesCount}</Text>
-              <Text style={styles.metricLabel}>剧集</Text>
-            </View>
-          </View>
 
-          {/* 类型分布进度条（模拟数据）*/}
-          <View style={styles.chartCard}>
-            <Text style={styles.chartTitle}>类型分布</Text>
-            <View style={styles.progressList}>
+            <View style={[styles.chartCard, { backgroundColor: c.card, borderColor: c.border }]}>
+              <Text style={[styles.chartTitle, { color: c.secondary }]}>类型分布</Text>
               {[
                 { name: '科幻', pct: 25, color: '#0a84ff' },
                 { name: '剧情', pct: 30, color: '#30d158' },
                 { name: '动作', pct: 20, color: '#ff9f0a' },
                 { name: '喜剧', pct: 15, color: '#bf5af2' },
-                { name: '其他', pct: 10, color: 'rgba(255,255,255,0.3)' },
+                { name: '其他', pct: 10, color: c.secondary },
               ].map((item, index) => (
                 <View key={index} style={styles.progressItem}>
                   <View style={styles.progressHeader}>
-                    <Text style={styles.progressName}>{item.name}</Text>
-                    <Text style={styles.progressPct}>{item.pct}%</Text>
+                    <Text style={[styles.progressName, { color: c.text }]}>{item.name}</Text>
+                    <Text style={[styles.progressPct, { color: c.secondary }]}>{item.pct}%</Text>
                   </View>
-                  <View style={styles.progressBar}>
-                    <View
-                      style={[
-                        styles.progressFill,
-                        { width: `${item.pct}%`, backgroundColor: item.color },
-                      ]}
-                    />
+                  <View style={[styles.progressBar, { backgroundColor: isDark ? '#2c2c2e' : '#e5e5ea' }]}>
+                    <View style={[styles.progressFill, { width: `${item.pct}%`, backgroundColor: item.color }]} />
                   </View>
                 </View>
               ))}
             </View>
-          </View>
-        </>
-      )}
-    </ScrollView>
+          </>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  content: {
-    padding: 16,
-    paddingTop: 24,
-    paddingBottom: 100,
-  },
-  header: {
-    marginBottom: 24,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#fff',
-    letterSpacing: -0.3,
-  },
-  segmentContainer: {
-    marginBottom: 24,
-  },
-  segment: {
-    flexDirection: 'row',
-    backgroundColor: '#1c1c1e',
-    borderRadius: 8,
-    padding: 2,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-  },
-  segmentItem: {
-    flex: 1,
-    paddingVertical: 7,
-    alignItems: 'center',
-    borderRadius: 6,
-  },
-  segmentActive: {
-    backgroundColor: '#2c2c2e',
-  },
-  segmentText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.3)',
-  },
-  segmentTextActive: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  metricGrid: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 24,
-  },
+  container: { flex: 1 },
+  scroll: { flex: 1 },
+  content: { padding: 16, paddingBottom: 100 },
+  headerTitle: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3, marginBottom: 20 },
+  segmentContainer: { marginBottom: 20 },
+  segment: { flexDirection: 'row', borderRadius: 8, padding: 2, borderWidth: 1 },
+  segmentItem: { flex: 1, paddingVertical: 7, alignItems: 'center', borderRadius: 6 },
+  segmentActive: { backgroundColor: '#2c2c2e' },
+  segmentText: { fontSize: 14, fontWeight: '500' },
+  metricGrid: { flexDirection: 'row', gap: 10, marginBottom: 20 },
   metricCard: {
-    flex: 1,
-    backgroundColor: '#1c1c1e',
-    borderRadius: 10,
-    padding: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    flex: 1, borderRadius: 10, padding: 16,
+    alignItems: 'center', borderWidth: 1,
   },
-  metricValue: {
-    fontSize: 28,
-    fontWeight: '800',
-    letterSpacing: -1,
-    lineHeight: 30,
-    marginBottom: 4,
-  },
-  blue: {
-    color: '#0a84ff',
-  },
-  green: {
-    color: '#30d158',
-  },
-  purple: {
-    color: '#bf5af2',
-  },
-  metricLabel: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.55)',
-    fontWeight: '500',
-  },
+  metricValue: { fontSize: 28, fontWeight: '800', letterSpacing: -1, lineHeight: 30, marginBottom: 4 },
+  metricLabel: { fontSize: 12, fontWeight: '500' },
   chartCard: {
-    backgroundColor: '#1c1c1e',
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 16, padding: 18, marginBottom: 14, borderWidth: 1,
   },
-  chartTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.55)',
-    marginBottom: 16,
-    letterSpacing: -0.2,
-  },
+  chartTitle: { fontSize: 15, fontWeight: '600', marginBottom: 16, letterSpacing: -0.2 },
   chartBars: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    height: 140,
-    gap: 6,
+    flexDirection: 'row', justifyContent: 'space-between',
+    alignItems: 'flex-end', height: 140, gap: 6,
   },
-  chartBarWrapper: {
-    flex: 1,
-    alignItems: 'center',
-    height: '100%',
-    justifyContent: 'flex-end',
-  },
+  chartBarWrapper: { flex: 1, alignItems: 'center', height: '100%', justifyContent: 'flex-end' },
   chartBar: {
-    width: '100%',
-    backgroundColor: '#0a84ff',
-    borderRadius: 3,
-    minHeight: 8,
+    width: '100%', backgroundColor: '#0a84ff',
+    borderRadius: 3, minHeight: 8,
   },
-  chartBarLabel: {
-    fontSize: 10,
-    color: 'rgba(255,255,255,0.3)',
-    marginTop: 6,
-    fontWeight: '500',
-  },
-  progressList: {
-    gap: 14,
-  },
-  progressItem: {
-    // no specific style needed
-  },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  progressName: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  progressPct: {
-    color: 'rgba(255,255,255,0.55)',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: '#2c2c2e',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
+  chartBarLabel: { fontSize: 10, marginTop: 6, fontWeight: '500' },
+  progressItem: { marginBottom: 14 },
+  progressHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
+  progressName: { fontSize: 14, fontWeight: '500' },
+  progressPct: { fontSize: 14, fontWeight: '600' },
+  progressBar: { height: 6, borderRadius: 3, overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: 3 },
 });
