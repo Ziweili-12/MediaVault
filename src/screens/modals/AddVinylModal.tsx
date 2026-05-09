@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { insertVinyl } from '../../database/database';
 import { searchDiscogsByBarcode, searchDiscogsByQuery, getDiscogsRelease } from '../../services/api';
 import { createNotionPage, formatVinylForNotion } from '../../services/api';
@@ -12,6 +12,7 @@ interface Props {
 }
 
 export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
+  const [permission, requestPermission] = useCameraPermissions();
   const [step, setStep] = useState<'scan' | 'search' | 'confirm'>('scan');
   const [scanning, setScanning] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -145,11 +146,24 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
           </View>
 
           {step === 'scan' && (
-            <View style={styles.scanArea} onTouchStart={() => setScanning(true)}>
+            <View style={styles.scanArea} onTouchStart={async () => {
+              if (!permission?.granted) {
+                const result = await requestPermission();
+                if (!result.granted) {
+                  Alert.alert('需要相机权限', '请在设置中允许访问相机以扫描条形码');
+                  return;
+                }
+              }
+              setScanning(true);
+            }}>
               {scanning ? (
-                <BarCodeScanner
-                  onBarCodeScanned={handleBarCodeScanned}
+                <CameraView
                   style={StyleSheet.absoluteFillObject}
+                  facing="back"
+                  onBarcodeScanned={handleBarCodeScanned}
+                  barcodeScannerSettings={{
+                    barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93'],
+                  }}
                 />
               ) : (
                 <>

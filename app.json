@@ -27,7 +27,7 @@
     },
     "plugins": [
       "expo-sqlite",
-      "expo-barcode-scanner"
+      "expo-camera"
     ],
     "extra": {
       "DISCOGS_TOKEN": "${process.env.DISCOGS_TOKEN}",
