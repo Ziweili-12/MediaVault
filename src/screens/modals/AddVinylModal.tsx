@@ -13,7 +13,7 @@ interface Props {
 
 export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
   const [permission, requestPermission] = useCameraPermissions();
-  const [step, setStep] = useState<'scan' | 'search' | 'confirm'>('scan');
+  const [step, setStep] = useState<'scan' | 'search' | 'confirm'>('search');
   const [scanning, setScanning] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -125,7 +125,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
   };
 
   const resetForm = () => {
-    setStep('scan');
+    setStep('search');
     setSearchQuery('');
     setSearchResults([]);
     setSelectedRelease(null);
@@ -153,31 +153,39 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
             >
 
           {step === 'scan' && (
-            <View style={styles.scanArea} onTouchStart={async () => {
-              if (!permission?.granted) {
-                const result = await requestPermission();
-                if (!result.granted) {
-                  Alert.alert('需要相机权限', '请在设置中允许访问相机以扫描条形码');
-                  return;
+            <View style={styles.scanFullScreen}>
+              <View style={styles.scanHeader}>
+                <Text style={styles.scanHeaderTitle}>扫描条形码</Text>
+                <TouchableOpacity onPress={() => { setStep('search'); setScanning(false); resetForm(); }}>
+                  <Text style={styles.scanCancelBtn}>手动搜索</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.scanAreaBig} onTouchStart={async () => {
+                if (!permission?.granted) {
+                  const result = await requestPermission();
+                  if (!result.granted) {
+                    Alert.alert('需要相机权限', '请在设置中允许访问相机以扫描条形码');
+                    return;
+                  }
                 }
-              }
-              setScanning(true);
-            }}>
-              {scanning ? (
-                <CameraView
-                  style={StyleSheet.absoluteFillObject}
-                  facing="back"
-                  onBarcodeScanned={handleBarCodeScanned}
-                  barcodeScannerSettings={{
-                    barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93'],
-                  }}
-                />
-              ) : (
-                <>
-                  <Text style={styles.scanIcon}>📷</Text>
-                  <Text style={styles.scanText}>点击扫描条形码</Text>
-                </>
-              )}
+                setScanning(true);
+              }}>
+                {scanning ? (
+                  <CameraView
+                    style={StyleSheet.absoluteFillObject}
+                    facing="back"
+                    onBarcodeScanned={handleBarCodeScanned}
+                    barcodeScannerSettings={{
+                      barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93'],
+                    }}
+                  />
+                ) : (
+                  <>
+                    <Text style={styles.scanIcon}>📷</Text>
+                    <Text style={styles.scanText}>点击扫描条形码</Text>
+                  </>
+                )}
+              </View>
             </View>
           )}
 
@@ -193,6 +201,15 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                 autoFocus
               />
               {loading && <ActivityIndicator color="#0a84ff" />}
+              {searchResults.length > 0 && !loading && (
+                <TouchableOpacity
+                  style={styles.scanButtonRow}
+                  onPress={() => { setStep('scan'); setScanning(false); }}
+                >
+                  <Text style={styles.scanButtonRowIcon}>📷</Text>
+                  <Text style={styles.scanButtonRowText}>扫描条形码</Text>
+                </TouchableOpacity>
+              )}
               {searchResults.map((result, index) => (
                 <TouchableOpacity
                   key={index}
@@ -208,6 +225,15 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                   </View>
                 </TouchableOpacity>
               ))}
+              {searchResults.length === 0 && !loading && (
+                <TouchableOpacity
+                  style={styles.scanButtonRow}
+                  onPress={() => { setStep('scan'); setScanning(false); }}
+                >
+                  <Text style={styles.scanButtonRowIcon}>📷</Text>
+                  <Text style={styles.scanButtonRowText}>扫描条形码添加</Text>
+                </TouchableOpacity>
+              )}
             </>
           )}
 
@@ -291,7 +317,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
           {step !== 'search' && (
             <TouchableOpacity
               style={styles.searchButton}
-              onPress={() => setStep('search')}
+              onPress={() => { setStep('search'); setScanning(false); resetForm(); }}
             >
               <Text style={styles.searchButtonText}>手动搜索</Text>
             </TouchableOpacity>
@@ -451,6 +477,52 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  scanFullScreen: {
+    flex: 1,
+  },
+  scanHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+  },
+  scanHeaderTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  scanCancelBtn: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#0a84ff',
+  },
+  scanAreaBig: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 16,
+    borderRadius: 16,
+    backgroundColor: '#2c2c2e',
+    overflow: 'hidden',
+  },
+  scanButtonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    backgroundColor: '#2c2c2e',
+    borderRadius: 12,
+  },
+  scanButtonRowIcon: {
+    fontSize: 22,
+    marginRight: 10,
+  },
+  scanButtonRowText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#0a84ff',
   },
   scrollArea: {
     flex: 1,
