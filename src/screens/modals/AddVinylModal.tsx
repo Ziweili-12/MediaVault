@@ -106,7 +106,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
 
         if (pageId) {
           // 更新本地记录的notion_page_id
-          const { updateVinyl } = require('../database/database');
+          const { updateVinyl } = require('../../database/database');
           await updateVinyl(vinylId, { notion_page_id: pageId });
         }
       } catch (error) {
