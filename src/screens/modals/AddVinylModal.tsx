@@ -179,35 +179,40 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
             )}
 
             {(step === 'search') && (
-              <View style={{flex: 1}}>
-                <TouchableOpacity onPress={() => setStep('welcome')} style={styles.backRow}>
-                  <Text style={styles.backBtn}>← 返回</Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="搜索专辑名或艺术家..."
-                  placeholderTextColor="rgba(255,255,255,0.3)"
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  onSubmitEditing={handleSearch}
-                  autoFocus
-                />
-                {loading && <ActivityIndicator color="#0a84ff" />}
-                {searchResults.map((result, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.searchResult}
-                    onPress={() => handleSelectResult(result)}
-                  >
-                    <View style={styles.resultThumb} />
-                    <View style={styles.resultInfo}>
-                      <Text style={styles.resultTitle}>{result.title}</Text>
-                      <Text style={styles.resultSubtitle}>
-                        {result.year} • {result.genres?.join(', ')}
-                      </Text>
-                    </View>
+              <View style={styles.searchContainer}>
+                <View style={styles.searchHeadArea}>
+                  <TouchableOpacity onPress={() => { setStep('welcome'); setSearchQuery(''); setSearchResults([]); }} style={styles.backRow}>
+                    <Text style={styles.backBtn}>← 返回</Text>
                   </TouchableOpacity>
-                ))}
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder="搜索专辑名或艺术家..."
+                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    onSubmitEditing={handleSearch}
+                    autoFocus
+                  />
+                </View>
+                <View style={styles.searchResultsArea}>
+                  {loading && <ActivityIndicator color="#0a84ff" />}
+                  <Text style={styles.searchCount}>{searchResults.length > 0 ? `找到 ${searchResults.length} 个结果` : ''}</Text>
+                  {searchResults.map((result, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.searchResult}
+                      onPress={() => handleSelectResult(result)}
+                    >
+                      <View style={styles.resultThumb} />
+                      <View style={styles.resultInfo}>
+                        <Text style={styles.resultTitle}>{result.title}</Text>
+                        <Text style={styles.resultSubtitle}>
+                          {result.year} • {result.genres?.join(', ')}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
             )}
 
@@ -329,7 +334,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 22,
     padding: 22,
     paddingBottom: 34,
-    maxHeight: '85%',
+    maxHeight: '92%',
   },
   header: {
     flexDirection: 'row',
