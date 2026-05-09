@@ -1,5 +1,6 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { useColorScheme } from 'react-native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
@@ -9,20 +10,47 @@ import StatsScreen from '../screens/StatsScreen';
 
 const Tab = createBottomTabNavigator();
 
+const LightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: '#f2f2f7',
+    card: '#ffffff',
+    text: '#000000',
+    border: 'rgba(0,0,0,0.06)',
+    primary: '#0a84ff',
+  },
+};
+
+const DarkNavTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: '#000000',
+    card: '#1c1c1e',
+    text: '#ffffff',
+    border: 'rgba(255,255,255,0.08)',
+    primary: '#0a84ff',
+  },
+};
+
 export default function Navigation() {
+  const scheme = useColorScheme();
+  const isDark = scheme === 'dark';
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={isDark ? DarkNavTheme : LightTheme}>
       <Tab.Navigator
         screenOptions={{
           tabBarStyle: {
-            backgroundColor: '#1c1c1e',
-            borderTopColor: 'rgba(255,255,255,0.08)',
+            backgroundColor: isDark ? '#1c1c1e' : '#ffffff',
+            borderTopColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
             height: 83,
             paddingBottom: 8,
             paddingTop: 8,
           },
           tabBarActiveTintColor: '#0a84ff',
-          tabBarInactiveTintColor: 'rgba(255,255,255,0.3)',
+          tabBarInactiveTintColor: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)',
           tabBarLabelStyle: {
             fontSize: 10,
             fontWeight: '500',
