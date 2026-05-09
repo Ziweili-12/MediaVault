@@ -158,7 +158,7 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
                       <Text style={styles.resultTitle}>{item.Title}</Text>
                       <Text style={styles.resultSubtitle}>
                         {item.Year} • {item.Type === 'movie' ? '电影' : '剧集'}
-                        {item.imdbRating ? ` • IMDb ${item.imdbRating}` : ''}
+                        {item.imdbRating ? ' • IMDb ' + item.imdbRating : null}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 22,
     padding: 22,
     paddingBottom: 34,
-    maxHeight: '92%',
+    height: '92%',
   },
   header: {
     flexDirection: 'row',
