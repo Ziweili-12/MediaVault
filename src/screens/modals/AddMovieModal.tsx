@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { searchOMDBByTitle, getOMDBMovieDetails } from '../../services/api';
 import { insertMovie } from '../../database/database';
 import { createNotionPage, formatMovieForNotion } from '../../services/api';
@@ -115,14 +115,21 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.header}>
-            <Text style={styles.modalTitle}>添加影视</Text>
-            <TouchableOpacity onPress={() => { resetForm(); onClose(); }}>
-              <Text style={styles.closeButton}>取消</Text>
-            </TouchableOpacity>
-          </View>
+      <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={styles.overlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.header}>
+              <Text style={styles.modalTitle}>添加影视</Text>
+              <TouchableOpacity onPress={() => { resetForm(); onClose(); }}>
+                <Text style={styles.closeButton}>取消</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView
+              style={styles.scrollArea}
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
 
           {!selectedMovie && (
             <>
@@ -244,8 +251,10 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
               )}
             </TouchableOpacity>
           )}
+        </ScrollView>
         </View>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -360,4 +369,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
   },
+  scrollArea: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
+
 });

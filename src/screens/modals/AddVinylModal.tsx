@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { insertVinyl } from '../../database/database';
 import { searchDiscogsByBarcode, searchDiscogsByQuery, getDiscogsRelease } from '../../services/api';
@@ -136,14 +136,21 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.header}>
-            <Text style={styles.modalTitle}>添加黑胶</Text>
-            <TouchableOpacity onPress={() => { resetForm(); onClose(); }}>
-              <Text style={styles.closeButton}>取消</Text>
-            </TouchableOpacity>
-          </View>
+      <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={styles.overlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.header}>
+              <Text style={styles.modalTitle}>添加黑胶</Text>
+              <TouchableOpacity onPress={() => { resetForm(); onClose(); }}>
+                <Text style={styles.closeButton}>取消</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView
+              style={styles.scrollArea}
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
 
           {step === 'scan' && (
             <View style={styles.scanArea} onTouchStart={async () => {
@@ -289,8 +296,10 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
               <Text style={styles.searchButtonText}>手动搜索</Text>
             </TouchableOpacity>
           )}
+        </ScrollView>
         </View>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -443,4 +452,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
   },
+  scrollArea: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
+
 });
