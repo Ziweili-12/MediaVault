@@ -94,15 +94,20 @@
     .screen-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
     .screen-header h1 { font-size: 34px; font-weight: 700; }
     .header-btn {
-      width: 44px; height: 44px;
-      background: #0a84ff;
-      border-radius: 22px;
-      display: flex; align-items: center; justify-content: center;
+      height: 36px;
+      padding: 0 16px;
+      background: linear-gradient(135deg, #0a84ff 0%, #0066dd 100%);
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s;
       color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(10,132,255,0.3);
     }
-    .header-btn:active { transform: scale(0.9); }
+    .header-btn:active { transform: scale(0.95); }
+    .header-btn svg { width: 16px; height: 16px; }
     .search-bar {
       margin: 0 20px 16px;
       background: #1c1c1e;
@@ -481,7 +486,7 @@
 
     <!-- MUSIC -->
     <div class="screen" id="screen-music" style="display:none;">
-      <div class="screen-header"><h1>我的黑胶</h1><div class="header-btn" onclick="showAddVinylModal()"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg></div></div>
+      <div class="screen-header"><h1>我的黑胶</h1><div class="header-btn" onclick="showAddVinylModal()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>添加</div></div>
       <div class="search-bar" onclick="showSearchModal()"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>搜索唱片...</span></div>
       <div class="vinyl-grid">
         <div class="vinyl-item" onclick="showVinylDetail(0)"><div class="vinyl-cover"><svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg></div><div class="vinyl-info"><div class="vinyl-title">Random Access Memories</div><div class="vinyl-artist">Daft Punk</div></div></div>
@@ -494,7 +499,7 @@
 
     <!-- MOVIE -->
     <div class="screen" id="screen-movie" style="display:none;">
-      <div class="screen-header"><h1>影视</h1><div class="header-btn" onclick="showAddMovieModal()"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg></div></div>
+      <div class="screen-header"><h1>影视</h1><div class="header-btn" onclick="showAddMovieModal()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>添加</div></div>
       <div class="search-bar" onclick="showToast('搜索功能')"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>搜索电影或剧集...</span></div>
       <div class="movie-grid">
         <div class="movie-item" onclick="showMovieDetail(0)"><div class="movie-poster"><svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/><path d="M256 160v192" stroke="currentColor" stroke-width="24"/></svg></div><div class="movie-info"><div class="movie-title">肖申克的救赎</div><div class="movie-meta"><span>1994</span><span class="rating">9.7</span></div></div></div>
