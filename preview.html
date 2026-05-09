@@ -4,13 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MediaVault - 预览</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
     body {
       font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -46,12 +45,16 @@
       height: 845px;
       overflow-y: auto;
       background: #000;
+      position: relative;
     }
     .screen::-webkit-scrollbar { display: none; }
 
     /* Home Screen */
     .home-header {
       padding: 20px 20px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .home-header h1 {
       font-size: 34px;
@@ -101,6 +104,12 @@
       align-items: center;
       justify-content: center;
       font-size: 40px;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .recent-item:active {
+      transform: scale(0.95);
+      opacity: 0.8;
     }
     .quick-add {
       margin: 20px;
@@ -110,6 +119,11 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .quick-add:active {
+      opacity: 0.8;
     }
     .quick-add-icon {
       width: 44px;
@@ -125,6 +139,16 @@
       font-size: 17px;
       font-weight: 600;
     }
+    .preview-notice {
+      text-align: center;
+      padding: 40px 20px;
+      color: rgba(255,255,255,0.5);
+    }
+    .preview-notice h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #fff;
+    }
 
     /* Music Screen */
     .screen-header {
@@ -137,6 +161,21 @@
       font-size: 34px;
       font-weight: 700;
     }
+    .header-btn {
+      width: 44px;
+      height: 44px;
+      background: #0a84ff;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .header-btn:active {
+      transform: scale(0.9);
+    }
     .search-bar {
       margin: 0 20px 16px;
       background: #2c2c2e;
@@ -145,6 +184,11 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .search-bar:active {
+      background: #3c3c3e;
     }
     .search-bar span {
       color: rgba(255,255,255,0.5);
@@ -161,6 +205,11 @@
       border-radius: 20px;
       font-size: 14px;
       font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-tab:active {
+      transform: scale(0.95);
     }
     .filter-tab.active {
       background: #0a84ff;
@@ -175,6 +224,12 @@
       background: #1c1c1e;
       border-radius: 12px;
       overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .vinyl-item:active {
+      transform: scale(0.98);
+      opacity: 0.9;
     }
     .vinyl-cover {
       aspect-ratio: 1;
@@ -210,6 +265,12 @@
       background: #1c1c1e;
       border-radius: 12px;
       overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .movie-item:active {
+      transform: scale(0.98);
+      opacity: 0.9;
     }
     .movie-poster {
       aspect-ratio: 2/3;
@@ -276,6 +337,10 @@
       background: #0a84ff;
       border-radius: 6px 6px 0 0;
       position: relative;
+      transition: background 0.2s;
+    }
+    .chart-bar:active {
+      background: #0070e0;
     }
     .chart-bar span {
       position: absolute;
@@ -319,6 +384,8 @@
       color: rgba(255,255,255,0.3);
       text-decoration: none;
       padding: 8px 16px;
+      cursor: pointer;
+      transition: color 0.2s;
     }
     .tab-item.active {
       color: #0a84ff;
@@ -360,15 +427,201 @@
       color: #fff;
     }
 
-    .preview-notice {
-      text-align: center;
-      padding: 40px 20px;
-      color: rgba(255,255,255,0.5);
+    /* Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
     }
-    .preview-notice h3 {
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal {
+      background: #1c1c1e;
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 430px;
+      padding: 20px;
+      padding-bottom: 50px;
+      transform: translateY(100%);
+      transition: transform 0.3s ease-out;
+    }
+    .modal-overlay.show .modal {
+      transform: translateY(0);
+    }
+    .modal-handle {
+      width: 40px;
+      height: 5px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
+      margin: 0 auto 20px;
+    }
+    .modal-title {
       font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* Action Sheet */
+    .action-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: #2c2c2e;
+      border-radius: 12px;
       margin-bottom: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .action-item:active {
+      background: #3c3c3e;
+    }
+    .action-item .icon {
+      font-size: 28px;
+    }
+    .action-item .text {
+      font-size: 17px;
+      font-weight: 500;
+    }
+    .action-item .desc {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 2px;
+    }
+
+    /* Detail Modal */
+    .detail-header {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .detail-cover {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+    }
+    .detail-info {
+      flex: 1;
+    }
+    .detail-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .detail-artist {
+      font-size: 16px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 12px;
+    }
+    .detail-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .detail-tag {
+      background: #2c2c2e;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    .detail-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .detail-btn {
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .detail-btn:active {
+      opacity: 0.8;
+    }
+    .detail-btn.primary {
+      background: #0a84ff;
       color: #fff;
+    }
+    .detail-btn.secondary {
+      background: #2c2c2e;
+      color: #fff;
+    }
+    .detail-btn.danger {
+      background: rgba(255,69,58,0.15);
+      color: #ff453a;
+    }
+
+    /* Search Modal */
+    .search-input-wrap {
+      background: #2c2c2e;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 17px;
+      outline: none;
+    }
+    .search-input::placeholder {
+      color: rgba(255,255,255,0.4);
+    }
+    .search-hint {
+      text-align: center;
+      padding: 40px;
+      color: rgba(255,255,255,0.4);
+      font-size: 15px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 500;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+    .toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1);
     }
 
     @media (min-width: 768px) {
@@ -395,8 +648,8 @@
       <span>📶 📡 🔋</span>
     </div>
 
+    <!-- HOME SCREEN -->
     <div class="screen" id="screen-home">
-      <!-- Home Screen -->
       <div class="home-header">
         <h1>我的收藏</h1>
       </div>
@@ -416,75 +669,72 @@
 
       <div class="section-title">最近添加</div>
       <div class="recent-grid">
-        <div class="recent-item">💿</div>
-        <div class="recent-item">🎬</div>
-        <div class="recent-item">💿</div>
+        <div class="recent-item" onclick="showToast('查看唱片详情')">💿</div>
+        <div class="recent-item" onclick="showToast('查看影视详情')">🎬</div>
+        <div class="recent-item" onclick="showToast('查看唱片详情')">💿</div>
       </div>
 
-      <div class="quick-add">
+      <div class="quick-add" onclick="showAddMenu()">
         <div class="quick-add-icon">+</div>
         <div class="quick-add-text">添加新收藏</div>
       </div>
 
-
+      <div class="preview-notice">
         <h3>🎵 MediaVault</h3>
         <p>黑胶唱片 & 影视收藏管理</p>
+        <p style="margin-top: 10px; font-size: 13px;">👆 点击按钮体验交互效果</p>
       </div>
     </div>
 
+    <!-- MUSIC SCREEN -->
     <div class="screen" id="screen-music" style="display:none;">
-      <!-- Music Screen -->
       <div class="screen-header">
-        <h1>音乐</h1>
-        <div style="font-size: 28px;">📷</div>
+        <h1>我的黑胶</h1>
+        <div class="header-btn" onclick="showAddVinylModal()">+</div>
       </div>
 
-      <div class="search-bar">
+      <div class="search-bar" onclick="showSearchModal()">
         <span>🔍</span>
         <span>搜索唱片...</span>
       </div>
 
-      <div class="filter-tabs">
-        <div class="filter-tab active">全部</div>
-      </div>
-
       <div class="vinyl-grid">
-        <div class="vinyl-item">
+        <div class="vinyl-item" onclick="showVinylDetail(0)">
           <div class="vinyl-cover">💿</div>
           <div class="vinyl-info">
             <div class="vinyl-title">Random Access Memories</div>
             <div class="vinyl-artist">Daft Punk</div>
           </div>
         </div>
-        <div class="vinyl-item">
+        <div class="vinyl-item" onclick="showVinylDetail(1)">
           <div class="vinyl-cover" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">💿</div>
           <div class="vinyl-info">
             <div class="vinyl-title">Kind of Blue</div>
             <div class="vinyl-artist">Miles Davis</div>
           </div>
         </div>
-        <div class="vinyl-item">
+        <div class="vinyl-item" onclick="showVinylDetail(2)">
           <div class="vinyl-cover" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">💿</div>
           <div class="vinyl-info">
             <div class="vinyl-title">Abbey Road</div>
             <div class="vinyl-artist">The Beatles</div>
           </div>
         </div>
-        <div class="vinyl-item">
+        <div class="vinyl-item" onclick="showVinylDetail(3)">
           <div class="vinyl-cover" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">💿</div>
           <div class="vinyl-info">
             <div class="vinyl-title">The Dark Side</div>
             <div class="vinyl-artist">Pink Floyd</div>
           </div>
         </div>
-        <div class="vinyl-item">
+        <div class="vinyl-item" onclick="showVinylDetail(4)">
           <div class="vinyl-cover" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">💿</div>
           <div class="vinyl-info">
             <div class="vinyl-title">Rumours</div>
             <div class="vinyl-artist">Fleetwood Mac</div>
           </div>
         </div>
-        <div class="vinyl-item">
+        <div class="vinyl-item" onclick="showVinylDetail(5)">
           <div class="vinyl-cover" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">💿</div>
           <div class="vinyl-info">
             <div class="vinyl-title">Purple Rain</div>
@@ -496,26 +746,26 @@
       <div style="height: 200px;"></div>
     </div>
 
+    <!-- MOVIE SCREEN -->
     <div class="screen" id="screen-movie" style="display:none;">
-      <!-- Movie Screen -->
       <div class="screen-header">
         <h1>影视</h1>
-        <div style="font-size: 28px;">➕</div>
+        <div class="header-btn" onclick="showAddMovieModal()">+</div>
       </div>
 
-      <div class="search-bar">
+      <div class="search-bar" onclick="showToast('搜索功能')">
         <span>🔍</span>
         <span>搜索电影或剧集...</span>
       </div>
 
       <div class="filter-tabs">
         <div class="filter-tab active">全部</div>
-        <div class="filter-tab">电影</div>
-        <div class="filter-tab">剧集</div>
+        <div class="filter-tab" onclick="this.classList.toggle('active')">电影</div>
+        <div class="filter-tab" onclick="this.classList.toggle('active')">剧集</div>
       </div>
 
       <div class="movie-grid">
-        <div class="movie-item">
+        <div class="movie-item" onclick="showMovieDetail(0)">
           <div class="movie-poster">🎬</div>
           <div class="movie-info">
             <div class="movie-title">肖申克的救赎</div>
@@ -525,7 +775,7 @@
             </div>
           </div>
         </div>
-        <div class="movie-item">
+        <div class="movie-item" onclick="showMovieDetail(1)">
           <div class="movie-poster" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">🎬</div>
           <div class="movie-info">
             <div class="movie-title">教父</div>
@@ -535,7 +785,7 @@
             </div>
           </div>
         </div>
-        <div class="movie-item">
+        <div class="movie-item" onclick="showMovieDetail(2)">
           <div class="movie-poster" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">📺</div>
           <div class="movie-info">
             <div class="movie-title">绝命毒师</div>
@@ -545,7 +795,7 @@
             </div>
           </div>
         </div>
-        <div class="movie-item">
+        <div class="movie-item" onclick="showMovieDetail(3)">
           <div class="movie-poster" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">🎬</div>
           <div class="movie-info">
             <div class="movie-title">蝙蝠侠：黑暗骑士</div>
@@ -560,16 +810,16 @@
       <div style="height: 200px;"></div>
     </div>
 
+    <!-- STATS SCREEN -->
     <div class="screen" id="screen-stats" style="display:none;">
-      <!-- Stats Screen -->
       <div class="screen-header">
         <h1>统计</h1>
       </div>
 
       <div class="filter-tabs">
-        <div class="filter-tab">2026</div>
-        <div class="filter-tab active">2025</div>
-        <div class="filter-tab">2024</div>
+        <div class="filter-tab" onclick="selectYear(this)">2026</div>
+        <div class="filter-tab active" onclick="selectYear(this)">2025</div>
+        <div class="filter-tab" onclick="selectYear(this)">2024</div>
       </div>
 
       <div class="stats-hero">
@@ -591,13 +841,13 @@
       <div class="chart-area">
         <div class="chart-title">月度趋势</div>
         <div class="chart-bars">
-          <div class="chart-bar" style="height: 40px;"><span>1月</span><div class="count">4</div></div>
-          <div class="chart-bar" style="height: 70px;"><span>2月</span><div class="count">7</div></div>
-          <div class="chart-bar" style="height: 30px;"><span>3月</span><div class="count">3</div></div>
-          <div class="chart-bar" style="height: 90px;"><span>4月</span><div class="count">9</div></div>
-          <div class="chart-bar" style="height: 60px;"><span>5月</span><div class="count">6</div></div>
-          <div class="chart-bar" style="height: 80px;"><span>6月</span><div class="count">8</div></div>
-          <div class="chart-bar" style="height: 50px;"><span>7月</span><div class="count">5</div></div>
+          <div class="chart-bar" style="height: 40px;" onclick="showToast('1月: 4张')"><span>1月</span><div class="count">4</div></div>
+          <div class="chart-bar" style="height: 70px;" onclick="showToast('2月: 7张')"><span>2月</span><div class="count">7</div></div>
+          <div class="chart-bar" style="height: 30px;" onclick="showToast('3月: 3张')"><span>3月</span><div class="count">3</div></div>
+          <div class="chart-bar" style="height: 90px;" onclick="showToast('4月: 9张')"><span>4月</span><div class="count">9</div></div>
+          <div class="chart-bar" style="height: 60px;" onclick="showToast('5月: 6张')"><span>5月</span><div class="count">6</div></div>
+          <div class="chart-bar" style="height: 80px;" onclick="showToast('6月: 8张')"><span>6月</span><div class="count">8</div></div>
+          <div class="chart-bar" style="height: 50px;" onclick="showToast('7月: 5张')"><span>7月</span><div class="count">5</div></div>
         </div>
       </div>
 
@@ -622,7 +872,7 @@
         <span>首页</span>
       </a>
       <a href="#" class="tab-item" onclick="showScreen('music'); return false;">
-        <span>🎵</span>
+        <span>💿</span>
         <span>音乐</span>
       </a>
       <a href="#" class="tab-item" onclick="showScreen('movie'); return false;">
@@ -636,26 +886,272 @@
     </div>
   </div>
 
-  <script>
-    function showScreen(name) {
-      // Hide all screens
-      document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+  <!-- ADD MENU MODAL -->
+  <div class="modal-overlay" id="addMenuModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">添加收藏</div>
+      <div class="action-item" onclick="showAddVinylModal()">
+        <div class="icon">💿</div>
+        <div>
+          <div class="text">添加黑胶唱片</div>
+          <div class="desc">扫描条形码或搜索</div>
+        </div>
+      </div>
+      <div class="action-item" onclick="showAddMovieModal()">
+        <div class="icon">🎬</div>
+        <div>
+          <div class="text">添加影视</div>
+          <div class="desc">搜索电影或剧集</div>
+        </div>
+      </div>
+      <div class="action-item" onclick="closeModal('addMenuModal')" style="margin-top: 10px; background: transparent;">
+        <div class="text" style="textAlign: center; width: 100%; color: rgba(255,255,255,0.6);">取消</div>
+      </div>
+    </div>
+  </div>
 
-      // Show selected screen
+  <!-- ADD VINYL MODAL -->
+  <div class="modal-overlay" id="addVinylModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">添加黑胶唱片</div>
+      <div class="action-item" onclick="showToast('打开相机扫描')">
+        <div class="icon">📷</div>
+        <div>
+          <div class="text">扫描条形码</div>
+          <div class="desc">从 Discogs 自动获取信息</div>
+        </div>
+      </div>
+      <div class="action-item" onclick="showToast('搜索唱片')">
+        <div class="icon">🔍</div>
+        <div>
+          <div class="text">搜索唱片</div>
+          <div class="desc">输入专辑或艺术家名称</div>
+        </div>
+      </div>
+      <div class="action-item" onclick="showToast('手动输入')">
+        <div class="icon">✏️</div>
+        <div>
+          <div class="text">手动输入</div>
+          <div class="desc">手动添加唱片信息</div>
+        </div>
+      </div>
+      <div class="action-item" onclick="closeModal('addVinylModal')" style="margin-top: 10px; background: transparent;">
+        <div class="text" style="textAlign: center; width: 100%; color: rgba(255,255,255,0.6);">取消</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD MOVIE MODAL -->
+  <div class="modal-overlay" id="addMovieModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">添加影视</div>
+      <div class="action-item" onclick="showToast('搜索 OMDB')">
+        <div class="icon">🔍</div>
+        <div>
+          <div class="text">搜索电影/剧集</div>
+          <div class="desc">从 OMDB 自动获取信息</div>
+        </div>
+      </div>
+      <div class="action-item" onclick="showToast('手动输入')">
+        <div class="icon">✏️</div>
+        <div>
+          <div class="text">手动输入</div>
+          <div class="desc">手动添加影视信息</div>
+        </div>
+      </div>
+      <div class="action-item" onclick="closeModal('addMovieModal')" style="margin-top: 10px; background: transparent;">
+        <div class="text" style="textAlign: center; width: 100%; color: rgba(255,255,255,0.6);">取消</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VINYL DETAIL MODAL -->
+  <div class="modal-overlay" id="vinylDetailModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="detail-header">
+        <div class="detail-cover" id="vinylDetailCover">💿</div>
+        <div class="detail-info">
+          <div class="detail-title" id="vinylDetailTitle">Random Access Memories</div>
+          <div class="detail-artist" id="vinylDetailArtist">Daft Punk</div>
+          <div class="detail-meta">
+            <span class="detail-tag">2013</span>
+            <span class="detail-tag">电子</span>
+            <span class="detail-tag">LP</span>
+          </div>
+        </div>
+      </div>
+      <div style="background: #2c2c2e; padding: 14px; border-radius: 12px; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span style="color: rgba(255,255,255,0.6);">购买日期</span>
+          <span>2024-03-15</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: rgba(255,255,255,0.6);">购买价格</span>
+          <span>¥298</span>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <div class="detail-btn secondary">编辑</div>
+        <div class="detail-btn danger">删除</div>
+      </div>
+      <div class="action-item" onclick="closeModal('vinylDetailModal')" style="margin-top: 16px; background: transparent;">
+        <div class="text" style="textAlign: center; width: 100%; color: rgba(255,255,255,0.6);">关闭</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOVIE DETAIL MODAL -->
+  <div class="modal-overlay" id="movieDetailModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="detail-header">
+        <div class="detail-cover" id="movieDetailCover" style="aspect-ratio: 2/3;">🎬</div>
+        <div class="detail-info">
+          <div class="detail-title" id="movieDetailTitle">肖申克的救赎</div>
+          <div class="detail-artist" id="movieDetailDirector">Frank Darabont</div>
+          <div class="detail-meta">
+            <span class="detail-tag">1994</span>
+            <span class="detail-tag">剧情</span>
+            <span class="rating">⭐ 9.7</span>
+          </div>
+        </div>
+      </div>
+      <div style="background: #2c2c2e; padding: 14px; border-radius: 12px; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span style="color: rgba(255,255,255,0.6);">类型</span>
+          <span>电影</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: rgba(255,255,255,0.6);">我的评分</span>
+          <span>⭐⭐⭐⭐⭐</span>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <div class="detail-btn secondary">编辑</div>
+        <div class="detail-btn danger">删除</div>
+      </div>
+      <div class="action-item" onclick="closeModal('movieDetailModal')" style="margin-top: 16px; background: transparent;">
+        <div class="text" style="textAlign: center; width: 100%; color: rgba(255,255,255,0.6);">关闭</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH MODAL -->
+  <div class="modal-overlay" id="searchModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">搜索黑胶唱片</div>
+      <div class="search-input-wrap">
+        <span>🔍</span>
+        <input type="text" class="search-input" placeholder="输入专辑或艺术家名称...">
+      </div>
+      <div class="search-hint">
+        输入关键词开始搜索<br>
+        将从 Discogs 获取结果
+      </div>
+      <div class="action-item" onclick="closeModal('searchModal')" style="background: transparent;">
+        <div class="text" style="textAlign: center; width: 100%; color: rgba(255,255,255,0.6);">取消</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const vinyls = [
+      { title: 'Random Access Memories', artist: 'Daft Punk', year: '2013', genre: '电子' },
+      { title: 'Kind of Blue', artist: 'Miles Davis', year: '1959', genre: '爵士' },
+      { title: 'Abbey Road', artist: 'The Beatles', year: '1969', genre: '摇滚' },
+      { title: 'The Dark Side', artist: 'Pink Floyd', year: '1973', genre: '摇滚' },
+      { title: 'Rumours', artist: 'Fleetwood Mac', year: '1977', genre: '摇滚' },
+      { title: 'Purple Rain', artist: 'Prince', year: '1984', genre: '流行' },
+    ];
+
+    const movies = [
+      { title: '肖申克的救赎', director: 'Frank Darabont', year: '1994', genre: '剧情', rating: '9.7' },
+      { title: '教父', director: 'Francis Ford Coppola', year: '1972', genre: '犯罪', rating: '9.2' },
+      { title: '绝命毒师', director: 'Vince Gilligan', year: '2008-2013', genre: '剧情', rating: '9.5' },
+      { title: '蝙蝠侠：黑暗骑士', director: 'Christopher Nolan', year: '2008', genre: '动作', rating: '9.0' },
+    ];
+
+    function showScreen(name) {
+      document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
       document.getElementById('screen-' + name).style.display = 'block';
 
-      // Update tab bar
       document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelector('.tab-item:nth-child(' + {
-        home: 1, music: 2, movie: 3, stats: 4
-      }[name] + ')').classList.add('active');
+      document.querySelector('.tab-item:nth-child(' + { home: 1, music: 2, movie: 3, stats: 4 }[name] + ')').classList.add('active');
 
-      // Update selector
       document.querySelectorAll('.screen-selector button').forEach(b => b.classList.remove('active'));
-      document.querySelector('.screen-selector button:nth-child(' + {
-        home: 1, music: 2, movie: 3, stats: 4
-      }[name] + ')').classList.add('active');
+      document.querySelector('.screen-selector button:nth-child(' + { home: 1, music: 2, movie: 3, stats: 4 }[name] + ')').classList.add('active');
     }
+
+    function showModal(id) {
+      document.getElementById(id).classList.add('show');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+
+    function showAddMenu() {
+      showModal('addMenuModal');
+    }
+
+    function showAddVinylModal() {
+      closeModal('addMenuModal');
+      showModal('addVinylModal');
+    }
+
+    function showAddMovieModal() {
+      closeModal('addMenuModal');
+      showModal('addMovieModal');
+    }
+
+    function showVinylDetail(index) {
+      const vinyl = vinyls[index];
+      document.getElementById('vinylDetailTitle').textContent = vinyl.title;
+      document.getElementById('vinylDetailArtist').textContent = vinyl.artist;
+      showModal('vinylDetailModal');
+    }
+
+    function showMovieDetail(index) {
+      const movie = movies[index];
+      document.getElementById('movieDetailTitle').textContent = movie.title;
+      document.getElementById('movieDetailDirector').textContent = movie.director;
+      showModal('movieDetailModal');
+    }
+
+    function showSearchModal() {
+      showModal('searchModal');
+      setTimeout(() => {
+        document.querySelector('.search-input').focus();
+      }, 100);
+    }
+
+    function selectYear(el) {
+      document.querySelectorAll('#screen-stats .filter-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1500);
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', () => {
+        overlay.classList.remove('show');
+      });
+    });
   </script>
 
 </body>
