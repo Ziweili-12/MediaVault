@@ -36,11 +36,11 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
         setStep('confirm');
       } else {
         Alert.alert('未找到', '该条形码未找到对应专辑，请手动搜索');
-        setStep('search');
+        setStep('welcome');
       }
     } catch (error) {
       Alert.alert('扫描失败', '请重试或手动搜索');
-      setStep('search');
+      setStep('welcome');
     } finally {
       setLoading(false);
     }
@@ -125,7 +125,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
   };
 
   const resetForm = () => {
-    setStep('search');
+    setStep('welcome');
     setSearchQuery('');
     setSearchResults([]);
     setSelectedRelease(null);
@@ -156,7 +156,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
             <View style={styles.scanFullScreen}>
               <View style={styles.scanHeader}>
                 <Text style={styles.scanHeaderTitle}>扫描条形码</Text>
-                <TouchableOpacity onPress={() => { setStep('search'); setScanning(false); resetForm(); }}>
+                <TouchableOpacity onPress={() => { setStep('welcome'); setScanning(false); resetForm(); }}>
                   <Text style={styles.scanCancelBtn}>手动搜索</Text>
                 </TouchableOpacity>
               </View>
@@ -317,7 +317,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
           {step !== 'search' && (
             <TouchableOpacity
               style={styles.searchButton}
-              onPress={() => { setStep('search'); setScanning(false); resetForm(); }}
+              onPress={() => { setStep('welcome'); setScanning(false); resetForm(); }}
             >
               <Text style={styles.searchButtonText}>手动搜索</Text>
             </TouchableOpacity>
@@ -520,6 +520,67 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   scanButtonRowText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#0a84ff',
+  },
+  welcomeContainer: {
+    padding: 16,
+    paddingTop: 40,
+    alignItems: 'center',
+  },
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 6,
+  },
+  welcomeSub: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.55)',
+    marginBottom: 32,
+  },
+  welcomeOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1c1c1e',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 14,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  welcomeOptionIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  welcomeOptionEmoji: {
+    fontSize: 26,
+  },
+  welcomeOptionText: {
+    flex: 1,
+  },
+  welcomeOptionTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  welcomeOptionSub: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.45)',
+  },
+  searchTopBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  backBtn: {
     fontSize: 15,
     fontWeight: '500',
     color: '#0a84ff',
