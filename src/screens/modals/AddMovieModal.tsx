@@ -132,21 +132,24 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
             >
 
           {!selectedMovie && (
-            <>
-              <TextInput
-                style={styles.searchInput}
-                placeholder="搜索电影或剧集名称..."
-                placeholderTextColor="rgba(255,255,255,0.3)"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                onSubmitEditing={handleSearch}
-                autoFocus
-              />
-              {loading && <ActivityIndicator color="#0a84ff" />}
-              <FlatList
-                data={searchResults}
-                renderItem={({ item }) => (
+            <View style={styles.searchContainer}>
+              <View style={styles.searchHeadArea}>
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="搜索电影或剧集名称..."
+                  placeholderTextColor="rgba(255,255,255,0.3)"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  onSubmitEditing={handleSearch}
+                  autoFocus
+                />
+              </View>
+              <View style={styles.searchResultsArea}>
+                {loading && <ActivityIndicator color="#0a84ff" />}
+                <Text style={styles.searchCount}>{searchResults.length > 0 ? `找到 ${searchResults.length} 个结果` : ''}</Text>
+                {searchResults.map((item, index) => (
                   <TouchableOpacity
+                    key={index}
                     style={styles.searchResult}
                     onPress={() => handleSelectResult(item)}
                   >
@@ -159,11 +162,10 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
                       </Text>
                     </View>
                   </TouchableOpacity>
-                )}
-                keyExtractor={(item) => item.imdbID}
-              />
-            </>
-          )}
+                ))}
+              </View>
+            </View>
+          )}          )}
 
           {selectedMovie && (
             <>
