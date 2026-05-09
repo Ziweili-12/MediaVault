@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/notion/vinyls",
+      "dest": "/api/notion/vinyls.js"
+    },
+    {
+      "src": "/api/notion/movies",
+      "dest": "/api/notion/movies.js"
+    },
+    {
+      "src": "/api/notion/vinyls/add",
+      "dest": "/api/notion/vinyls/add.js"
+    },
+    {
+      "src": "/api/notion/movies/add",
+      "dest": "/api/notion/movies/add.js"
+    }
+  ]
+}

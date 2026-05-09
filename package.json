@@ -1,0 +1,12 @@
+{
+  "name": "mediavault",
+  "version": "1.0.0",
+  "description": "黑胶唱片与影视收藏管理应用",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.14"
+  }
+}
