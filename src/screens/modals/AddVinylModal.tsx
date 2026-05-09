@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { insertVinyl } from '../../database/database';
 import { searchDiscogsByBarcode, searchDiscogsByQuery, getDiscogsRelease } from '../../services/api';
@@ -13,7 +13,7 @@ interface Props {
 
 export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
   const [permission, requestPermission] = useCameraPermissions();
-  const [step, setStep] = useState<'scan' | 'search' | 'confirm'>('search');
+  const [step, setStep] = useState<'welcome' | 'scan' | 'search' | 'confirm'>('welcome');
   const [scanning, setScanning] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -36,11 +36,11 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
         setStep('confirm');
       } else {
         Alert.alert('未找到', '该条形码未找到对应专辑，请手动搜索');
-        setStep('welcome');
+        setStep('search');
       }
     } catch (error) {
       Alert.alert('扫描失败', '请重试或手动搜索');
-      setStep('welcome');
+      setStep('search');
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,6 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
 
     setLoading(true);
     try {
-      // 1. 保存到本地数据库
       const vinylData = {
         album_name: selectedRelease.title.split(' - ')[1] || selectedRelease.title,
         artist: selectedRelease.artists?.[0]?.name || 'Unknown',
@@ -96,7 +95,6 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
 
       const vinylId = await insertVinyl(vinylData);
 
-      // 2. 同步到Notion（可选）
       try {
         const notionProperties = formatVinylForNotion(vinylData);
         const pageId = await createNotionPage(
@@ -106,12 +104,11 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
         );
 
         if (pageId) {
-          // 更新本地记录的notion_page_id
           const { updateVinyl } = require('../../database/database');
           await updateVinyl(vinylId, { notion_page_id: pageId });
         }
       } catch (error) {
-        console.log('⚠️ Notion sync skipped:', error);
+        console.log('Notion sync skipped:', error);
       }
 
       Alert.alert('成功', '黑胶已添加');
@@ -145,186 +142,176 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                 <Text style={styles.closeButton}>取消</Text>
               </TouchableOpacity>
             </View>
-            <ScrollView
-              style={styles.scrollArea}
-              contentContainerStyle={styles.scrollContent}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-            >
 
-          {step === 'scan' && (
-            <View style={styles.scanFullScreen}>
-              <View style={styles.scanHeader}>
-                <Text style={styles.scanHeaderTitle}>扫描条形码</Text>
-                <TouchableOpacity onPress={() => { setStep('welcome'); setScanning(false); resetForm(); }}>
-                  <Text style={styles.scanCancelBtn}>手动搜索</Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.scanAreaBig} onTouchStart={async () => {
-                if (!permission?.granted) {
-                  const result = await requestPermission();
-                  if (!result.granted) {
-                    Alert.alert('需要相机权限', '请在设置中允许访问相机以扫描条形码');
-                    return;
-                  }
-                }
-                setScanning(true);
-              }}>
-                {scanning ? (
-                  <CameraView
-                    style={StyleSheet.absoluteFillObject}
-                    facing="back"
-                    onBarcodeScanned={handleBarCodeScanned}
-                    barcodeScannerSettings={{
-                      barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93'],
-                    }}
-                  />
-                ) : (
-                  <>
-                    <Text style={styles.scanIcon}>📷</Text>
-                    <Text style={styles.scanText}>点击扫描条形码</Text>
-                  </>
-                )}
-              </View>
-            </View>
-          )}
+            {(step === 'welcome') && (
+              <View style={styles.welcomeContainer}>
+                <Text style={styles.welcomeTitle}>添加黑胶唱片</Text>
+                <Text style={styles.welcomeSub}>选择添加方式</Text>
 
-          {step === 'search' && (
-            <>
-              <TextInput
-                style={styles.searchInput}
-                placeholder="搜索专辑名或艺术家..."
-                placeholderTextColor="rgba(255,255,255,0.3)"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                onSubmitEditing={handleSearch}
-                autoFocus
-              />
-              {loading && <ActivityIndicator color="#0a84ff" />}
-              {searchResults.length > 0 && !loading && (
                 <TouchableOpacity
-                  style={styles.scanButtonRow}
-                  onPress={() => { setStep('scan'); setScanning(false); }}
+                  style={styles.welcomeOption}
+                  onPress={() => setStep('search')}
+                  activeOpacity={0.8}
                 >
-                  <Text style={styles.scanButtonRowIcon}>📷</Text>
-                  <Text style={styles.scanButtonRowText}>扫描条形码</Text>
-                </TouchableOpacity>
-              )}
-              {searchResults.map((result, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.searchResult}
-                  onPress={() => handleSelectResult(result)}
-                >
-                  <View style={styles.resultThumb} />
-                  <View style={styles.resultInfo}>
-                    <Text style={styles.resultTitle}>{result.title}</Text>
-                    <Text style={styles.resultSubtitle}>
-                      {result.year} • {result.genres?.join(', ')}
-                    </Text>
+                  <View style={[styles.welcomeOptionIcon, { backgroundColor: '#0a84ff20' }]}>
+                    <Text style={styles.welcomeOptionEmoji}>🔍</Text>
+                  </View>
+                  <View style={styles.welcomeOptionText}>
+                    <Text style={styles.welcomeOptionTitle}>搜索添加</Text>
+                    <Text style={styles.welcomeOptionSub}>按专辑名或艺术家搜索</Text>
                   </View>
                 </TouchableOpacity>
-              ))}
-              {searchResults.length === 0 && !loading && (
+
                 <TouchableOpacity
-                  style={styles.scanButtonRow}
+                  style={styles.welcomeOption}
                   onPress={() => { setStep('scan'); setScanning(false); }}
+                  activeOpacity={0.8}
                 >
-                  <Text style={styles.scanButtonRowIcon}>📷</Text>
-                  <Text style={styles.scanButtonRowText}>扫描条形码添加</Text>
+                  <View style={[styles.welcomeOptionIcon, { backgroundColor: '#30d15820' }]}>
+                    <Text style={styles.welcomeOptionEmoji}>📷</Text>
+                  </View>
+                  <View style={styles.welcomeOptionText}>
+                    <Text style={styles.welcomeOptionTitle}>扫码添加</Text>
+                    <Text style={styles.welcomeOptionSub}>扫描黑胶条形码</Text>
+                  </View>
                 </TouchableOpacity>
-              )}
-            </>
-          )}
+              </View>
+            )}
 
-          {step === 'confirm' && selectedRelease && (
-            <>
-              <View style={styles.confirmSection}>
-                <Text style={styles.confirmLabel}>专辑名</Text>
-                <Text style={styles.confirmValue}>
-                  {selectedRelease.title.split(' - ')[1] || selectedRelease.title}
-                </Text>
-              </View>
-              <View style={styles.confirmSection}>
-                <Text style={styles.confirmLabel}>艺术家</Text>
-                <Text style={styles.confirmValue}>
-                  {selectedRelease.artists?.[0]?.name}
-                </Text>
-              </View>
-              <View style={styles.confirmSection}>
-                <Text style={styles.confirmLabel}>版本</Text>
-                <Text style={styles.confirmValue}>
-                  {selectedRelease.formats?.[0]?.descriptions?.join(', ') || 'N/A'}
-                </Text>
-              </View>
-
-              <View style={styles.confirmSection}>
-                <Text style={styles.confirmLabel}>购买日期</Text>
+            {(step === 'search') && (
+              <View style={{flex: 1}}>
+                <TouchableOpacity onPress={() => setStep('welcome')} style={styles.backRow}>
+                  <Text style={styles.backBtn}>← 返回</Text>
+                </TouchableOpacity>
                 <TextInput
-                  style={styles.input}
-                  placeholder="YYYY-MM-DD"
-                  value={purchaseDate}
-                  onChangeText={setPurchaseDate}
+                  style={styles.searchInput}
+                  placeholder="搜索专辑名或艺术家..."
                   placeholderTextColor="rgba(255,255,255,0.3)"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  onSubmitEditing={handleSearch}
+                  autoFocus
                 />
+                {loading && <ActivityIndicator color="#0a84ff" />}
+                {searchResults.map((result, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.searchResult}
+                    onPress={() => handleSelectResult(result)}
+                  >
+                    <View style={styles.resultThumb} />
+                    <View style={styles.resultInfo}>
+                      <Text style={styles.resultTitle}>{result.title}</Text>
+                      <Text style={styles.resultSubtitle}>
+                        {result.year} • {result.genres?.join(', ')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
               </View>
+            )}
 
-              <View style={styles.confirmSection}>
-                <Text style={styles.confirmLabel}>价格</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="0.00"
-                  value={price}
-                  onChangeText={setPrice}
-                  keyboardType="numeric"
-                  placeholderTextColor="rgba(255,255,255,0.3)"
-                />
+            {(step === 'scan') && (
+              <View style={styles.scanFullScreen}>
+                <View style={styles.scanHeader}>
+                  <Text style={styles.scanHeaderTitle}>扫描条形码</Text>
+                  <TouchableOpacity onPress={() => setStep('welcome')}>
+                    <Text style={styles.scanCancelBtn}>返回</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.scanAreaBig} onTouchStart={async () => {
+                  if (!permission?.granted) {
+                    const result = await requestPermission();
+                    if (!result.granted) {
+                      Alert.alert('需要相机权限', '请在设置中允许访问相机以扫描条形码');
+                      return;
+                    }
+                  }
+                  setScanning(true);
+                }}>
+                  {scanning ? (
+                    <CameraView
+                      style={StyleSheet.absoluteFillObject}
+                      facing="back"
+                      onBarcodeScanned={handleBarCodeScanned}
+                      barcodeScannerSettings={{
+                        barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93'],
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <Text style={styles.scanIcon}>📷</Text>
+                      <Text style={styles.scanText}>点击扫描条形码</Text>
+                    </>
+                  )}
+                </View>
               </View>
+            )}
 
-              <View style={styles.confirmSection}>
-                <Text style={styles.confirmLabel}>个人评分 (1-5)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="0"
-                  value={personalRating}
-                  onChangeText={setPersonalRating}
-                  keyboardType="numeric"
-                  maxLength={1}
-                  placeholderTextColor="rgba(255,255,255,0.3)"
-                />
-              </View>
-            </>
-          )}
+            {(step === 'confirm') && selectedRelease && (
+              <>
+                <View style={styles.confirmSection}>
+                  <Text style={styles.confirmLabel}>专辑名</Text>
+                  <Text style={styles.confirmValue}>
+                    {selectedRelease.title.split(' - ')[1] || selectedRelease.title}
+                  </Text>
+                </View>
+                <View style={styles.confirmSection}>
+                  <Text style={styles.confirmLabel}>艺术家</Text>
+                  <Text style={styles.confirmValue}>
+                    {selectedRelease.artists?.[0]?.name}
+                  </Text>
+                </View>
+                <View style={styles.confirmSection}>
+                  <Text style={styles.confirmLabel}>购买日期</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    value={purchaseDate}
+                    onChangeText={setPurchaseDate}
+                  />
+                </View>
+                <View style={styles.confirmSection}>
+                  <Text style={styles.confirmLabel}>价格</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="0.00"
+                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    value={price}
+                    onChangeText={setPrice}
+                    keyboardType="numeric"
+                  />
+                </View>
+                <View style={styles.confirmSection}>
+                  <Text style={styles.confirmLabel}>个人评分 (1-5)</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="0"
+                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    value={personalRating}
+                    onChangeText={setPersonalRating}
+                    keyboardType="numeric"
+                  />
+                </View>
+              </>
+            )}
 
-          {step === 'confirm' && (
-            <TouchableOpacity
-              style={[styles.saveButton, loading && styles.saveButtonDisabled]}
-              onPress={handleSave}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.saveButtonText}>确认添加</Text>
-              )}
-            </TouchableOpacity>
-          )}
-
-          {step === 'scan' && (
-            <Text style={styles.divider}>或</Text>
-          )}
-
-          {step !== 'search' && (
-            <TouchableOpacity
-              style={styles.searchButton}
-              onPress={() => { setStep('welcome'); setScanning(false); resetForm(); }}
-            >
-              <Text style={styles.searchButtonText}>手动搜索</Text>
-            </TouchableOpacity>
-          )}
-        </ScrollView>
+            {(step === 'confirm') && selectedRelease && (
+              <TouchableOpacity
+                style={[styles.saveButton, loading && styles.saveButtonDisabled]}
+                onPress={handleSave}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.saveButtonText}>保存</Text>
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-      </View>
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -580,16 +567,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  backRow: {
+    marginBottom: 8,
+  },
   backBtn: {
     fontSize: 15,
     fontWeight: '500',
     color: '#0a84ff',
-  },
-  scrollArea: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 20,
   },
 
 });
