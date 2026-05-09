@@ -75,32 +75,62 @@
     .quick-action-btn.add-movie { color: #f472b6; }
     .quick-action-btn span { font-size: 14px; font-weight: 500; }
 
-    /* Recommendations */
-    .recommend-card {
+    /* Recommendations Section */
+    .recommend-section {
       margin: 0 20px 24px;
-      background: linear-gradient(145deg, rgba(60,50,80,0.5) 0%, rgba(40,35,60,0.5) 100%);
+      background: linear-gradient(145deg, rgba(35,35,45,0.6) 0%, rgba(25,25,35,0.6) 100%);
       border-radius: 20px;
       padding: 16px;
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.06);
     }
-    .recommend-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .recommend-title { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: #fbbf24; }
-    .recommend-reason { font-size: 12px; color: rgba(255,255,255,0.4); }
-    .recommend-items { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+    .recommend-section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .recommend-section-title svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .recommend-section-title.music { color: #8b5cf6; }
+    .recommend-section-title.movie { color: #f472b6; }
+
+    .recommend-category {
+      margin-bottom: 16px;
+    }
+    .recommend-category:last-child { margin-bottom: 0; }
+    .recommend-category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .recommend-category-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+    }
+    .recommend-category-subtitle {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .recommend-items { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
     .recommend-items::-webkit-scrollbar { display: none; }
     .recommend-item {
       flex-shrink: 0;
       cursor: pointer;
       transition: transform 0.2s;
-      background: rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.25);
       border-radius: 12px;
       padding: 10px;
-      min-width: 110px;
+      min-width: 100px;
+      border: 1px solid rgba(255,255,255,0.05);
     }
     .recommend-item:active { transform: scale(0.95); }
     .recommend-cover {
-      width: 90px;
+      width: 80px;
       aspect-ratio: 1;
       border-radius: 10px;
       display: flex;
@@ -118,16 +148,36 @@
       top: 0; left: 0; right: 0; bottom: 0;
       background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
     }
-    .recommend-name { font-size: 13px; font-weight: 500; max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .recommend-artist { font-size: 11px; color: rgba(255,255,255,0.5); max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .recommend-name { font-size: 12px; font-weight: 500; max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .recommend-artist { font-size: 11px; color: rgba(255,255,255,0.5); max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .recommend-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+    }
     .recommend-tag {
-      display: inline-block;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+    .recommend-tag.genre {
+      color: #8b5cf6;
+      background: rgba(139,92,246,0.15);
+    }
+    .recommend-tag.era {
+      color: #f472b6;
+      background: rgba(244,114,182,0.15);
+    }
+    .recommend-tag.similar {
+      color: #0a84ff;
+      background: rgba(10,132,255,0.15);
+    }
+    .recommend-score {
       font-size: 10px;
       color: #fbbf24;
-      background: rgba(251,191,36,0.15);
-      padding: 2px 8px;
-      border-radius: 10px;
-      margin-top: 6px;
+      font-weight: 600;
     }
 
     /* Module Cards */
