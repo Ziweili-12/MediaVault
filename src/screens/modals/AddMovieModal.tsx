@@ -146,7 +146,7 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
               </View>
               <View style={styles.searchResultsArea}>
                 {loading && <ActivityIndicator color="#0a84ff" />}
-                {searchResults.length > 0 && <Text style={styles.searchCount}>找到 {searchResults.length} 个结果</Text>}
+                {searchResults.length > 0 ? <Text style={styles.searchCount}>找到 {searchResults.length} 个结果</Text> : null}
                 {searchResults.map((item, index) => (
                   <TouchableOpacity
                     key={index}

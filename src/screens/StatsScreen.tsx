@@ -77,7 +77,8 @@ export default function StatsScreen() {
               <Text style={[styles.chartTitle, { color: c.secondary }]}>月度购买趋势 · 2026</Text>
               <View style={styles.chartBars}>
                 {monthlyData.map((value, index) => (
-                  <View key={index} style={styles.chartBarWrapper}>
+                  <TouchableOpacity key={index} style={styles.chartBarWrapper} activeOpacity={0.7} onPress={() => {}}>
+                    <Text style={styles.chartValueLabel}>{value}</Text>
                     <View style={[
                       styles.chartBar,
                       { height: `${(value / maxValue) * 100}%` },
@@ -86,7 +87,7 @@ export default function StatsScreen() {
                     <Text style={[styles.chartBarLabel, { color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }]}>
                       {index + 1}月
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </View>
             </View>
@@ -160,9 +161,15 @@ const styles = StyleSheet.create({
   chartTitle: { fontSize: 15, fontWeight: '600', marginBottom: 28, letterSpacing: -0.2 },
   chartBars: {
     flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'flex-end', height: 160, gap: 12,
+    alignItems: 'flex-end', height: 200, gap: 14,
   },
   chartBarWrapper: { flex: 1, alignItems: 'center', height: '100%', justifyContent: 'flex-end' },
+  chartValueLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#0a84ff',
+    marginBottom: 4,
+  },
   chartBar: {
     width: '100%', backgroundColor: '#0a84ff',
     borderRadius: 3, minHeight: 8,
