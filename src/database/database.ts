@@ -191,6 +191,68 @@ export const getMovieStats = async (): Promise<{
   return result as any;
 };
 
+// ============= 带时间筛选的统计查询 =============
+
+export const getVinylStatsFiltered = async (year?: number): Promise<{
+  total: number;
+  totalSpent: number;
+  artistCount: number;
+}> => {
+  const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+  
+  const yearFilter = year ? `WHERE strftime('%Y', purchase_date) = '${year}'` : '';
+  
+  const result = await db.getFirstAsync(`
+    SELECT 
+      COUNT(*) as total,
+      COALESCE(SUM(price), 0) as totalSpent,
+      COUNT(DISTINCT artist) as artistCount
+    FROM vinyls
+    ${yearFilter}
+  `);
+  
+  return result as any;
+};
+
+export const getMovieStatsFiltered = async (year?: number): Promise<{
+  total: number;
+  movieCount: number;
+  seriesCount: number;
+}> => {
+  const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+  
+  const yearFilter = year ? `WHERE strftime('%Y', watch_date) = '${year}'` : '';
+  
+  const result = await db.getFirstAsync(`
+    SELECT 
+      COUNT(*) as total,
+      SUM(CASE WHEN type = 'movie' THEN 1 ELSE 0 END) as movieCount,
+      SUM(CASE WHEN type = 'series' THEN 1 ELSE 0 END) as seriesCount
+    FROM movies
+    ${yearFilter}
+  `);
+  
+  return result as any;
+};
+
+export const getVinylMonthlyData = async (year?: number): Promise<{ month: number; count: number }[]> => {
+  const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+  
+  const yearFilter = year ? `WHERE purchase_date IS NOT NULL AND strftime('%Y', purchase_date) = '${year}'` : 'WHERE purchase_date IS NOT NULL';
+  
+  const result = await db.getAllAsync(`
+    SELECT 
+      CAST(strftime('%m', purchase_date) AS INTEGER) as month,
+      COUNT(*) as count
+    FROM vinyls
+    ${yearFilter}
+    GROUP BY strftime('%m', purchase_date)
+    ORDER BY month
+  `);
+  
+  return result as any;
+};
+
 // ============= 同步相关 =============
 
 export const getUnsyncedRecords = async (table: 'vinyls' | 'movies'): Promise<any[]> => {

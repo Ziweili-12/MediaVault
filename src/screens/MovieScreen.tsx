@@ -61,7 +61,7 @@ export default function MovieScreen() {
       activeOpacity={0.8}
     >
       <View style={[styles.movieInner, { backgroundColor: c.card }]}>
-        <Text style={styles.movieEmoji}>{item.poster_url ? null : '🎬'}</Text>
+        {!item.poster_url && <Text style={styles.movieEmoji}>🎬</Text>}
       </View>
       <View style={styles.movieTitle}>
         <Text style={styles.titleText} numberOfLines={2}>{item.title}</Text>

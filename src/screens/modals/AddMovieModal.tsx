@@ -157,8 +157,8 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
                     <View style={styles.resultInfo}>
                       <Text style={styles.resultTitle}>{item.Title}</Text>
                       <Text style={styles.resultSubtitle}>
-                        {item.Year} • {item.Type === 'movie' ? '电影' : '剧集'}
-                        {item.imdbRating ? ' • IMDb ' + item.imdbRating : null}
+                        {item.Year} · {item.Type === 'movie' ? '电影' : '剧集'}
+                        {item.imdbRating ? <Text> · IMDb {item.imdbRating}</Text> : null}
                       </Text>
                     </View>
                   </TouchableOpacity>
