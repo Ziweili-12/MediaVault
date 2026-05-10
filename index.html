@@ -1932,97 +1932,46 @@
         return;
       }
       
-      // Create vinyl collection item
-      const vinylItem = {
-        id: Date.now(),
-        title: selectedVinylPreview.title,
-        artist: selectedVinylPreview.artist,
-        releaseDate: selectedVinylPreview.releaseDate,
-        country: selectedVinylPreview.country,
-        format: selectedVinylPreview.format,
-        formatText: selectedVinylPreview.formatText || '',
-        barcode: selectedVinylPreview.barcode,
-        discogsUrl: selectedVinylPreview.discogsUrl,
-        coverImage: selectedVinylPreview.coverImage,
-        label: selectedVinylPreview.label || '',
-        genre: selectedVinylPreview.genre || '',
-        style: selectedVinylPreview.style || '',
-        purchaseDate: purchaseDate,
-        purchasePrice: purchasePrice,
-        purchaseSource: purchaseSource,
-        purchaseNote: purchaseNote,
-        addedAt: new Date().toISOString()
-      };
+      showToast('⏳ 正在保存...');
       
-      // Save to localStorage first
       try {
-        let vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
-        vinyls.push(vinylItem);
-        localStorage.setItem('vinyls', JSON.stringify(vinyls));
-      } catch (error) {
-        console.error('本地存储失败:', error);
-      }
-      
-      // Show loading state
-      showToast('⏳ 正在同步到 Notion...');
-      
-      // Try to save to Notion
-      try {
-        const response = await fetch('/api/notion/add-vinyl', {
+        const response = await fetch('/api/tidb/vinyls', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${NOTION_TOKEN}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            databaseId: '35bc85a71b1480d19336fae70cf532a3',
-            vinyl: vinylItem
+            title: selectedVinylPreview.title,
+            artist: selectedVinylPreview.artist,
+            release_date: selectedVinylPreview.releaseDate || null,
+            format: selectedVinylPreview.format || '',
+            cover_image: selectedVinylPreview.coverImage || '',
+            purchase_date: purchaseDate,
+            purchase_price: purchasePrice ? parseFloat(purchasePrice) : null,
+            rating: null,
+            barcode: selectedVinylPreview.barcode || '',
+            genre: selectedVinylPreview.genre || ''
           })
         });
         
         const result = await response.json();
         
         if (result.success) {
-          // Close modal and show success message
           hideModal('vinylPurchaseModal');
-          showToast('✅ 添加成功！已同步到 Notion');
+          showToast('✅ 添加成功！');
           
-          // Reset selection
           selectedVinylPreview = null;
           selectedVinylVersion = null;
           
-          // Refresh the collection
           if (typeof loadVinylCollection === 'function') {
             loadVinylCollection();
           }
         } else {
-          // Notion failed but local succeeded
-          hideModal('vinylPurchaseModal');
-          showToast('⚠️ 已保存到本地，Notion 同步失败');
-          
-          // Reset selection
-          selectedVinylPreview = null;
-          selectedVinylVersion = null;
-          
-          // Refresh the collection
-          if (typeof loadVinylCollection === 'function') {
-            loadVinylCollection();
-          }
+          showToast('⚠️ 保存失败: ' + result.error);
         }
       } catch (error) {
-        console.error('Notion API Error:', error);
-        // Notion failed but local succeeded
-        hideModal('vinylPurchaseModal');
-        showToast('⚠️ 已保存到本地，Notion 同步失败');
-        
-        // Reset selection
-        selectedVinylPreview = null;
-        selectedVinylVersion = null;
-        
-        // Refresh the collection
-        if (typeof loadVinylCollection === 'function') {
-          loadVinylCollection();
-        }
+        console.error('保存失败:', error);
+        showToast('⚠️ 保存失败，请重试');
       }
     }
 
@@ -2183,74 +2132,45 @@
       const rating = document.getElementById('movieRating').value;
       const note = document.getElementById('movieWatchNote').value;
       
-      // Create movie collection item
-      const movieItem = {
-        id: Date.now(),
-        imdbID: selectedMoviePreview.imdbID,
-        title: selectedMoviePreview.title,
-        year: selectedMoviePreview.year,
-        director: selectedMoviePreview.director,
-        genre: selectedMoviePreview.genre,
-        runtime: selectedMoviePreview.runtime,
-        plot: selectedMoviePreview.plot,
-        actors: selectedMoviePreview.actors,
-        country: selectedMoviePreview.country,
-        language: selectedMoviePreview.language,
-        imdbRating: selectedMoviePreview.imdbRating,
-        poster: selectedMoviePreview.poster,
-        watchDate: watchDate,
-        watchMethod: watchMethod,
-        myRating: rating,
-        note: note,
-        addedAt: new Date().toISOString()
-      };
+      showToast('⏳ 正在保存...');
       
-      // Save to localStorage
-      let movies = JSON.parse(localStorage.getItem('movies') || '[]');
-      movies.push(movieItem);
-      localStorage.setItem('movies', JSON.stringify(movies));
-      
-      // Close modal and show loading
-      hideModal('moviePurchaseModal');
-      showToast('⏳ 正在同步到 Notion...');
-      
-      // Try to sync to Notion
       try {
-        const response = await fetch('/api/notion/movies/add', {
+        const response = await fetch('/api/tidb/movies', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${NOTION_TOKEN}`,
-            'X-Database-Id': '35bc85a71b148041bc8ad7289bdea2ac'
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            title: movieItem.title,
-            type: 'Movie',
-            director: movieItem.director,
-            year: movieItem.year ? parseInt(movieItem.year) : null,
-            genres: movieItem.genre ? movieItem.genre.split(',').map(g => g.trim()) : [],
-            myRating: movieItem.myRating ? parseInt(movieItem.myRating) : null,
-            imdbRating: movieItem.imdbRating ? parseFloat(movieItem.imdbRating) : null,
-            watchedDate: movieItem.watchDate
+            title: selectedMoviePreview.title,
+            director: selectedMoviePreview.director || '',
+            release_date: selectedMoviePreview.year ? selectedMoviePreview.year + '-01-01' : null,
+            type: selectedMoviePreview.type === 'series' ? 'Series' : 'Movie',
+            poster_url: selectedMoviePreview.poster || '',
+            imdb_id: selectedMoviePreview.imdbID || '',
+            my_rating: rating ? parseInt(rating) : null,
+            watch_date: watchDate || null,
+            genre: selectedMoviePreview.genre || '',
+            country: selectedMoviePreview.country || '',
+            runtime: selectedMoviePreview.runtime ? parseInt(selectedMoviePreview.runtime) : null,
+            plot: selectedMoviePreview.plot || ''
           })
         });
         
         const result = await response.json();
         
         if (result.success) {
-          showToast('✅ 添加成功！已同步到 Notion');
+          hideModal('moviePurchaseModal');
+          showToast('✅ 添加成功！');
         } else {
-          showToast('⚠️ 已保存到本地，Notion 同步失败');
+          showToast('⚠️ 保存失败: ' + result.error);
         }
       } catch (error) {
-        console.error('Notion sync error:', error);
-        showToast('⚠️ 已保存到本地，Notion 同步失败');
+        console.error('保存失败:', error);
+        showToast('⚠️ 保存失败，请重试');
       }
       
-      // Reset selection
       selectedMoviePreview = null;
       
-      // Refresh movie collection
       if (typeof loadMovieCollection === 'function') {
         loadMovieCollection();
       }
@@ -2261,28 +2181,22 @@
       try {
         let vinyls = [];
         
-        // Try to fetch from Notion API
         try {
-          const response = await fetch('/api/notion/get-vinyls?databaseId=35bc85a71b1480d19336fae70cf532a3');
+          const response = await fetch('/api/tidb/vinyls');
           const result = await response.json();
           
-          if (result.success && result.vinyls) {
-            vinyls = result.vinyls;
-            // Also update localStorage
-            localStorage.setItem('vinyls', JSON.stringify(vinyls));
+          if (result.success && result.data) {
+            vinyls = result.data;
           } else {
-            // Fallback to localStorage
             vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
           }
         } catch (error) {
-          console.error('Notion API Error:', error);
-          // Fallback to localStorage
+          console.error('加载失败:', error);
           vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
         }
         
         window.vinyls = vinyls;
         
-        // Update the vinyl display if on vinyl page
         const vinylGrid = document.getElementById('vinylGrid');
         if (vinylGrid) {
           renderVinylGrid(vinyls);
@@ -2293,6 +2207,65 @@
         console.error('加载收藏失败:', error);
         return [];
       }
+    }
+    
+    // Load movie collection from TiDB
+    async function loadMovieCollection() {
+      try {
+        let movies = [];
+        
+        try {
+          const response = await fetch('/api/tidb/movies');
+          const result = await response.json();
+          
+          if (result.success && result.data) {
+            movies = result.data;
+          } else {
+            movies = JSON.parse(localStorage.getItem('movies') || '[]');
+          }
+        } catch (error) {
+          console.error('加载失败:', error);
+          movies = JSON.parse(localStorage.getItem('movies') || '[]');
+        }
+        
+        window.movies = movies;
+        
+        const movieGrid = document.getElementById('movieGrid');
+        if (movieGrid) {
+          renderMovieGrid(movies);
+        }
+        
+        return movies;
+      } catch (error) {
+        console.error('加载收藏失败:', error);
+        return [];
+      }
+    }
+    
+    // Render movie grid
+    function renderMovieGrid(movies) {
+      const movieGrid = document.getElementById('movieGrid');
+      if (!movieGrid) return;
+      
+      if (movies.length === 0) {
+        movieGrid.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);">暂无收藏<br>开始添加您的第一部电影吧！</div>';
+        return;
+      }
+      
+      movieGrid.innerHTML = movies.map((movie, index) => {
+        return `
+          <div class="vinyl-item" onclick="showMovieDetail(${index})">
+            <div class="vinyl-cover" style="background:linear-gradient(145deg,#3a2a4a 0%,#2a1a3a 100%);">
+              ${movie.poster_url && movie.poster_url !== 'N/A' ? `<img src="${movie.poster_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : '<svg viewBox="0 0 100 100" style="width:60%;height:60%;"><rect x="15" y="25" width="70" height="50" rx="3" fill="none" stroke="currentColor" stroke-width="3"/></svg>'}
+            </div>
+            <div class="vinyl-info">
+              <div class="vinyl-title">${movie.title}</div>
+              <div class="vinyl-artist">${movie.director || ''}</div>
+              ${movie.release_date ? `<div class="vinyl-date">${movie.release_date}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
     }
     
     // Render vinyl grid
@@ -2312,12 +2285,12 @@
         return `
           <div class="vinyl-item" onclick="showVinylDetail(${index})">
             <div class="vinyl-cover">
-              ${vinyl.coverImage ? `<img src="${vinyl.coverImage}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : '<svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>'}
+              ${vinyl.cover_image ? `<img src="${vinyl.cover_image}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : '<svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>'}
             </div>
             <div class="vinyl-info">
               <div class="vinyl-title">${vinyl.title}</div>
               <div class="vinyl-artist">${vinyl.artist}</div>
-              ${vinyl.purchaseDate ? `<div class="vinyl-date">${vinyl.purchaseDate}</div>` : ''}
+              ${vinyl.purchase_date ? `<div class="vinyl-date">${vinyl.purchase_date}</div>` : ''}
             </div>
           </div>
         `;
@@ -2325,7 +2298,7 @@
     }
     
     function showVinylDetail(index) {
-      const vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
+      const vinyls = window.vinyls || [];
       if (vinyls.length === 0 || !vinyls[index]) {
         showToast('未找到该收藏');
         return;
@@ -2338,40 +2311,34 @@
       document.getElementById('vinylDetailTitle').textContent = vinyl.title;
       document.getElementById('vinylDetailArtist').textContent = vinyl.artist;
       
-      // Update detail content if the element exists
       const detailContent = document.getElementById('vinylDetailContent');
       if (detailContent) {
         detailContent.innerHTML = `
           <div style="display:flex;gap:16px;margin-bottom:16px;">
             <div style="width:100px;height:100px;background:linear-gradient(145deg,#2a2a4a 0%,#1a1a3a 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
-              ${vinyl.coverImage ? `<img src="${vinyl.coverImage}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : '<svg viewBox="0 0 100 100" style="width:60%;height:60%;"><circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="2"/></svg>'}
+              ${vinyl.cover_image ? `<img src="${vinyl.cover_image}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : '<svg viewBox="0 0 100 100" style="width:60%;height:60%;"><circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="2"/></svg>'}
             </div>
             <div style="flex:1;">
               <div style="font-size:16px;font-weight:600;margin-bottom:8px;">${vinyl.title}</div>
               <div style="font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:8px;">${vinyl.artist}</div>
               <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                ${vinyl.releaseDate ? `<span class="detail-tag">${vinyl.releaseDate}</span>` : ''}
+                ${vinyl.release_date ? `<span class="detail-tag">${vinyl.release_date}</span>` : ''}
                 ${formatLabel ? `<span style="font-size:11px;padding:3px 8px;background:${formatColor.bg};color:${formatColor.text};border-radius:8px;font-weight:600;">${formatLabel}</span>` : ''}
-                ${vinyl.formatText ? `<span style="font-size:11px;padding:3px 8px;background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:8px;font-weight:600;">${vinyl.formatText}</span>` : ''}
               </div>
             </div>
           </div>
           
           <div class="detail-meta-row">
-            ${vinyl.releaseDate ? `<div class="row"><span class="label">发行日期</span><span>${vinyl.releaseDate}</span></div>` : ''}
-            ${vinyl.country ? `<div class="row"><span class="label">国家</span><span>${vinyl.country}</span></div>` : ''}
-            ${vinyl.label ? `<div class="row"><span class="label">唱片公司</span><span>${vinyl.label}</span></div>` : ''}
+            ${vinyl.release_date ? `<div class="row"><span class="label">发行日期</span><span>${vinyl.release_date}</span></div>` : ''}
             ${vinyl.genre ? `<div class="row"><span class="label">风格</span><span>${vinyl.genre}</span></div>` : ''}
             ${vinyl.barcode ? `<div class="row"><span class="label">条形码</span><span class="barcode-value">${vinyl.barcode}</span></div>` : ''}
           </div>
           
-          ${vinyl.purchaseDate || vinyl.purchasePrice || vinyl.purchaseSource ? `
+          ${vinyl.purchase_date || vinyl.purchase_price ? `
           <div style="margin-top:16px;padding:12px;background:#2c2c2e;border-radius:12px;">
             <div style="font-size:14px;font-weight:600;margin-bottom:12px;">购买信息</div>
-            ${vinyl.purchaseDate ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:6px;">📅 购买日期：${vinyl.purchaseDate}</div>` : ''}
-            ${vinyl.purchasePrice ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:6px;">💰 购买金额：¥${vinyl.purchasePrice}</div>` : ''}
-            ${vinyl.purchaseSource ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:6px;">🛒 购买渠道：${vinyl.purchaseSource}</div>` : ''}
-            ${vinyl.purchaseNote ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);">📝 备注：${vinyl.purchaseNote}</div>` : ''}
+            ${vinyl.purchase_date ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:6px;">📅 购买日期：${vinyl.purchase_date}</div>` : ''}
+            ${vinyl.purchase_price ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:6px;">💰 购买金额：¥${vinyl.purchase_price}</div>` : ''}
           </div>
           ` : ''}
         `;
@@ -2380,7 +2347,18 @@
       showModal('vinylDetailModal');
     }
     
-    function showMovieDetail(index) { document.getElementById('movieDetailTitle').textContent = movies[index].title; document.getElementById('movieDetailDirector').textContent = movies[index].director; showModal('movieDetailModal'); }
+    function showMovieDetail(index) {
+      const movies = window.movies || [];
+      if (movies.length === 0 || !movies[index]) {
+        showToast('未找到该收藏');
+        return;
+      }
+      
+      const movie = movies[index];
+      document.getElementById('movieDetailTitle').textContent = movie.title;
+      document.getElementById('movieDetailDirector').textContent = movie.director || '';
+      showModal('movieDetailModal');
+    }
     function showToast(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
     document.querySelectorAll('.modal-overlay').forEach(overlay => { overlay.addEventListener('click', () => { overlay.classList.remove('show'); }); });
 

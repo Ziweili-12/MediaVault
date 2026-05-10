@@ -1,13 +1,14 @@
 {
   "name": "mediavault-api",
   "version": "1.0.0",
-  "description": "MediaVault Notion API Functions",
+  "description": "MediaVault API Functions",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@notionhq/client": "^2.2.14"
+    "@notionhq/client": "^2.2.14",
+    "mysql2": "^3.6.0"
   },
   "engines": {
     "node": ">=16.0.0"
