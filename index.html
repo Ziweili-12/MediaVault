@@ -1208,20 +1208,60 @@
   <div class="modal-overlay" id="vinylPreviewModal">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
-      <div class="modal-title">专辑详情</div>
+      <div class="modal-title" id="vinylPreviewTitle">专辑详情</div>
       
       <div id="vinylPreviewContent">
         <!-- Dynamic content will be inserted here -->
       </div>
+    </div>
+  </div>
+
+  <!-- VINYL VERSION SELECT MODAL -->
+  <div class="modal-overlay" id="vinylVersionModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">选择版本</div>
       
-      <div style="display:flex;gap:10px;margin-top:16px;">
-        <button class="submit-btn" style="flex:1;margin:0;" onclick="confirmAddVinyl()">
-          ✓ 添加到收藏
-        </button>
-        <button class="submit-btn" style="flex:1;margin:0;background:#2c2c2e;" onclick="hideModal('vinylPreviewModal')">
-          返回
-        </button>
+      <div id="vinylVersionContent">
+        <!-- Dynamic content will be inserted here -->
       </div>
+      
+      <button class="submit-btn" style="background:#2c2c2e;margin-top:10px;" onclick="hideModal('vinylVersionModal'); showModal('vinylPreviewModal')">返回</button>
+    </div>
+  </div>
+
+  <!-- VINYL PURCHASE INFO MODAL -->
+  <div class="modal-overlay" id="vinylPurchaseModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">补充购买信息</div>
+      
+      <div id="vinylPurchaseContent">
+        <!-- Dynamic content will be inserted here -->
+      </div>
+      
+      <form id="vinylPurchaseForm" onsubmit="event.preventDefault(); saveVinylWithPurchase();">
+        <div class="form-group">
+          <label class="form-label">购买日期</label>
+          <input type="date" class="form-input" id="vinylPurchaseDate" value="">
+        </div>
+        <div class="form-group">
+          <label class="form-label">购买金额 (¥)</label>
+          <input type="number" class="form-input" id="vinylPurchasePrice" placeholder="例如：298" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">购买渠道</label>
+          <input type="text" class="form-input" id="vinylPurchaseSource" placeholder="例如：京东、海外代购">
+        </div>
+        <div class="form-group">
+          <label class="form-label">备注</label>
+          <input type="text" class="form-input" id="vinylPurchaseNote" placeholder="其他备注信息">
+        </div>
+        
+        <button type="submit" class="submit-btn">✓ 添加到收藏</button>
+      </form>
+      
+      <button class="submit-btn" style="background:#2c2c2e;margin-top:10px;" onclick="hideModal('vinylPurchaseModal'); showModal('vinylVersionModal')">返回</button>
     </div>
   </div>
 
@@ -1229,20 +1269,60 @@
   <div class="modal-overlay" id="moviePreviewModal">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
-      <div class="modal-title">电影详情</div>
+      <div class="modal-title" id="moviePreviewTitle">电影详情</div>
       
       <div id="moviePreviewContent">
         <!-- Dynamic content will be inserted here -->
       </div>
+    </div>
+  </div>
+
+  <!-- MOVIE PURCHASE INFO MODAL -->
+  <div class="modal-overlay" id="moviePurchaseModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">补充观看信息</div>
       
-      <div style="display:flex;gap:10px;margin-top:16px;">
-        <button class="submit-btn" style="flex:1;margin:0;" onclick="confirmAddMovie()">
-          ✓ 添加到收藏
-        </button>
-        <button class="submit-btn" style="flex:1;margin:0;background:#2c2c2e;" onclick="hideModal('moviePreviewModal')">
-          返回
-        </button>
+      <div id="moviePurchaseContent">
+        <!-- Dynamic content will be inserted here -->
       </div>
+      
+      <form id="moviePurchaseForm" onsubmit="event.preventDefault(); saveMovieWithPurchase();">
+        <div class="form-group">
+          <label class="form-label">观看日期</label>
+          <input type="date" class="form-input" id="movieWatchDate" value="">
+        </div>
+        <div class="form-group">
+          <label class="form-label">观看方式</label>
+          <select class="form-input" id="movieWatchMethod">
+            <option value="cinema">影院</option>
+            <option value="streaming">流媒体</option>
+            <option value="bluray">蓝光碟</option>
+            <option value="dvd">DVD</option>
+            <option value="download">下载</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">我的评分</label>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <span class="detail-tag" style="cursor:pointer;" onclick="setMovieRating(1)">⭐</span>
+            <span class="detail-tag" style="cursor:pointer;" onclick="setMovieRating(2)">⭐⭐</span>
+            <span class="detail-tag" style="cursor:pointer;" onclick="setMovieRating(3)">⭐⭐⭐</span>
+            <span class="detail-tag" style="cursor:pointer;" onclick="setMovieRating(4)">⭐⭐⭐⭐</span>
+            <span class="detail-tag" style="cursor:pointer;" onclick="setMovieRating(5)">⭐⭐⭐⭐⭐</span>
+          </div>
+          <input type="hidden" id="movieRating" value="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">备注</label>
+          <input type="text" class="form-input" id="movieWatchNote" placeholder="其他备注信息">
+        </div>
+        
+        <button type="submit" class="submit-btn">✓ 添加到收藏</button>
+      </form>
+      
+      <button class="submit-btn" style="background:#2c2c2e;margin-top:10px;" onclick="hideModal('moviePurchaseModal'); showModal('moviePreviewModal')">返回</button>
     </div>
   </div>
 
@@ -1490,7 +1570,7 @@
         const data = await response.json();
         
         if (data.Response === 'True' && data.Search && data.Search.length > 0) {
-          const results = data.Search.map(item => ({
+          currentMovieResults = data.Search.map(item => ({
             imdbID: item.imdbID,
             title: item.Title,
             year: item.Year,
@@ -1498,7 +1578,7 @@
             poster: item.Poster
           }));
 
-          renderMovieSearchResults('movieSearchResults', results);
+          renderMovieSearchResults('movieSearchResults', currentMovieResults);
         } else {
           container.innerHTML = '<div class="search-result-subtitle" style="padding:12px;text-align:center;">未找到相关电影</div>';
         }
@@ -1610,6 +1690,7 @@
     let currentMovieResults = [];
     let selectedVinylPreview = null;
     let selectedMoviePreview = null;
+    let selectedVinylVersion = null;
 
     // Select Search Result
     function selectVinyl(index, sourceId) {
@@ -1630,6 +1711,7 @@
     // Show Vinyl Preview Modal
     function showVinylPreview(item) {
       const container = document.getElementById('vinylPreviewContent');
+      document.getElementById('vinylPreviewTitle').textContent = item.title;
       const formatLabel = item.format ? getFormatLabel(item.format) : '';
       const formatColor = item.format ? getFormatColor(item.format) : { bg: 'rgba(139,92,246,0.15)', text: '#8b5cf6' };
       
@@ -1656,7 +1738,17 @@
           ${item.discogsUrl ? `<div class="row"><span class="label">Discogs</span><span style="color:#0a84ff;font-size:12px;">来源可查</span></div>` : ''}
         </div>
         ` : ''}
+        
+        <div style="display:flex;gap:10px;margin-top:16px;">
+          <button class="submit-btn" style="flex:1;margin:0;" onclick="hideModal('vinylPreviewModal'); showVinylVersionSelect()">
+            选择版本
+          </button>
+        </div>
       `;
+      
+      // Store selected item
+      selectedVinylPreview = item;
+      selectedVinylVersion = null;
       
       // Close search modal and show preview
       hideModal('vinylSearchModal');
@@ -1664,27 +1756,155 @@
       showModal('vinylPreviewModal');
     }
 
-    // Confirm Add Vinyl to Collection
-    function confirmAddVinyl() {
+    // Show Vinyl Version Selection
+    function showVinylVersionSelect() {
       if (!selectedVinylPreview) {
-        showToast('请先选择一张专辑');
+        showToast('请先选择一个专辑');
         return;
       }
       
-      hideModal('vinylPreviewModal');
-      showModal('vinylFormModal');
+      const container = document.getElementById('vinylVersionContent');
       
-      // Auto-fill the form with preview data
-      const form = document.getElementById('vinylForm');
-      const inputs = form.querySelectorAll('input');
+      // Create multiple version options based on the selected item
+      const versions = [
+        {
+          id: '1',
+          label: '标准版',
+          description: '普通包装，标准配置',
+          price: '',
+          inStock: true
+        },
+        {
+          id: '2',
+          label: '限量版',
+          description: '特殊包装，限量发行',
+          price: '',
+          inStock: true
+        },
+        {
+          id: '3',
+          label: '180g 重磅版',
+          description: '180克重磅黑胶，音质更佳',
+          price: '',
+          inStock: true
+        },
+        {
+          id: '4',
+          label: '双碟版',
+          description: '双LP，完整收录',
+          price: '',
+          inStock: true
+        },
+        {
+          id: '5',
+          label: '豪华版/再版',
+          description: '豪华包装，再版发行',
+          price: '',
+          inStock: true
+        }
+      ];
       
-      if (inputs[0]) inputs[0].value = selectedVinylPreview.title || '';
-      if (inputs[1]) inputs[1].value = selectedVinylPreview.artist || '';
-      if (inputs[2]) inputs[2].value = selectedVinylPreview.year || '';
-      if (inputs[4]) inputs[4].value = selectedVinylPreview.barcode || '';
-      if (inputs[5]) inputs[5].value = selectedVinylPreview.format || '';
+      container.innerHTML = `
+        <div style="font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:12px;">选择您收藏的版本类型：</div>
+        ${versions.map((version, index) => `
+          <div class="action-item" onclick="selectVinylVersion(${index})" style="cursor:pointer;">
+            <div class="icon-wrap" style="background:rgba(139,92,246,0.15);">
+              <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            </div>
+            <div style="flex:1;">
+              <div class="text" style="font-size:16px;font-weight:600;">${version.label}</div>
+              <div class="desc">${version.description}</div>
+            </div>
+          </div>
+        `).join('')}
+      `;
       
-      showToast('已选择：' + selectedVinylPreview.title);
+      // Store versions
+      window.vinylVersions = versions.map(v => ({...v, albumInfo: selectedVinylPreview}));
+      
+      showModal('vinylVersionModal');
+    }
+
+    // Select Vinyl Version
+    function selectVinylVersion(index) {
+      if (!window.vinylVersions || !window.vinylVersions[index]) {
+        showToast('版本信息错误');
+        return;
+      }
+      
+      selectedVinylVersion = window.vinylVersions[index];
+      selectedVinylVersion.albumInfo = selectedVinylPreview;
+      
+      // Set default purchase date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('vinylPurchaseDate').value = today;
+      
+      // Clear other fields
+      document.getElementById('vinylPurchasePrice').value = '';
+      document.getElementById('vinylPurchaseSource').value = '';
+      document.getElementById('vinylPurchaseNote').value = '';
+      
+      // Show purchase info modal
+      const container = document.getElementById('vinylPurchaseContent');
+      container.innerHTML = `
+        <div style="display:flex;gap:12px;margin-bottom:16px;padding:12px;background:#2c2c2e;border-radius:12px;">
+          <div style="width:60px;height:60px;min-width:60px;background:linear-gradient(145deg,#2a2a4a 0%,#1a1a3a 100%);border-radius:8px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);overflow:hidden;">
+            ${selectedVinylPreview.coverImage ? `<img src="${selectedVinylPreview.coverImage}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : ''}
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">${selectedVinylPreview.title}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.6);">${selectedVinylPreview.artist}</div>
+            <div style="font-size:11px;color:#8b5cf6;margin-top:4px;">${selectedVinylVersion.label}</div>
+          </div>
+        </div>
+      `;
+      
+      hideModal('vinylVersionModal');
+      showModal('vinylPurchaseModal');
+    }
+
+    // Save Vinyl with Purchase Info
+    function saveVinylWithPurchase() {
+      if (!selectedVinylVersion || !selectedVinylPreview) {
+        showToast('请先选择版本');
+        return;
+      }
+      
+      const purchaseDate = document.getElementById('vinylPurchaseDate').value;
+      const purchasePrice = document.getElementById('vinylPurchasePrice').value;
+      const purchaseSource = document.getElementById('vinylPurchaseSource').value;
+      const purchaseNote = document.getElementById('vinylPurchaseNote').value;
+      
+      // Create vinyl collection item
+      const vinylItem = {
+        id: Date.now(),
+        title: selectedVinylPreview.title,
+        artist: selectedVinylPreview.artist,
+        year: selectedVinylPreview.year,
+        country: selectedVinylPreview.country,
+        format: selectedVinylVersion.label + (selectedVinylPreview.format ? ' - ' + selectedVinylPreview.format : ''),
+        barcode: selectedVinylPreview.barcode,
+        discogsUrl: selectedVinylPreview.discogsUrl,
+        coverImage: selectedVinylPreview.coverImage,
+        purchaseDate: purchaseDate,
+        purchasePrice: purchasePrice,
+        purchaseSource: purchaseSource,
+        purchaseNote: purchaseNote,
+        addedAt: new Date().toISOString()
+      };
+      
+      // Save to localStorage
+      let vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
+      vinyls.push(vinylItem);
+      localStorage.setItem('vinyls', JSON.stringify(vinyls));
+      
+      // Close modal and show success message
+      hideModal('vinylPurchaseModal');
+      showToast('已添加到收藏！');
+      
+      // Reset selection
+      selectedVinylPreview = null;
+      selectedVinylVersion = null;
     }
 
     // Show Movie Detail Preview
@@ -1697,6 +1917,7 @@
       }
       
       selectedMoviePreview = selectedItem;
+      document.getElementById('moviePreviewTitle').textContent = selectedItem.title;
       
       const container = document.getElementById('moviePreviewContent');
       container.innerHTML = `
@@ -1716,6 +1937,12 @@
         
         <div style="text-align:center;color:rgba(255,255,255,0.4);font-size:13px;padding:20px;">
           正在获取详细信息...
+        </div>
+        
+        <div style="display:flex;gap:10px;margin-top:16px;">
+          <button class="submit-btn" style="flex:1;margin:0;" onclick="showMoviePurchaseForm()" disabled id="movieAddBtn">
+            补充信息并添加
+          </button>
         </div>
       `;
       
@@ -1755,6 +1982,12 @@
                 ${data.Country ? `<div class="row"><span class="label">国家</span><span>${data.Country}</span></div>` : ''}
                 ${data.Language ? `<div class="row"><span class="label">语言</span><span>${data.Language}</span></div>` : ''}
               </div>
+              
+              <div style="display:flex;gap:10px;margin-top:16px;">
+                <button class="submit-btn" style="flex:1;margin:0;" onclick="showMoviePurchaseForm()">
+                  补充信息并添加
+                </button>
+              </div>
             `;
             
             // Update selected movie preview with full data
@@ -1775,29 +2008,94 @@
           }
         } catch (error) {
           console.error('获取电影详情失败:', error);
+          // Enable button even if detail fetch fails
+          document.getElementById('movieAddBtn').disabled = false;
         }
       }
     }
 
-    // Confirm Add Movie to Collection
-    function confirmAddMovie() {
+    // Show Movie Purchase Form
+    function showMoviePurchaseForm() {
       if (!selectedMoviePreview) {
         showToast('请先选择一部电影');
         return;
       }
       
+      // Set default watch date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('movieWatchDate').value = today;
+      
+      // Show purchase content
+      const container = document.getElementById('moviePurchaseContent');
+      container.innerHTML = `
+        <div style="display:flex;gap:12px;margin-bottom:16px;padding:12px;background:#2c2c2e;border-radius:12px;">
+          <div style="width:60px;height:90px;min-width:60px;background:linear-gradient(145deg,#4a3a5a 0%,#3a2a4a 100%);border-radius:8px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);overflow:hidden;">
+            ${selectedMoviePreview.poster && selectedMoviePreview.poster !== 'N/A' ? `<img src="${selectedMoviePreview.poster}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : ''}
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">${selectedMoviePreview.title}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.6);">${selectedMoviePreview.year || '未知年份'} · ${selectedMoviePreview.genre || ''}</div>
+            ${selectedMoviePreview.imdbRating ? `<div style="font-size:11px;color:#fbbf24;margin-top:4px;">⭐ ${selectedMoviePreview.imdbRating}</div>` : ''}
+          </div>
+        </div>
+      `;
+      
       hideModal('moviePreviewModal');
-      showModal('movieFormModal');
+      showModal('moviePurchaseModal');
+    }
+
+    // Set Movie Rating
+    function setMovieRating(rating) {
+      document.getElementById('movieRating').value = rating;
+      // Visual feedback could be added here
+      showToast('已设置评分：' + rating + '星');
+    }
+
+    // Save Movie with Purchase Info
+    function saveMovieWithPurchase() {
+      if (!selectedMoviePreview) {
+        showToast('请先选择一部电影');
+        return;
+      }
       
-      // Auto-fill the form with preview data
-      const form = document.getElementById('movieForm');
-      const inputs = form.querySelectorAll('input');
+      const watchDate = document.getElementById('movieWatchDate').value;
+      const watchMethod = document.getElementById('movieWatchMethod').value;
+      const rating = document.getElementById('movieRating').value;
+      const note = document.getElementById('movieWatchNote').value;
       
-      if (inputs[0]) inputs[0].value = selectedMoviePreview.title || '';
-      if (inputs[1]) inputs[1].value = selectedMoviePreview.director || '';
-      if (inputs[3]) inputs[3].value = selectedMoviePreview.year || '';
+      // Create movie collection item
+      const movieItem = {
+        id: Date.now(),
+        imdbID: selectedMoviePreview.imdbID,
+        title: selectedMoviePreview.title,
+        year: selectedMoviePreview.year,
+        director: selectedMoviePreview.director,
+        genre: selectedMoviePreview.genre,
+        runtime: selectedMoviePreview.runtime,
+        plot: selectedMoviePreview.plot,
+        actors: selectedMoviePreview.actors,
+        country: selectedMoviePreview.country,
+        language: selectedMoviePreview.language,
+        imdbRating: selectedMoviePreview.imdbRating,
+        poster: selectedMoviePreview.poster,
+        watchDate: watchDate,
+        watchMethod: watchMethod,
+        myRating: rating,
+        note: note,
+        addedAt: new Date().toISOString()
+      };
       
-      showToast('已选择：' + selectedMoviePreview.title);
+      // Save to localStorage
+      let movies = JSON.parse(localStorage.getItem('movies') || '[]');
+      movies.push(movieItem);
+      localStorage.setItem('movies', JSON.stringify(movies));
+      
+      // Close modal and show success message
+      hideModal('moviePurchaseModal');
+      showToast('已添加到收藏！');
+      
+      // Reset selection
+      selectedMoviePreview = null;
     }
     
     function showVinylDetail(index) { document.getElementById('vinylDetailTitle').textContent = vinyls[index].title; document.getElementById('vinylDetailArtist').textContent = vinyls[index].artist; showModal('vinylDetailModal'); }
