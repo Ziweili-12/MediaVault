@@ -1388,7 +1388,15 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const vinyls = [
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Supabase 配置
+    const SUPABASE_URL = 'https://gmjupzkemsudaqkprdqy.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtanVwemtlbXN1ZGFxa3ByZHF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkxMTczODIsImV4cCI6MjA2NDY5MzM4Mn0.0rTl6wEe6xNvJ9xkpN3U5kqJgYqTJQJl1q6xJlLwP1w';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
       { title: 'Random Access Memories', artist: 'Daft Punk' },
       { title: 'Kind of Blue', artist: 'Miles Davis' },
       { title: 'Abbey Road', artist: 'The Beatles' },
@@ -1924,8 +1932,6 @@
       
       const purchaseDate = document.getElementById('vinylPurchaseDate').value;
       const purchasePrice = document.getElementById('vinylPurchasePrice').value;
-      const purchaseSource = document.getElementById('vinylPurchaseSource').value;
-      const purchaseNote = document.getElementById('vinylPurchaseNote').value;
       
       if (!purchaseDate) {
         showToast('请选择购买日期');
@@ -1935,12 +1941,9 @@
       showToast('⏳ 正在保存...');
       
       try {
-        const response = await fetch('/api/tidb-vinyls', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
+        const { data, error } = await supabase
+          .from('vinyls')
+          .insert({
             title: selectedVinylPreview.title,
             artist: selectedVinylPreview.artist,
             release_date: selectedVinylPreview.releaseDate || null,
@@ -1951,27 +1954,18 @@
             rating: null,
             barcode: selectedVinylPreview.barcode || '',
             genre: selectedVinylPreview.genre || ''
-          })
-        });
+          });
         
-        const result = await response.json();
+        if (error) throw error;
         
-        if (result.success) {
-          hideModal('vinylPurchaseModal');
-          showToast('✅ 添加成功！');
-          
-          selectedVinylPreview = null;
-          selectedVinylVersion = null;
-          
-          if (typeof loadVinylCollection === 'function') {
-            loadVinylCollection();
-          }
-        } else {
-          showToast('⚠️ 保存失败: ' + result.error);
-        }
+        hideModal('vinylPurchaseModal');
+        showToast('✅ 添加成功！');
+        selectedVinylPreview = null;
+        selectedVinylVersion = null;
+        loadVinylCollection();
       } catch (error) {
         console.error('保存失败:', error);
-        showToast('⚠️ 保存失败，请重试');
+        showToast('⚠️ 保存失败: ' + error.message);
       }
     }
 
@@ -2128,19 +2122,14 @@
       }
       
       const watchDate = document.getElementById('movieWatchDate').value;
-      const watchMethod = document.getElementById('movieWatchMethod').value;
       const rating = document.getElementById('movieRating').value;
-      const note = document.getElementById('movieWatchNote').value;
       
       showToast('⏳ 正在保存...');
       
       try {
-        const response = await fetch('/api/tidb-movies', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
+        const { data, error } = await supabase
+          .from('movies')
+          .insert({
             title: selectedMoviePreview.title,
             director: selectedMoviePreview.director || '',
             release_date: selectedMoviePreview.year ? selectedMoviePreview.year + '-01-01' : null,
@@ -2153,46 +2142,35 @@
             country: selectedMoviePreview.country || '',
             runtime: selectedMoviePreview.runtime ? parseInt(selectedMoviePreview.runtime) : null,
             plot: selectedMoviePreview.plot || ''
-          })
-        });
+          });
         
-        const result = await response.json();
+        if (error) throw error;
         
-        if (result.success) {
-          hideModal('moviePurchaseModal');
-          showToast('✅ 添加成功！');
-        } else {
-          showToast('⚠️ 保存失败: ' + result.error);
-        }
+        hideModal('moviePurchaseModal');
+        showToast('✅ 添加成功！');
       } catch (error) {
         console.error('保存失败:', error);
-        showToast('⚠️ 保存失败，请重试');
+        showToast('⚠️ 保存失败: ' + error.message);
       }
       
       selectedMoviePreview = null;
-      
-      if (typeof loadMovieCollection === 'function') {
-        loadMovieCollection();
-      }
+      loadMovieCollection();
     }
     
-    // Load vinyl collection from Notion and localStorage
+    // Load vinyl collection from Supabase
     async function loadVinylCollection() {
       try {
-        let vinyls = [];
+        const { data, error } = await supabase
+          .from('vinyls')
+          .select('*')
+          .order('created_at', { ascending: false });
         
-        try {
-          const response = await fetch('/api/tidb-vinyls');
-          const result = await response.json();
-          
-          if (result.success && result.data) {
-            vinyls = result.data;
-          } else {
-            vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
-          }
-        } catch (error) {
+        let vinyls = [];
+        if (error) {
           console.error('加载失败:', error);
           vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
+        } else {
+          vinyls = data || [];
         }
         
         window.vinyls = vinyls;
@@ -2209,23 +2187,20 @@
       }
     }
     
-    // Load movie collection from TiDB
+    // Load movie collection from Supabase
     async function loadMovieCollection() {
       try {
-        let movies = [];
+        const { data, error } = await supabase
+          .from('movies')
+          .select('*')
+          .order('created_at', { ascending: false });
         
-        try {
-          const response = await fetch('/api/tidb-movies');
-          const result = await response.json();
-          
-          if (result.success && result.data) {
-            movies = result.data;
-          } else {
-            movies = JSON.parse(localStorage.getItem('movies') || '[]');
-          }
-        } catch (error) {
+        let movies = [];
+        if (error) {
           console.error('加载失败:', error);
           movies = JSON.parse(localStorage.getItem('movies') || '[]');
+        } else {
+          movies = data || [];
         }
         
         window.movies = movies;
