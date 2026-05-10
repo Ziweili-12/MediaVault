@@ -1452,9 +1452,9 @@
       { title: '星球大战', director: 'George Lucas', year: 1977 }
     ];
 
-    // API Keys
-    const DISCOGS_TOKEN = 'ZwTcjbYfJjuagBpBoTMgjEpGNAjVMsIpUCRFBofC';
-    const OMDB_API_KEY = 'b734626b';
+    // API Keys (configured via Netlify environment variables or local storage)
+    const DISCOGS_TOKEN = localStorage.getItem('DISCOGS_TOKEN') || '';
+    const OMDB_API_KEY = localStorage.getItem('OMDB_API_KEY') || '';
 
     // Search Vinyl using Discogs API
     async function searchVinyl() {
