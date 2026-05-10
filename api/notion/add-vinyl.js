@@ -9,8 +9,17 @@ exports.handler = async function(event, context) {
   }
 
   try {
+    const token = event.headers?.authorization?.replace('Bearer ', '') || process.env.NOTION_TOKEN;
+    
+    if (!token) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Missing Notion token' })
+      };
+    }
+    
     const notion = new Client({
-      auth: process.env.NOTION_TOKEN
+      auth: token
     });
 
     const data = JSON.parse(event.body);

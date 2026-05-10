@@ -1455,6 +1455,7 @@
     // API Keys (configured via Netlify environment variables or local storage)
     const DISCOGS_TOKEN = localStorage.getItem('DISCOGS_TOKEN') || '';
     const OMDB_API_KEY = localStorage.getItem('OMDB_API_KEY') || '';
+    const NOTION_TOKEN = localStorage.getItem('NOTION_TOKEN') || '';
 
     // Search Vinyl using Discogs API
     async function searchVinyl() {
@@ -1969,7 +1970,8 @@
         const response = await fetch('/api/notion/add-vinyl', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${NOTION_TOKEN}`
           },
           body: JSON.stringify({
             databaseId: '35bc85a71b1480d19336fae70cf532a3',
@@ -2169,7 +2171,7 @@
     }
 
     // Save Movie with Purchase Info
-    function saveMovieWithPurchase() {
+    async function saveMovieWithPurchase() {
       if (!selectedMoviePreview) {
         showToast('请先选择一部电影');
         return;
@@ -2207,12 +2209,50 @@
       movies.push(movieItem);
       localStorage.setItem('movies', JSON.stringify(movies));
       
-      // Close modal and show success message
+      // Close modal and show loading
       hideModal('moviePurchaseModal');
-      showToast('已添加到收藏！');
+      showToast('⏳ 正在同步到 Notion...');
+      
+      // Try to sync to Notion
+      try {
+        const response = await fetch('/api/notion/movies/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${NOTION_TOKEN}`,
+            'X-Database-Id': '35bc85a71b148041bc8ad7289bdea2ac'
+          },
+          body: JSON.stringify({
+            title: movieItem.title,
+            type: 'Movie',
+            director: movieItem.director,
+            year: movieItem.year ? parseInt(movieItem.year) : null,
+            genres: movieItem.genre ? movieItem.genre.split(',').map(g => g.trim()) : [],
+            myRating: movieItem.myRating ? parseInt(movieItem.myRating) : null,
+            imdbRating: movieItem.imdbRating ? parseFloat(movieItem.imdbRating) : null,
+            watchedDate: movieItem.watchDate
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showToast('✅ 添加成功！已同步到 Notion');
+        } else {
+          showToast('⚠️ 已保存到本地，Notion 同步失败');
+        }
+      } catch (error) {
+        console.error('Notion sync error:', error);
+        showToast('⚠️ 已保存到本地，Notion 同步失败');
+      }
       
       // Reset selection
       selectedMoviePreview = null;
+      
+      // Refresh movie collection
+      if (typeof loadMovieCollection === 'function') {
+        loadMovieCollection();
+      }
     }
     
     // Load vinyl collection from Notion and localStorage
