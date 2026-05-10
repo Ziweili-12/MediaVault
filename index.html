@@ -1151,8 +1151,8 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">发行年份</label>
-            <input type="number" class="form-input" placeholder="例如：2013" min="1900" max="2030">
+            <label class="form-label">发行日期 Release Date</label>
+            <input type="date" class="form-input" placeholder="例如：2013">
           </div>
           <div class="form-group">
             <label class="form-label">购买价格 (¥)</label>
@@ -1485,7 +1485,7 @@
             id: item.id,
             title: item.title.split(' - ')[1] || item.title,
             artist: item.title.split(' - ')[0] || '未知艺术家',
-            year: item.year || '未知',
+            releaseDate: item.year ? item.year + '-01-01' : '', // 转换为日期格式
             country: item.country || '',
             format: item.format ? item.format.join(', ') : '',
             formatText: item.formats && item.formats[0] && item.formats[0].text ? item.formats[0].text : '',
@@ -1536,7 +1536,7 @@
             id: item.id,
             title: item.title.split(' - ')[1] || item.title,
             artist: item.title.split(' - ')[0] || '未知艺术家',
-            year: item.year || '未知',
+            releaseDate: item.year ? item.year + '-01-01' : '',
             country: item.country || '',
             format: item.format ? item.format.join(', ') : '',
             barcode: barcode,
@@ -1577,7 +1577,7 @@
           currentMovieResults = data.Search.map(item => ({
             imdbID: item.imdbID,
             title: item.Title,
-            year: item.Year,
+            releaseDate: item.Year ? item.Year + '-01-01' : '', // 转换为日期格式
             type: item.Type,
             poster: item.Poster
           }));
@@ -1617,7 +1617,7 @@
               </div>
               <div style="flex:1;min-width:0;">
                 <div class="search-result-title" style="font-size:15px;margin-bottom:4px;">${item.title}</div>
-                <div class="search-result-subtitle" style="font-size:13px;margin-bottom:6px;">${item.artist || '未知艺术家'} · ${item.year || '未知年份'}</div>
+                <div class="search-result-subtitle" style="font-size:13px;margin-bottom:6px;">${item.artist || '未知艺术家'} · ${item.releaseDate ? item.releaseDate.split('-')[0] : '未知日期'}</div>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
                   ${formatLabel ? `<span style="font-size:10px;padding:3px 8px;background:${formatColor.bg};color:${formatColor.text};border-radius:8px;font-weight:600;">${formatLabel}</span>` : ''}
                   ${item.formatText ? `<span style="font-size:10px;padding:3px 8px;background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:8px;font-weight:600;">${item.formatText}</span>` : ''}
@@ -1681,7 +1681,7 @@
             </div>
             <div style="flex:1;min-width:0;">
               <div class="search-result-title" style="font-size:15px;margin-bottom:4px;">${item.title}</div>
-              <div class="search-result-subtitle" style="font-size:13px;margin-bottom:6px;">${item.year || '未知年份'} · ${item.type === 'movie' ? '电影' : item.type === 'series' ? '剧集' : item.type}</div>
+              <div class="search-result-subtitle" style="font-size:13px;margin-bottom:6px;">${item.releaseDate ? item.releaseDate.split('-')[0] : '未知日期'} · ${item.type === 'movie' ? '电影' : item.type === 'series' ? '剧集' : item.type}</div>
               <span style="font-size:10px;padding:3px 8px;background:rgba(244,114,182,0.15);color:#f472b6;border-radius:8px;font-weight:600;">${item.type === 'movie' ? '电影' : item.type === 'series' ? '剧集' : '其他'}</span>
             </div>
             <div style="color:#f472b6;font-size:20px;">›</div>
@@ -1729,7 +1729,7 @@
             <div style="font-size:18px;font-weight:700;margin-bottom:6px;">${item.title}</div>
             <div style="font-size:15px;color:rgba(255,255,255,0.7);margin-bottom:10px;">${item.artist || '未知艺术家'}</div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-              ${item.year ? `<span class="detail-tag">${item.year}</span>` : ''}
+              ${item.releaseDate ? `<span class="detail-tag">${item.releaseDate}</span>` : ''}
               ${formatLabel ? `<span style="font-size:11px;padding:4px 10px;background:${formatColor.bg};color:${formatColor.text};border-radius:10px;font-weight:600;">${formatLabel}</span>` : ''}
               ${item.formatText ? `<span style="font-size:11px;padding:4px 10px;background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:10px;font-weight:600;">${item.formatText}</span>` : ''}
             </div>
@@ -1737,6 +1737,7 @@
         </div>
         
         <div class="detail-meta-row">
+          ${item.releaseDate ? `<div class="row"><span class="label">发行日期</span><span>${item.releaseDate}</span></div>` : ''}
           ${item.format ? `<div class="row"><span class="label">格式详情</span><span>${item.format}</span></div>` : ''}
           ${item.country ? `<div class="row"><span class="label">发行国家</span><span>${item.country}</span></div>` : ''}
           ${item.label ? `<div class="row"><span class="label">唱片公司</span><span>${item.label}</span></div>` : ''}
@@ -1792,7 +1793,7 @@
             <div style="font-size:14px;font-weight:600;">${selectedVinylPreview.title}</div>
             <div style="font-size:12px;color:rgba(255,255,255,0.6);">${selectedVinylPreview.artist}</div>
             <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;">
-              ${selectedVinylPreview.year ? `<span class="detail-tag" style="font-size:10px;">${selectedVinylPreview.year}</span>` : ''}
+              ${selectedVinylPreview.releaseDate ? `<span class="detail-tag" style="font-size:10px;">${selectedVinylPreview.releaseDate}</span>` : ''}
               ${formatLabel ? `<span style="font-size:10px;padding:2px 6px;background:${formatColor.bg};color:${formatColor.text};border-radius:8px;font-weight:600;">${formatLabel}</span>` : ''}
               ${selectedVinylPreview.formatText ? `<span style="font-size:10px;padding:2px 6px;background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:8px;font-weight:600;">${selectedVinylPreview.formatText}</span>` : ''}
             </div>
@@ -1934,7 +1935,7 @@
         id: Date.now(),
         title: selectedVinylPreview.title,
         artist: selectedVinylPreview.artist,
-        year: selectedVinylPreview.year,
+        releaseDate: selectedVinylPreview.releaseDate,
         country: selectedVinylPreview.country,
         format: selectedVinylPreview.format,
         formatText: selectedVinylPreview.formatText || '',
@@ -2042,7 +2043,7 @@
           </div>
           <div style="flex:1;">
             <div style="font-size:18px;font-weight:700;margin-bottom:6px;">${selectedItem.title}</div>
-            <div style="font-size:15px;color:rgba(255,255,255,0.7);margin-bottom:10px;">${selectedItem.year || '未知年份'}</div>
+            <div style="font-size:15px;color:rgba(255,255,255,0.7);margin-bottom:10px;">${selectedItem.releaseDate || '未知日期'}</div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
               <span style="font-size:11px;padding:4px 10px;background:rgba(244,114,182,0.15);color:#f472b6;border-radius:10px;font-weight:600;">${selectedItem.type === 'movie' ? '电影' : selectedItem.type === 'series' ? '剧集' : '其他'}</span>
               <span style="font-size:11px;padding:4px 10px;background:rgba(10,132,255,0.15);color:#0a84ff;border-radius:10px;font-weight:600;">IMDb: ${selectedItem.imdbID}</span>
@@ -2080,10 +2081,10 @@
                 </div>
                 <div style="flex:1;">
                   <div style="font-size:18px;font-weight:700;margin-bottom:6px;">${data.Title}</div>
-                  <div style="font-size:15px;color:rgba(255,255,255,0.7);margin-bottom:10px;">${data.Year} · ${data.Runtime}</div>
+                  <div style="font-size:15px;color:rgba(255,255,255,0.7);margin-bottom:10px;">${data.Year || '未知日期'} · ${data.Runtime || ''}</div>
                   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-                    <span style="font-size:11px;padding:4px 10px;background:rgba(244,114,182,0.15);color:#f472b6;border-radius:10px;font-weight:600;">${data.Genre}</span>
-                    <span style="font-size:11px;padding:4px 10px;background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:10px;font-weight:600;">⭐ ${data.imdbRating}</span>
+                    <span style="font-size:11px;padding:4px 10px;background:rgba(244,114,182,0.15);color:#f472b6;border-radius:10px;font-weight:600;">${data.Genre || ''}</span>
+                    <span style="font-size:11px;padding:4px 10px;background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:10px;font-weight:600;">⭐ ${data.imdbRating || ''}</span>
                   </div>
                 </div>
               </div>
@@ -2091,6 +2092,7 @@
               ${data.Plot && data.Plot !== 'N/A' ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:16px;">${data.Plot}</div>` : ''}
               
               <div class="detail-meta-row">
+                ${data.Year ? `<div class="row"><span class="label">发行日期</span><span>${data.Year}-01-01</span></div>` : ''}
                 ${data.Director ? `<div class="row"><span class="label">导演</span><span>${data.Director}</span></div>` : ''}
                 ${data.Writer ? `<div class="row"><span class="label">编剧</span><span>${data.Writer}</span></div>` : ''}
                 ${data.Actors ? `<div class="row"><span class="label">主演</span><span style="font-size:13px;">${data.Actors}</span></div>` : ''}
@@ -2109,7 +2111,7 @@
             selectedMoviePreview = {
               ...selectedItem,
               title: data.Title,
-              year: data.Year,
+              releaseDate: data.Year ? data.Year + '-01-01' : '',
               director: data.Director,
               genre: data.Genre,
               runtime: data.Runtime,
@@ -2307,7 +2309,7 @@
               <div style="font-size:16px;font-weight:600;margin-bottom:8px;">${vinyl.title}</div>
               <div style="font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:8px;">${vinyl.artist}</div>
               <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                ${vinyl.year ? `<span class="detail-tag">${vinyl.year}</span>` : ''}
+                ${vinyl.releaseDate ? `<span class="detail-tag">${vinyl.releaseDate}</span>` : ''}
                 ${formatLabel ? `<span style="font-size:11px;padding:3px 8px;background:${formatColor.bg};color:${formatColor.text};border-radius:8px;font-weight:600;">${formatLabel}</span>` : ''}
                 ${vinyl.formatText ? `<span style="font-size:11px;padding:3px 8px;background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:8px;font-weight:600;">${vinyl.formatText}</span>` : ''}
               </div>
@@ -2315,6 +2317,7 @@
           </div>
           
           <div class="detail-meta-row">
+            ${vinyl.releaseDate ? `<div class="row"><span class="label">发行日期</span><span>${vinyl.releaseDate}</span></div>` : ''}
             ${vinyl.country ? `<div class="row"><span class="label">国家</span><span>${vinyl.country}</span></div>` : ''}
             ${vinyl.label ? `<div class="row"><span class="label">唱片公司</span><span>${vinyl.label}</span></div>` : ''}
             ${vinyl.genre ? `<div class="row"><span class="label">风格</span><span>${vinyl.genre}</span></div>` : ''}
