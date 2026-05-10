@@ -1488,9 +1488,13 @@
             year: item.year || '未知',
             country: item.country || '',
             format: item.format ? item.format.join(', ') : '',
+            formatText: item.formats && item.formats[0] && item.formats[0].text ? item.formats[0].text : '',
             barcode: item.barcode ? item.barcode[0] : '',
             discogsUrl: item.uri,
-            coverImage: item.cover_image || item.thumb || '' // Get cover image
+            coverImage: item.cover_image || item.thumb || '',
+            label: item.label ? item.label[0] : '',
+            genre: item.genre ? item.genre[0] : '',
+            style: item.style ? item.style[0] : ''
           }));
 
           renderSearchResults('vinylSearchResults', currentVinylResults, 'vinyl');
@@ -1616,6 +1620,7 @@
                 <div class="search-result-subtitle" style="font-size:13px;margin-bottom:6px;">${item.artist || '未知艺术家'} · ${item.year || '未知年份'}</div>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
                   ${formatLabel ? `<span style="font-size:10px;padding:3px 8px;background:${formatColor.bg};color:${formatColor.text};border-radius:8px;font-weight:600;">${formatLabel}</span>` : ''}
+                  ${item.formatText ? `<span style="font-size:10px;padding:3px 8px;background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:8px;font-weight:600;">${item.formatText}</span>` : ''}
                   ${item.country ? `<span style="font-size:10px;color:rgba(255,255,255,0.4);">${item.country}</span>` : ''}
                 </div>
               </div>
@@ -1726,22 +1731,23 @@
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
               ${item.year ? `<span class="detail-tag">${item.year}</span>` : ''}
               ${formatLabel ? `<span style="font-size:11px;padding:4px 10px;background:${formatColor.bg};color:${formatColor.text};border-radius:10px;font-weight:600;">${formatLabel}</span>` : ''}
-              ${item.country ? `<span class="detail-tag">${item.country}</span>` : ''}
+              ${item.formatText ? `<span style="font-size:11px;padding:4px 10px;background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:10px;font-weight:600;">${item.formatText}</span>` : ''}
             </div>
           </div>
         </div>
         
-        ${item.format ? `
         <div class="detail-meta-row">
-          <div class="row"><span class="label">格式详情</span><span>${item.format}</span></div>
+          ${item.format ? `<div class="row"><span class="label">格式详情</span><span>${item.format}</span></div>` : ''}
+          ${item.country ? `<div class="row"><span class="label">发行国家</span><span>${item.country}</span></div>` : ''}
+          ${item.label ? `<div class="row"><span class="label">唱片公司</span><span>${item.label}</span></div>` : ''}
+          ${item.genre ? `<div class="row"><span class="label">音乐风格</span><span>${item.genre}</span></div>` : ''}
+          ${item.style ? `<div class="row"><span class="label">子风格</span><span>${item.style}</span></div>` : ''}
           ${item.barcode ? `<div class="row"><span class="label">条形码</span><span class="barcode-value">${item.barcode}</span></div>` : ''}
-          ${item.discogsUrl ? `<div class="row"><span class="label">Discogs</span><span style="color:#0a84ff;font-size:12px;">来源可查</span></div>` : ''}
         </div>
-        ` : ''}
         
         <div style="display:flex;gap:10px;margin-top:16px;">
-          <button class="submit-btn" style="flex:1;margin:0;" onclick="hideModal('vinylPreviewModal'); showVinylVersionSelect()">
-            选择版本
+          <button class="submit-btn" style="flex:1;margin:0;" onclick="hideModal('vinylPreviewModal'); showVinylPurchaseForm()">
+            补充购买信息
           </button>
         </div>
       `;
@@ -1754,6 +1760,49 @@
       hideModal('vinylSearchModal');
       hideModal('vinylScanModal');
       showModal('vinylPreviewModal');
+    }
+
+    // Show Vinyl Purchase Form directly
+    function showVinylPurchaseForm() {
+      if (!selectedVinylPreview) {
+        showToast('请先选择一个专辑');
+        return;
+      }
+      
+      const formatLabel = selectedVinylPreview.format ? getFormatLabel(selectedVinylPreview.format) : '';
+      const formatColor = selectedVinylPreview.format ? getFormatColor(selectedVinylPreview.format) : { bg: 'rgba(139,92,246,0.15)', text: '#8b5cf6' };
+      
+      // Set default purchase date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('vinylPurchaseDate').value = today;
+      
+      // Clear other fields
+      document.getElementById('vinylPurchasePrice').value = '';
+      document.getElementById('vinylPurchaseSource').value = '';
+      document.getElementById('vinylPurchaseNote').value = '';
+      
+      // Show purchase content
+      const container = document.getElementById('vinylPurchaseContent');
+      container.innerHTML = `
+        <div style="display:flex;gap:12px;margin-bottom:16px;padding:12px;background:#2c2c2e;border-radius:12px;">
+          <div style="width:60px;height:60px;min-width:60px;background:linear-gradient(145deg,#2a2a4a 0%,#1a1a3a 100%);border-radius:8px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);overflow:hidden;">
+            ${selectedVinylPreview.coverImage ? `<img src="${selectedVinylPreview.coverImage}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : ''}
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">${selectedVinylPreview.title}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.6);">${selectedVinylPreview.artist}</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;">
+              ${selectedVinylPreview.year ? `<span class="detail-tag" style="font-size:10px;">${selectedVinylPreview.year}</span>` : ''}
+              ${formatLabel ? `<span style="font-size:10px;padding:2px 6px;background:${formatColor.bg};color:${formatColor.text};border-radius:8px;font-weight:600;">${formatLabel}</span>` : ''}
+              ${selectedVinylPreview.formatText ? `<span style="font-size:10px;padding:2px 6px;background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:8px;font-weight:600;">${selectedVinylPreview.formatText}</span>` : ''}
+            </div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;text-align:center;">补充您的购买信息</div>
+      `;
+      
+      hideModal('vinylPreviewModal');
+      showModal('vinylPurchaseModal');
     }
 
     // Show Vinyl Version Selection
@@ -1865,8 +1914,8 @@
 
     // Save Vinyl with Purchase Info
     function saveVinylWithPurchase() {
-      if (!selectedVinylVersion || !selectedVinylPreview) {
-        showToast('请先选择版本');
+      if (!selectedVinylPreview) {
+        showToast('请先选择一个专辑');
         return;
       }
       
@@ -1875,6 +1924,11 @@
       const purchaseSource = document.getElementById('vinylPurchaseSource').value;
       const purchaseNote = document.getElementById('vinylPurchaseNote').value;
       
+      if (!purchaseDate) {
+        showToast('请选择购买日期');
+        return;
+      }
+      
       // Create vinyl collection item
       const vinylItem = {
         id: Date.now(),
@@ -1882,10 +1936,14 @@
         artist: selectedVinylPreview.artist,
         year: selectedVinylPreview.year,
         country: selectedVinylPreview.country,
-        format: selectedVinylVersion.label + (selectedVinylPreview.format ? ' - ' + selectedVinylPreview.format : ''),
+        format: selectedVinylPreview.format,
+        formatText: selectedVinylPreview.formatText || '',
         barcode: selectedVinylPreview.barcode,
         discogsUrl: selectedVinylPreview.discogsUrl,
         coverImage: selectedVinylPreview.coverImage,
+        label: selectedVinylPreview.label || '',
+        genre: selectedVinylPreview.genre || '',
+        style: selectedVinylPreview.style || '',
         purchaseDate: purchaseDate,
         purchasePrice: purchasePrice,
         purchaseSource: purchaseSource,
@@ -1894,17 +1952,27 @@
       };
       
       // Save to localStorage
-      let vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
-      vinyls.push(vinylItem);
-      localStorage.setItem('vinyls', JSON.stringify(vinyls));
-      
-      // Close modal and show success message
-      hideModal('vinylPurchaseModal');
-      showToast('已添加到收藏！');
-      
-      // Reset selection
-      selectedVinylPreview = null;
-      selectedVinylVersion = null;
+      try {
+        let vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
+        vinyls.push(vinylItem);
+        localStorage.setItem('vinyls', JSON.stringify(vinyls));
+        
+        // Close modal and show success message
+        hideModal('vinylPurchaseModal');
+        showToast('✅ 添加成功！');
+        
+        // Reset selection
+        selectedVinylPreview = null;
+        selectedVinylVersion = null;
+        
+        // Refresh the collection if needed
+        if (typeof loadVinylCollection === 'function') {
+          loadVinylCollection();
+        }
+      } catch (error) {
+        console.error('保存失败:', error);
+        showToast('❌ 保存失败，请重试');
+      }
     }
 
     // Show Movie Detail Preview
@@ -2098,7 +2166,109 @@
       selectedMoviePreview = null;
     }
     
-    function showVinylDetail(index) { document.getElementById('vinylDetailTitle').textContent = vinyls[index].title; document.getElementById('vinylDetailArtist').textContent = vinyls[index].artist; showModal('vinylDetailModal'); }
+    // Load vinyl collection from localStorage
+    function loadVinylCollection() {
+      try {
+        const vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
+        window.vinyls = vinyls;
+        
+        // Update the vinyl display if on vinyl page
+        const vinylGrid = document.getElementById('vinylGrid');
+        if (vinylGrid) {
+          renderVinylGrid(vinyls);
+        }
+        
+        return vinyls;
+      } catch (error) {
+        console.error('加载收藏失败:', error);
+        return [];
+      }
+    }
+    
+    // Render vinyl grid
+    function renderVinylGrid(vinyls) {
+      const vinylGrid = document.getElementById('vinylGrid');
+      if (!vinylGrid) return;
+      
+      if (vinyls.length === 0) {
+        vinylGrid.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);">暂无收藏<br>开始添加您的第一张黑胶吧！</div>';
+        return;
+      }
+      
+      vinylGrid.innerHTML = vinyls.map((vinyl, index) => {
+        const formatLabel = vinyl.format ? getFormatLabel(vinyl.format) : '';
+        const formatColor = vinyl.format ? getFormatColor(vinyl.format) : { bg: 'rgba(139,92,246,0.15)', text: '#8b5cf6' };
+        
+        return `
+          <div class="vinyl-item" onclick="showVinylDetail(${index})">
+            <div class="vinyl-cover">
+              ${vinyl.coverImage ? `<img src="${vinyl.coverImage}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : '<svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>'}
+            </div>
+            <div class="vinyl-info">
+              <div class="vinyl-title">${vinyl.title}</div>
+              <div class="vinyl-artist">${vinyl.artist}</div>
+              ${vinyl.purchaseDate ? `<div class="vinyl-date">${vinyl.purchaseDate}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function showVinylDetail(index) {
+      const vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
+      if (vinyls.length === 0 || !vinyls[index]) {
+        showToast('未找到该收藏');
+        return;
+      }
+      
+      const vinyl = vinyls[index];
+      const formatLabel = vinyl.format ? getFormatLabel(vinyl.format) : '';
+      const formatColor = vinyl.format ? getFormatColor(vinyl.format) : { bg: 'rgba(139,92,246,0.15)', text: '#8b5cf6' };
+      
+      document.getElementById('vinylDetailTitle').textContent = vinyl.title;
+      document.getElementById('vinylDetailArtist').textContent = vinyl.artist;
+      
+      // Update detail content if the element exists
+      const detailContent = document.getElementById('vinylDetailContent');
+      if (detailContent) {
+        detailContent.innerHTML = `
+          <div style="display:flex;gap:16px;margin-bottom:16px;">
+            <div style="width:100px;height:100px;background:linear-gradient(145deg,#2a2a4a 0%,#1a1a3a 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+              ${vinyl.coverImage ? `<img src="${vinyl.coverImage}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : '<svg viewBox="0 0 100 100" style="width:60%;height:60%;"><circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="2"/></svg>'}
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:16px;font-weight:600;margin-bottom:8px;">${vinyl.title}</div>
+              <div style="font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:8px;">${vinyl.artist}</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                ${vinyl.year ? `<span class="detail-tag">${vinyl.year}</span>` : ''}
+                ${formatLabel ? `<span style="font-size:11px;padding:3px 8px;background:${formatColor.bg};color:${formatColor.text};border-radius:8px;font-weight:600;">${formatLabel}</span>` : ''}
+                ${vinyl.formatText ? `<span style="font-size:11px;padding:3px 8px;background:rgba(251,191,36,0.15);color:#fbbf24;border-radius:8px;font-weight:600;">${vinyl.formatText}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          
+          <div class="detail-meta-row">
+            ${vinyl.country ? `<div class="row"><span class="label">国家</span><span>${vinyl.country}</span></div>` : ''}
+            ${vinyl.label ? `<div class="row"><span class="label">唱片公司</span><span>${vinyl.label}</span></div>` : ''}
+            ${vinyl.genre ? `<div class="row"><span class="label">风格</span><span>${vinyl.genre}</span></div>` : ''}
+            ${vinyl.barcode ? `<div class="row"><span class="label">条形码</span><span class="barcode-value">${vinyl.barcode}</span></div>` : ''}
+          </div>
+          
+          ${vinyl.purchaseDate || vinyl.purchasePrice || vinyl.purchaseSource ? `
+          <div style="margin-top:16px;padding:12px;background:#2c2c2e;border-radius:12px;">
+            <div style="font-size:14px;font-weight:600;margin-bottom:12px;">购买信息</div>
+            ${vinyl.purchaseDate ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:6px;">📅 购买日期：${vinyl.purchaseDate}</div>` : ''}
+            ${vinyl.purchasePrice ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:6px;">💰 购买金额：¥${vinyl.purchasePrice}</div>` : ''}
+            ${vinyl.purchaseSource ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:6px;">🛒 购买渠道：${vinyl.purchaseSource}</div>` : ''}
+            ${vinyl.purchaseNote ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);">📝 备注：${vinyl.purchaseNote}</div>` : ''}
+          </div>
+          ` : ''}
+        `;
+      }
+      
+      showModal('vinylDetailModal');
+    }
+    
     function showMovieDetail(index) { document.getElementById('movieDetailTitle').textContent = movies[index].title; document.getElementById('movieDetailDirector').textContent = movies[index].director; showModal('movieDetailModal'); }
     function showToast(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
     document.querySelectorAll('.modal-overlay').forEach(overlay => { overlay.addEventListener('click', () => { overlay.classList.remove('show'); }); });
