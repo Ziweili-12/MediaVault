@@ -3,24 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MediaVault</title>
+  <title>MediaVault - 预览</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: #000; color: #fff; min-height: 100vh; padding: 20px; padding-bottom: 100px; }
-    .phone-frame { max-width: 430px; margin: 0 auto; background: #000; border-radius: 47px; overflow: hidden; box-shadow: 0 25px 80px rgba(0,0,0,0.8); }
-    .notch { width: 150px; height: 34px; background: #000; margin: 0 auto; border-radius: 0 0 20px 20px; }
-    .status-bar { display: flex; justify-content: space-between; padding: 12px 24px 8px; font-size: 14px; font-weight: 600; }
-    .screen { height: 845px; overflow-y: auto; background: #000; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+      padding-bottom: 100px;
+    }
+    .phone-frame {
+      max-width: 430px;
+      margin: 0 auto;
+      background: #000;
+      border-radius: 47px;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.8);
+    }
+    .notch {
+      width: 150px;
+      height: 34px;
+      background: #000;
+      margin: 0 auto;
+      border-radius: 0 0 20px 20px;
+    }
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 24px 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .screen {
+      height: 845px;
+      overflow-y: auto;
+      background: #000;
+    }
     .screen::-webkit-scrollbar { display: none; }
-    .loading { text-align: center; padding: 40px; color: rgba(255,255,255,0.5); }
-    .empty { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.4); }
 
+    /* Home Screen */
     .home-header { padding: 20px 20px 16px; display: flex; justify-content: space-between; align-items: center; }
     .home-header h1 { font-size: 34px; font-weight: 700; }
 
-    .quick-actions { display: flex; gap: 12px; padding: 0 20px 20px; overflow-x: auto; }
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      gap: 12px;
+      padding: 0 20px 20px;
+      overflow-x: auto;
+    }
     .quick-actions::-webkit-scrollbar { display: none; }
-    .quick-action-btn { display: flex; align-items: center; gap: 8px; padding: 12px 18px; background: rgba(28,28,30,0.8); border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; }
+    .quick-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 18px;
+      background: rgba(28,28,30,0.8);
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
     .quick-action-btn:active { transform: scale(0.95); background: rgba(40,40,45,0.9); }
     .quick-action-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; }
     .quick-action-btn.scan { color: #0a84ff; }
@@ -28,33 +75,120 @@
     .quick-action-btn.add-movie { color: #f472b6; }
     .quick-action-btn span { font-size: 14px; font-weight: 500; }
 
-    .recommend-section { margin: 0 20px 24px; background: linear-gradient(145deg, rgba(35,35,45,0.6) 0%, rgba(25,25,35,0.6) 100%); border-radius: 20px; padding: 16px; backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); }
-    .recommend-section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    /* Recommendations Section */
+    .recommend-section {
+      margin: 0 20px 24px;
+      background: linear-gradient(145deg, rgba(35,35,45,0.6) 0%, rgba(25,25,35,0.6) 100%);
+      border-radius: 20px;
+      padding: 16px;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .recommend-section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     .recommend-section-title svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
     .recommend-section-title.music { color: #8b5cf6; }
     .recommend-section-title.movie { color: #f472b6; }
-    .recommend-category { margin-bottom: 16px; }
+
+    .recommend-category {
+      margin-bottom: 16px;
+    }
     .recommend-category:last-child { margin-bottom: 0; }
-    .recommend-category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .recommend-category-title { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.9); }
-    .recommend-category-subtitle { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .recommend-category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .recommend-category-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+    }
+    .recommend-category-subtitle {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+
     .recommend-items { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
     .recommend-items::-webkit-scrollbar { display: none; }
-    .recommend-item { flex-shrink: 0; cursor: pointer; transition: transform 0.2s; background: rgba(0,0,0,0.25); border-radius: 12px; padding: 10px; min-width: 100px; border: 1px solid rgba(255,255,255,0.05); }
+    .recommend-item {
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.2s;
+      background: rgba(0,0,0,0.25);
+      border-radius: 12px;
+      padding: 10px;
+      min-width: 100px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
     .recommend-item:active { transform: scale(0.95); }
-    .recommend-cover { width: 80px; aspect-ratio: 1; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; color: rgba(255,255,255,0.3); position: relative; overflow: hidden; }
+    .recommend-cover {
+      width: 80px;
+      aspect-ratio: 1;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      color: rgba(255,255,255,0.3);
+      position: relative;
+      overflow: hidden;
+    }
     .recommend-cover.movie { aspect-ratio: 2/3; }
-    .recommend-cover img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
-    .recommend-cover::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%); }
+    .recommend-cover::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+    }
     .recommend-name { font-size: 12px; font-weight: 500; max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .recommend-artist { font-size: 11px; color: rgba(255,255,255,0.5); max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .recommend-meta { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
-    .recommend-tag { font-size: 9px; padding: 2px 6px; border-radius: 8px; font-weight: 500; }
-    .recommend-tag.genre { color: #8b5cf6; background: rgba(139,92,246,0.15); }
-    .recommend-tag.era { color: #f472b6; background: rgba(244,114,182,0.15); }
-    .recommend-tag.similar { color: #0a84ff; background: rgba(10,132,255,0.15); }
+    .recommend-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .recommend-tag {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+    .recommend-tag.genre {
+      color: #8b5cf6;
+      background: rgba(139,92,246,0.15);
+    }
+    .recommend-tag.era {
+      color: #f472b6;
+      background: rgba(244,114,182,0.15);
+    }
+    .recommend-tag.similar {
+      color: #0a84ff;
+      background: rgba(10,132,255,0.15);
+    }
+    .recommend-score {
+      font-size: 10px;
+      color: #fbbf24;
+      font-weight: 600;
+    }
 
-    .module-card { margin: 0 20px 24px; background: linear-gradient(145deg, rgba(42,42,74,0.6) 0%, rgba(26,26,58,0.6) 100%); border-radius: 20px; padding: 16px; backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+    /* Module Cards */
+    .module-card {
+      margin: 0 20px 24px;
+      background: linear-gradient(145deg, rgba(42,42,74,0.6) 0%, rgba(26,26,58,0.6) 100%);
+      border-radius: 20px;
+      padding: 16px;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
     .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .module-title { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
     .module-more { font-size: 13px; color: rgba(255,255,255,0.5); cursor: pointer; }
@@ -62,89 +196,265 @@
     .module-items::-webkit-scrollbar { display: none; }
     .module-item { flex-shrink: 0; cursor: pointer; transition: transform 0.2s; }
     .module-item:active { transform: scale(0.95); }
-    .module-cover { width: 100px; aspect-ratio: 1; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; color: rgba(255,255,255,0.25); overflow: hidden; }
+    .module-cover {
+      width: 100px;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      color: rgba(255,255,255,0.25);
+    }
     .module-cover.movie { aspect-ratio: 2/3; }
-    .module-cover img { width: 100%; height: 100%; object-fit: cover; }
     .module-name { font-size: 13px; font-weight: 500; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .module-artist { font-size: 11px; color: rgba(255,255,255,0.5); max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .preview-notice { text-align: center; padding: 30px 20px; color: rgba(255,255,255,0.4); font-size: 13px; }
 
+    /* Music Screen */
     .screen-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
     .screen-header h1 { font-size: 34px; font-weight: 700; }
-    .header-btn { height: 36px; padding: 0 16px; background: linear-gradient(135deg, #0a84ff 0%, #0066dd 100%); border-radius: 18px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s; color: #fff; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(10,132,255,0.3); }
+    .header-btn {
+      height: 36px;
+      padding: 0 16px;
+      background: linear-gradient(135deg, #0a84ff 0%, #0066dd 100%);
+      border-radius: 18px;
+      display: flex; align-items: center; gap: 6px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(10,132,255,0.3);
+    }
     .header-btn:active { transform: scale(0.95); }
-    .search-bar { margin: 0 20px 16px; background: #1c1c1e; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; color: rgba(255,255,255,0.5); }
+    .search-bar {
+      margin: 0 20px 16px;
+      background: #1c1c1e;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer;
+      color: rgba(255,255,255,0.5);
+    }
     .vinyl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 20px; }
-    .vinyl-item { background: #1c1c1e; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+    .vinyl-item {
+      background: #1c1c1e;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
     .vinyl-item:active { transform: scale(0.98); }
-    .vinyl-cover { aspect-ratio: 1; background: linear-gradient(145deg, #2a2a4a 0%, #1a1a3a 100%); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.2); overflow: hidden; }
-    .vinyl-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .vinyl-cover {
+      aspect-ratio: 1;
+      background: linear-gradient(145deg, #2a2a4a 0%, #1a1a3a 100%);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.2);
+    }
     .vinyl-cover svg { width: 48px; height: 48px; }
     .vinyl-info { padding: 12px; }
     .vinyl-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .vinyl-artist { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
 
+    /* Movie Screen */
     .movie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 20px; }
-    .movie-item { background: #1c1c1e; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+    .movie-item {
+      background: #1c1c1e;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
     .movie-item:active { transform: scale(0.98); }
-    .movie-poster { aspect-ratio: 2/3; background: linear-gradient(145deg, #3a2a4a 0%, #2a1a3a 100%); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.2); overflow: hidden; }
-    .movie-poster img { width: 100%; height: 100%; object-fit: cover; }
+    .movie-poster {
+      aspect-ratio: 2/3;
+      background: linear-gradient(145deg, #3a2a4a 0%, #2a1a3a 100%);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.2);
+    }
     .movie-poster svg { width: 56px; height: 56px; }
     .movie-info { padding: 12px; }
     .movie-title { font-size: 14px; font-weight: 600; }
     .movie-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px; }
     .rating { color: #ffd700; font-weight: 600; }
 
+    /* Stats Screen */
     .filter-section { padding: 0 20px; margin-bottom: 16px; }
     .filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
     .filter-label { font-size: 13px; color: rgba(255,255,255,0.5); display: flex; align-items: center; min-width: 50px; }
     .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-    .filter-chip { padding: 6px 14px; background: rgba(44,44,46,0.8); border-radius: 16px; font-size: 13px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+    .filter-chip {
+      padding: 6px 14px;
+      background: rgba(44,44,46,0.8);
+      border-radius: 16px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
     .filter-chip:active { transform: scale(0.95); }
     .filter-chip.active { background: rgba(10,132,255,0.2); border-color: #0a84ff; color: #0a84ff; }
 
-    .stats-hero { background: linear-gradient(135deg, rgba(102,126,234,0.4) 0%, rgba(118,75,162,0.4) 100%); margin: 0 20px 20px; border-radius: 20px; padding: 24px; text-align: center; backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+    .stats-hero {
+      background: linear-gradient(135deg, rgba(102,126,234,0.4) 0%, rgba(118,75,162,0.4) 100%);
+      margin: 0 20px 20px;
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
     .stats-hero .number { font-size: 48px; font-weight: 700; background: linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .stats-hero .label { font-size: 15px; opacity: 0.8; margin-top: 4px; }
     .stats-hero .subtitle { font-size: 12px; opacity: 0.6; margin-top: 8px; }
 
     .stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 20px; margin-bottom: 16px; }
-    .stat-card { background: rgba(28,28,30,0.6); backdrop-filter: blur(20px); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.06); }
+    .stat-card {
+      background: rgba(28,28,30,0.6);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
     .stat-card .label { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
     .stat-card .value { font-size: 28px; font-weight: 700; }
     .stat-card .sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
     .stat-card.music { border-left: 3px solid #8b5cf6; }
     .stat-card.movie { border-left: 3px solid #f472b6; }
 
-    .chart-area { margin: 0 20px; background: rgba(28,28,30,0.6); backdrop-filter: blur(20px); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.06); }
+    .chart-area {
+      margin: 0 20px;
+      background: rgba(28,28,30,0.6);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
     .chart-title { font-size: 17px; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
     .chart-legend { display: flex; gap: 16px; font-size: 12px; }
     .legend-item { display: flex; align-items: center; gap: 6px; }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .chart-bars { display: flex; align-items: flex-end; justify-content: space-around; height: 140px; padding: 0 8px; }
-    .chart-bar-wrapper { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 50px; }
-    .chart-bar-stack { display: flex; flex-direction: column-reverse; align-items: center; width: 36px; }
-    .chart-bar { width: 100%; border-radius: 4px 4px 0 0; position: relative; min-height: 4px; }
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 140px;
+      padding: 0 8px;
+      position: relative;
+    }
+    .chart-bar-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      max-width: 50px;
+    }
+    .chart-bar-stack {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      width: 36px;
+    }
+    .chart-bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      position: relative;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      min-height: 4px;
+    }
+    .chart-bar:active { opacity: 0.7; }
     .chart-bar.music { background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%); }
     .chart-bar.movie { background: linear-gradient(180deg, #f472b6 0%, #db2777 100%); }
     .chart-bar.all { background: linear-gradient(180deg, #0a84ff 0%, #0066dd 100%); }
-    .chart-bar .count { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 600; white-space: nowrap; }
-    .chart-month { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 10px; text-align: center; width: 100%; }
+    .chart-bar .count {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .chart-month {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 10px;
+      text-align: center;
+      width: 100%;
+    }
 
-    .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px); border-top: 0.5px solid rgba(255,255,255,0.1); padding: 6px 0; padding-bottom: 34px; z-index: 100; }
+    /* Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(28,28,30,0.95);
+      backdrop-filter: blur(20px);
+      border-top: 0.5px solid rgba(255,255,255,0.1);
+      padding: 6px 0;
+      padding-bottom: 34px;
+      z-index: 100;
+    }
     .tab-bar-inner { max-width: 430px; margin: 0 auto; display: flex; justify-content: space-around; align-items: center; }
-    .tab-item { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.35); text-decoration: none; padding: 8px 14px; cursor: pointer; transition: all 0.2s; border-radius: 12px; min-width: 70px; }
+    .tab-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 12px;
+      min-width: 70px;
+    }
     .tab-item:active { transform: scale(0.92); }
     .tab-item.active { color: #0a84ff; }
     .tab-item svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .tab-item span { font-size: 12px; font-weight: 500; white-space: nowrap; }
 
-    .screen-selector { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 25px; padding: 4px; display: flex; gap: 4px; z-index: 100; }
-    .screen-selector button { padding: 8px 16px; border: none; background: transparent; color: rgba(255,255,255,0.6); border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; }
+    /* Screen Selector */
+    .screen-selector {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      padding: 4px;
+      display: flex; gap: 4px;
+      z-index: 100;
+    }
+    .screen-selector button {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
     .screen-selector button.active { background: #0a84ff; color: #fff; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: flex-end; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex; align-items: flex-end; justify-content: center;
+      z-index: 1000;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
     .modal-overlay.show { opacity: 1; visibility: visible; }
-    .modal { background: #1c1c1e; border-radius: 20px 20px 0 0; width: 100%; max-width: 430px; max-height: 90vh; overflow-y: auto; padding: 20px; padding-bottom: 50px; transform: translateY(100%); transition: transform 0.3s ease-out; }
+    .modal {
+      background: #1c1c1e;
+      border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 430px;
+      padding: 20px; padding-bottom: 50px;
+      transform: translateY(100%);
+      transition: transform 0.3s ease-out;
+    }
     .modal-overlay.show .modal { transform: translateY(0); }
     .modal-handle { width: 40px; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; margin: 0 auto 20px; }
     .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; text-align: center; }
@@ -170,10 +480,23 @@
     .action-item .text { font-size: 17px; font-weight: 500; }
     .action-item .desc { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 2px; }
 
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+    .form-input { width: 100%; padding: 14px 16px; background: #2c2c2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 16px; box-sizing: border-box; }
+    .form-input:focus { outline: none; border-color: #0a84ff; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
+    .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #0a84ff 0%, #0066dd 100%); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    .submit-btn:active { opacity: 0.9; transform: scale(0.98); }
+
     .detail-header { display: flex; gap: 16px; margin-bottom: 20px; }
-    .detail-cover { width: 120px; height: 120px; background: linear-gradient(145deg, #2a2a4a 0%, #1a1a3a 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.2); overflow: hidden; }
-    .detail-cover img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
-    .detail-cover.movie { aspect-ratio: 2/3; }
+    .detail-cover {
+      width: 120px; height: 120px;
+      background: linear-gradient(145deg, #2a2a4a 0%, #1a1a3a 100%);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.2);
+    }
     .detail-cover svg { width: 56px; height: 56px; }
     .detail-info { flex: 1; }
     .detail-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
@@ -184,62 +507,129 @@
     .detail-meta-row .row { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
     .detail-meta-row .row:last-child { margin-bottom: 0; }
     .detail-meta-row .label { color: rgba(255,255,255,0.5); font-size: 13px; }
-    .barcode-value { font-family: 'SF Mono', monospace; font-size: 13px; color: #0a84ff; background: rgba(10,132,255,0.1); padding: 4px 10px; border-radius: 8px; letter-spacing: 0.5px; }
-    .version-source { font-size: 12px; color: rgba(255,255,255,0.4); }
-    .version-detail { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); }
-    .version-tags { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-    .v-tag { font-size: 11px; padding: 4px 10px; background: rgba(139,92,246,0.15); color: #8b5cf6; border-radius: 10px; font-weight: 500; }
-    .version-desc { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+
+    /* Barcode */
+    .barcode-value {
+      font-family: 'SF Mono', monospace;
+      font-size: 13px;
+      color: #0a84ff;
+      background: rgba(10,132,255,0.1);
+      padding: 4px 10px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Version Info */
+    .version-source {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+    .version-detail {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .version-tags {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .v-tag {
+      font-size: 11px;
+      padding: 4px 10px;
+      background: rgba(139,92,246,0.15);
+      color: #8b5cf6;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .version-desc {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.5;
+    }
+
+    /* Ratings */
     .rating-row { align-items: flex-start !important; }
-    .my-rating { color: #fbbf24; font-size: 14px; display: flex; align-items: center; gap: 6px; }
-    .my-rating .rating-num { color: #fff; font-weight: 600; font-size: 15px; }
-    .external-ratings { display: flex; gap: 10px; flex-wrap: wrap; }
-    .ext-rating { font-size: 11px; padding: 4px 10px; border-radius: 10px; font-weight: 500; }
-    .ext-rating.imdb { background: rgba(245,197,24,0.15); color: #f5c518; }
-    .ext-rating.douban { background: rgba(0,128,0,0.15); color: #00b51d; }
-    .ext-rating strong { margin-left: 4px; font-size: 12px; }
+    .my-rating {
+      color: #fbbf24;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .my-rating .rating-num {
+      color: #fff;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .external-ratings {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .ext-rating {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .ext-rating.imdb {
+      background: rgba(245,197,24,0.15);
+      color: #f5c518;
+    }
+    .ext-rating.douban {
+      background: rgba(0,128,0,0.15);
+      color: #00b51d;
+    }
+    .ext-rating strong {
+      margin-left: 4px;
+      font-size: 12px;
+    }
     .detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-    .detail-btn { padding: 14px; border-radius: 12px; text-align: center; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+    .detail-btn {
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
     .detail-btn:active { opacity: 0.8; }
     .detail-btn.secondary { background: #2c2c2e; color: #fff; }
-    .detail-btn.primary { background: #0a84ff; color: #fff; }
     .detail-btn.danger { background: rgba(255,69,58,0.15); color: #ff453a; }
 
-    .form-group { margin-bottom: 16px; }
-    .form-label { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; display: block; }
-    .form-input { width: 100%; background: #2c2c2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 16px; outline: none; transition: border-color 0.2s; }
-    .form-input:focus { border-color: #0a84ff; }
-    .form-input::placeholder { color: rgba(255,255,255,0.3); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .form-select { width: 100%; background: #2c2c2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 16px; outline: none; appearance: none; cursor: pointer; }
-    .form-select:focus { border-color: #0a84ff; }
-    .form-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .form-tag { padding: 8px 14px; background: #2c2c2e; border-radius: 10px; font-size: 13px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
-    .form-tag:active { transform: scale(0.95); }
-    .form-tag.selected { background: rgba(139,92,246,0.2); border-color: #8b5cf6; color: #8b5cf6; }
-    .form-tag.movie.selected { background: rgba(244,114,182,0.2); border-color: #f472b6; color: #f472b6; }
-    .star-rating { display: flex; gap: 4px; }
-    .star { font-size: 24px; color: rgba(255,255,255,0.2); cursor: pointer; transition: color 0.2s; }
-    .star.active { color: #fbbf24; }
-    .submit-btn { width: 100%; background: linear-gradient(135deg, #0a84ff 0%, #0066dd 100%); border: none; border-radius: 14px; padding: 16px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-top: 20px; }
-    .submit-btn:active { opacity: 0.8; }
-    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    
-    .radio-group { display: flex; flex-direction: column; gap: 10px; }
-    .radio-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: #2c2c2e; border-radius: 10px; cursor: pointer; }
-    .radio-item input[type="radio"] { width: 20px; height: 20px; cursor: pointer; }
-    .radio-item span { font-size: 15px; }
-    
-    .info-box { background: rgba(10, 132, 255, 0.1); border: 1px solid rgba(10, 132, 255, 0.3); border-radius: 12px; padding: 12px; }
-    .info-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #0a84ff; }
-    .info-text { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+    .version-section { margin-top: 16px; }
+    .version-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: rgba(255,255,255,0.8); }
+    .version-list { background: #2c2c2e; border-radius: 12px; overflow: hidden; }
+    .version-item {
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .version-item:last-child { border-bottom: none; }
+    .version-item.active { background: rgba(10,132,255,0.1); }
+    .version-info .name { font-size: 14px; font-weight: 500; }
+    .version-info .format { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+    .version-check { color: #0a84ff; font-size: 16px; }
 
-    .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: rgba(0,0,0,0.85); color: #fff; padding: 14px 24px; border-radius: 12px; font-size: 15px; font-weight: 500; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.25s; }
+    /* Toast */
+    .toast {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 500;
+      z-index: 2000;
+      opacity: 0; visibility: hidden;
+      transition: all 0.25s;
+    }
     .toast.show { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
-    .toast.success { background: rgba(34,197,94,0.9); }
-    .toast.error { background: rgba(239,68,68,0.9); }
-
-    .empty-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
 
     @media (min-width: 768px) { body { padding-top: 80px; } }
   </style>
@@ -257,18 +647,13 @@
     <div class="notch"></div>
     <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
 
+    <!-- HOME -->
     <div class="screen" id="screen-home">
-      <div class="home-header">
-      <h1>我的收藏</h1>
-      <div class="header-btn" onclick="showModal('settingsModal')" style="background: #2c2c2e; font-size: 14px; padding: 0 12px;">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-.67a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1-1.51V3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v.67c0 .68.37 1.3.99 1.51.63.21 1.3-.1 1.82-.33.52-.23 1.1.03 1.41.4l.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1-1.51V3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v.67c0 .68.37 1.3.99 1.51.63.21 1.3-.1 1.82-.33.52-.23 1.1.03 1.41.4l.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0-.33-1.82"/>
-        </svg>
-      </div>
-    </div>
+      <div class="home-header"><h1>我的收藏</h1></div>
+
+      <!-- Quick Actions -->
       <div class="quick-actions">
-        <div class="quick-action-btn scan" onclick="showToast('扫码功能开发中')">
+        <div class="quick-action-btn scan" onclick="showToast('扫描条形码')">
           <svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2M7 12h10" stroke-linecap="round"/></svg>
           <span>扫描添加</span>
         </div>
@@ -282,25 +667,193 @@
         </div>
       </div>
 
+      <!-- 智能推荐 -->
       <div class="recommend-section">
         <div class="recommend-section-title music">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
           音乐推荐
-          <span style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.4);margin-left:auto;">基于收藏偏好</span>
+          <span style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.4);margin-left:auto;">基于 Last.fm + Discogs</span>
         </div>
-        <div id="musicRecommendContainer">
-          <div class="empty">添加黑胶后开启推荐</div>
+
+        <!-- 同风格推荐 -->
+        <div class="recommend-category">
+          <div class="recommend-category-header">
+            <span class="recommend-category-title">相似风格</span>
+            <span class="recommend-category-subtitle">电子 · 爵士</span>
+          </div>
+          <div class="recommend-items">
+            <div class="recommend-item" onclick="showToast('Homework - Daft Punk')">
+              <div class="recommend-cover" style="background: linear-gradient(145deg, #4a4a6a 0%, #3a3a5a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
+              </div>
+              <div class="recommend-name">Homework</div>
+              <div class="recommend-artist">Daft Punk</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag genre">电子</span>
+                <span class="recommend-score">92%</span>
+              </div>
+            </div>
+            <div class="recommend-item" onclick="showToast('Blue Train - John Coltrane')">
+              <div class="recommend-cover" style="background: linear-gradient(145deg, #3a5a6a 0%, #2a4a5a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
+              </div>
+              <div class="recommend-name">Blue Train</div>
+              <div class="recommend-artist">John Coltrane</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag genre">爵士</span>
+                <span class="recommend-score">88%</span>
+              </div>
+            </div>
+            <div class="recommend-item" onclick="showToast('Cross - Justice')">
+              <div class="recommend-cover" style="background: linear-gradient(145deg, #6a4a4a 0%, #5a3a3a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
+              </div>
+              <div class="recommend-name">Cross</div>
+              <div class="recommend-artist">Justice</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag genre">电子</span>
+                <span class="recommend-score">85%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 同艺人推荐 -->
+        <div class="recommend-category">
+          <div class="recommend-category-header">
+            <span class="recommend-category-title">同艺人作品</span>
+            <span class="recommend-category-subtitle">来自 Discogs</span>
+          </div>
+          <div class="recommend-items">
+            <div class="recommend-item" onclick="showToast('Human After All - Daft Punk')">
+              <div class="recommend-cover" style="background: linear-gradient(145deg, #5a5a4a 0%, #4a4a3a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
+              </div>
+              <div class="recommend-name">Human After All</div>
+              <div class="recommend-artist">Daft Punk</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag similar">同艺人</span>
+                <span class="recommend-score">90%</span>
+              </div>
+            </div>
+            <div class="recommend-item" onclick="showToast('Sorcerer - Miles Davis')">
+              <div class="recommend-cover" style="background: linear-gradient(145deg, #4a6a5a 0%, #3a5a4a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
+              </div>
+              <div class="recommend-name">Sorcerer</div>
+              <div class="recommend-artist">Miles Davis</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag similar">同艺人</span>
+                <span class="recommend-score">87%</span>
+              </div>
+            </div>
+            <div class="recommend-item" onclick="showToast('Let It Be - The Beatles')">
+              <div class="recommend-cover" style="background: linear-gradient(145deg, #6a5a4a 0%, #5a4a3a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
+              </div>
+              <div class="recommend-name">Let It Be</div>
+              <div class="recommend-artist">The Beatles</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag similar">同艺人</span>
+                <span class="recommend-score">89%</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
+      <!-- 影视推荐 -->
       <div class="recommend-section">
         <div class="recommend-section-title movie">
           <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v16M2 10h6M2 14h6"/></svg>
           影视推荐
-          <span style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.4);margin-left:auto;">基于收藏偏好</span>
+          <span style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.4);margin-left:auto;">基于 OMDB 算法</span>
         </div>
-        <div id="movieRecommendContainer">
-          <div class="empty">添加影视后开启推荐</div>
+
+        <!-- 同类型推荐 -->
+        <div class="recommend-category">
+          <div class="recommend-category-header">
+            <span class="recommend-category-title">相似类型</span>
+            <span class="recommend-category-subtitle">剧情 · 犯罪</span>
+          </div>
+          <div class="recommend-items">
+            <div class="recommend-item" onclick="showToast('阿甘正传 - 1994')">
+              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #5a6a4a 0%, #4a5a3a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
+              </div>
+              <div class="recommend-name">阿甘正传</div>
+              <div class="recommend-artist">1994 · 剧情</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag genre">剧情</span>
+                <span class="recommend-score">94%</span>
+              </div>
+            </div>
+            <div class="recommend-item" onclick="showToast('好家伙 - 1990')">
+              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #6a4a3a 0%, #5a3a2a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
+              </div>
+              <div class="recommend-name">好家伙</div>
+              <div class="recommend-artist">1990 · 犯罪</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag genre">犯罪</span>
+                <span class="recommend-score">91%</span>
+              </div>
+            </div>
+            <div class="recommend-item" onclick="showToast('绿里奇迹 - 1999')">
+              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #4a5a6a 0%, #3a4a5a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
+              </div>
+              <div class="recommend-name">绿里奇迹</div>
+              <div class="recommend-artist">1999 · 剧情</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag genre">剧情</span>
+                <span class="recommend-score">89%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 同年代推荐 -->
+        <div class="recommend-category">
+          <div class="recommend-category-header">
+            <span class="recommend-category-title">同年代经典</span>
+            <span class="recommend-category-subtitle">90年代 · 2000年代</span>
+          </div>
+          <div class="recommend-items">
+            <div class="recommend-item" onclick="showToast('辛德勒的名单 - 1993')">
+              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #5a4a5a 0%, #4a3a4a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
+              </div>
+              <div class="recommend-name">辛德勒的名单</div>
+              <div class="recommend-artist">1993 · 历史</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag era">90年代</span>
+                <span class="recommend-score">93%</span>
+              </div>
+            </div>
+            <div class="recommend-item" onclick="showToast('盗梦空间 - 2010')">
+              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #3a4a6a 0%, #2a3a5a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
+              </div>
+              <div class="recommend-name">盗梦空间</div>
+              <div class="recommend-artist">2010 · 科幻</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag era">2010s</span>
+                <span class="recommend-score">90%</span>
+              </div>
+            </div>
+            <div class="recommend-item" onclick="showToast('搏击俱乐部 - 1999')">
+              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #6a5a4a 0%, #5a4a3a 100%);">
+                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
+              </div>
+              <div class="recommend-name">搏击俱乐部</div>
+              <div class="recommend-artist">1999 · 剧情</div>
+              <div class="recommend-meta">
+                <span class="recommend-tag era">90年代</span>
+                <span class="recommend-score">88%</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -309,7 +862,29 @@
           <div class="module-title">黑胶唱片</div>
           <span class="module-more" onclick="showScreen('music')">查看全部</span>
         </div>
-        <div class="module-items" id="homeVinylList"><div class="loading">加载中...</div></div>
+        <div class="module-items">
+          <div class="module-item" onclick="showVinylDetail(0)">
+            <div class="module-cover" style="background: linear-gradient(145deg, #2a2a4a 0%, #1a1a3a 100%);">
+              <svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
+            </div>
+            <div class="module-name">Random Access Memories</div>
+            <div class="module-artist">Daft Punk</div>
+          </div>
+          <div class="module-item" onclick="showVinylDetail(1)">
+            <div class="module-cover" style="background: linear-gradient(145deg, #2a4a3a 0%, #1a3a2a 100%);">
+              <svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
+            </div>
+            <div class="module-name">Kind of Blue</div>
+            <div class="module-artist">Miles Davis</div>
+          </div>
+          <div class="module-item" onclick="showVinylDetail(2)">
+            <div class="module-cover" style="background: linear-gradient(145deg, #4a3a2a 0%, #3a2a1a 100%);">
+              <svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
+            </div>
+            <div class="module-name">Abbey Road</div>
+            <div class="module-artist">The Beatles</div>
+          </div>
+        </div>
       </div>
 
       <div class="module-card">
@@ -317,26 +892,64 @@
           <div class="module-title">影视收藏</div>
           <span class="module-more" onclick="showScreen('movie')">查看全部</span>
         </div>
-        <div class="module-items" id="homeMovieList"><div class="loading">加载中...</div></div>
+        <div class="module-items">
+          <div class="module-item" onclick="showMovieDetail(0)">
+            <div class="module-cover movie" style="background: linear-gradient(145deg, #4a3a5a 0%, #3a2a4a 100%);">
+              <svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
+            </div>
+            <div class="module-name">肖申克的救赎</div>
+            <div class="module-artist">1994</div>
+          </div>
+          <div class="module-item" onclick="showMovieDetail(1)">
+            <div class="module-cover movie" style="background: linear-gradient(145deg, #3a4a3a 0%, #2a3a2a 100%);">
+              <svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
+            </div>
+            <div class="module-name">教父</div>
+            <div class="module-artist">1972</div>
+          </div>
+          <div class="module-item" onclick="showMovieDetail(2)">
+            <div class="module-cover movie" style="background: linear-gradient(145deg, #4a2a3a 0%, #3a1a2a 100%);">
+              <svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
+            </div>
+            <div class="module-name">绝命毒师</div>
+            <div class="module-artist">S1-S5</div>
+          </div>
+        </div>
       </div>
+
+      <div class="preview-notice">点击卡片查看详情</div>
     </div>
 
+    <!-- MUSIC -->
     <div class="screen" id="screen-music" style="display:none;">
       <div class="screen-header"><h1>我的黑胶</h1><div class="header-btn" onclick="showAddVinylModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> 添加</div></div>
-      <div class="search-bar" onclick="showToast('搜索功能开发中')"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>搜索唱片...</span></div>
-      <div class="vinyl-grid" id="vinylGrid"><div class="loading">加载中...</div></div>
+      <div class="search-bar" onclick="showToast('搜索功能')"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>搜索唱片...</span></div>
+      <div class="vinyl-grid">
+        <div class="vinyl-item" onclick="showVinylDetail(0)"><div class="vinyl-cover"><svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg></div><div class="vinyl-info"><div class="vinyl-title">Random Access Memories</div><div class="vinyl-artist">Daft Punk</div></div></div>
+        <div class="vinyl-item" onclick="showVinylDetail(1)"><div class="vinyl-cover" style="background: linear-gradient(145deg, #2a4a3a 0%, #1a3a2a 100%);"><svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg></div><div class="vinyl-info"><div class="vinyl-title">Kind of Blue</div><div class="vinyl-artist">Miles Davis</div></div></div>
+        <div class="vinyl-item" onclick="showVinylDetail(2)"><div class="vinyl-cover" style="background: linear-gradient(145deg, #4a3a2a 0%, #3a2a1a 100%);"><svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg></div><div class="vinyl-info"><div class="vinyl-title">Abbey Road</div><div class="vinyl-artist">The Beatles</div></div></div>
+        <div class="vinyl-item" onclick="showVinylDetail(3)"><div class="vinyl-cover" style="background: linear-gradient(145deg, #3a3a4a 0%, #2a2a3a 100%);"><svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg></div><div class="vinyl-info"><div class="vinyl-title">The Dark Side</div><div class="vinyl-artist">Pink Floyd</div></div></div>
+      </div>
       <div style="height: 200px;"></div>
     </div>
 
+    <!-- MOVIE -->
     <div class="screen" id="screen-movie" style="display:none;">
       <div class="screen-header"><h1>影视</h1><div class="header-btn" onclick="showAddMovieModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> 添加</div></div>
-      <div class="search-bar" onclick="showToast('搜索功能开发中')"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>搜索电影或剧集...</span></div>
-      <div class="movie-grid" id="movieGrid"><div class="loading">加载中...</div></div>
+      <div class="search-bar" onclick="showToast('搜索功能')"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>搜索电影或剧集...</span></div>
+      <div class="movie-grid">
+        <div class="movie-item" onclick="showMovieDetail(0)"><div class="movie-poster"><svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg></div><div class="movie-info"><div class="movie-title">肖申克的救赎</div><div class="movie-meta"><span>1994</span><span class="rating">9.7</span></div></div></div>
+        <div class="movie-item" onclick="showMovieDetail(1)"><div class="movie-poster" style="background: linear-gradient(145deg, #3a2a4a 0%, #2a1a3a 100%);"><svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg></div><div class="movie-info"><div class="movie-title">教父</div><div class="movie-meta"><span>1972</span><span class="rating">9.2</span></div></div></div>
+        <div class="movie-item" onclick="showMovieDetail(2)"><div class="movie-poster" style="background: linear-gradient(145deg, #4a2a3a 0%, #3a1a2a 100%);"><svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg></div><div class="movie-info"><div class="movie-title">绝命毒师</div><div class="movie-meta"><span>S1-S5</span><span class="rating">9.5</span></div></div></div>
+        <div class="movie-item" onclick="showMovieDetail(3)"><div class="movie-poster" style="background: linear-gradient(145deg, #2a3a4a 0%, #1a2a3a 100%);"><svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg></div><div class="movie-info"><div class="movie-title">蝙蝠侠：黑暗骑士</div><div class="movie-meta"><span>2008</span><span class="rating">9.0</span></div></div></div>
+      </div>
       <div style="height: 200px;"></div>
     </div>
 
+    <!-- STATS -->
     <div class="screen" id="screen-stats" style="display:none;">
       <div class="screen-header"><h1>统计</h1></div>
+
       <div class="filter-section">
         <div class="filter-row">
           <span class="filter-label">类型</span>
@@ -356,23 +969,26 @@
           </div>
         </div>
       </div>
+
       <div class="stats-hero">
-        <div class="number" id="totalCount">-</div>
-        <div class="label" id="totalLabel">加载中...</div>
-        <div class="subtitle" id="totalSub"></div>
+        <div class="number" id="totalCount">42</div>
+        <div class="label" id="totalLabel">今年新增收藏</div>
+        <div class="subtitle" id="totalSub">较去年增长 23%</div>
       </div>
+
       <div class="stats-row">
         <div class="stat-card music" id="statMusic">
           <div class="label">黑胶唱片</div>
-          <div class="value" id="musicCount">-</div>
-          <div class="sub" id="musicSub"></div>
+          <div class="value" id="musicCount">28</div>
+          <div class="sub" id="musicSub">本月 +5</div>
         </div>
         <div class="stat-card movie" id="statMovie">
           <div class="label">影视</div>
-          <div class="value" id="movieCount">-</div>
-          <div class="sub" id="movieSub"></div>
+          <div class="value" id="movieCount">14</div>
+          <div class="sub" id="movieSub">本月 +2</div>
         </div>
       </div>
+
       <div class="chart-area">
         <div class="chart-title">
           <span>月度趋势</span>
@@ -381,12 +997,63 @@
             <div class="legend-item"><div class="legend-dot" style="background: #f472b6;"></div><span>影视</span></div>
           </div>
         </div>
-        <div class="chart-bars" id="chartBars"><div class="loading">加载中...</div></div>
+        <div class="chart-bars" id="chartBars">
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-stack">
+              <div class="chart-bar music" style="height: 30px;"><span class="count">3</span></div>
+              <div class="chart-bar movie" style="height: 15px;"><span class="count">2</span></div>
+            </div>
+            <div class="chart-month">1月</div>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-stack">
+              <div class="chart-bar music" style="height: 45px;"><span class="count">5</span></div>
+              <div class="chart-bar movie" style="height: 20px;"><span class="count">2</span></div>
+            </div>
+            <div class="chart-month">2月</div>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-stack">
+              <div class="chart-bar music" style="height: 20px;"><span class="count">2</span></div>
+              <div class="chart-bar movie" style="height: 10px;"><span class="count">1</span></div>
+            </div>
+            <div class="chart-month">3月</div>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-stack">
+              <div class="chart-bar music" style="height: 55px;"><span class="count">6</span></div>
+              <div class="chart-bar movie" style="height: 30px;"><span class="count">3</span></div>
+            </div>
+            <div class="chart-month">4月</div>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-stack">
+              <div class="chart-bar music" style="height: 35px;"><span class="count">4</span></div>
+              <div class="chart-bar movie" style="height: 20px;"><span class="count">2</span></div>
+            </div>
+            <div class="chart-month">5月</div>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-stack">
+              <div class="chart-bar music" style="height: 50px;"><span class="count">5</span></div>
+              <div class="chart-bar movie" style="height: 25px;"><span class="count">3</span></div>
+            </div>
+            <div class="chart-month">6月</div>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-stack">
+              <div class="chart-bar music" style="height: 25px;"><span class="count">3</span></div>
+              <div class="chart-bar movie" style="height: 15px;"><span class="count">1</span></div>
+            </div>
+            <div class="chart-month">7月</div>
+          </div>
+        </div>
       </div>
       <div style="height: 100px;"></div>
     </div>
   </div>
 
+  <!-- Tab Bar -->
   <div class="tab-bar">
     <div class="tab-bar-inner">
       <a href="#" class="tab-item active" onclick="showScreen('home'); return false;">
@@ -408,207 +1075,92 @@
     </div>
   </div>
 
-  <!-- SETTINGS MODAL -->
-  <div class="modal-overlay" id="settingsModal">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="modal-handle"></div>
-      <div class="modal-title">设置</div>
-      
-      <div class="form-group">
-        <label class="form-label">数据源</label>
-        <div class="radio-group">
-          <label class="radio-item">
-            <input type="radio" name="dataSource" value="local" id="sourceLocal" onchange="saveSettings()" checked>
-            <span>本地存储</span>
-          </label>
-          <label class="radio-item">
-            <input type="radio" name="dataSource" value="notion" id="sourceNotion" onchange="saveSettings()">
-            <span>Notion数据库</span>
-          </label>
-        </div>
-      </div>
-
-      <div id="notionSettings" style="display: none;">
-        <div class="form-group">
-          <label class="form-label">Notion Token</label>
-          <input type="text" class="form-input" id="notionToken" placeholder="secret_xxx...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">黑胶数据库ID</label>
-          <input type="text" class="form-input" id="notionVinylDb" placeholder="xxx...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">影视数据库ID</label>
-          <input type="text" class="form-input" id="notionMovieDb" placeholder="xxx...">
-        </div>
-        <button class="submit-btn" onclick="testNotionConnection()" style="background: #2c2c2e; margin-bottom: 15px;">测试连接</button>
-      </div>
-
-      <div class="info-box" style="margin-bottom: 15px;">
-        <div class="info-title">💡 如何获取Notion Token？</div>
-        <div class="info-text">
-          1. 访问 https://www.notion.so/my-integrations<br>
-          2. 创建新的Integration<br>
-          3. 复制 Internal Integration Token
-        </div>
-      </div>
-      
-      <button class="submit-btn" onclick="hideModal('settingsModal'); loadData();">保存并返回</button>
-    </div>
-  </div>
-
-  <!-- ADD VINYL SELECTION MODAL -->
+  <!-- ADD VINYL MODAL -->
   <div class="modal-overlay" id="addVinylModal">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
       <div class="modal-title">添加黑胶唱片</div>
       <div class="action-item" onclick="showToast('扫描条形码')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><div><div class="text">扫描条形码</div><div class="desc">从 Discogs 自动获取信息</div></div></div>
       <div class="action-item" onclick="showToast('搜索唱片')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35"/></svg></div><div><div class="text">搜索唱片</div><div class="desc">输入专辑或艺术家名称</div></div></div>
-      <div class="action-item" onclick="hideModal('addVinylModal'); showVinylFormModal()"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加唱片信息</div></div></div>
+      <div class="action-item" onclick="hideModal('addVinylModal'); showModal('vinylFormModal')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加唱片信息</div></div></div>
     </div>
   </div>
 
-  <!-- ADD MOVIE SELECTION MODAL -->
+  <!-- ADD MOVIE MODAL -->
   <div class="modal-overlay" id="addMovieModal">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
       <div class="modal-title">添加影视</div>
       <div class="action-item" onclick="showToast('搜索 OMDB')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35"/></svg></div><div><div class="text">搜索电影/剧集</div><div class="desc">从 OMDB 自动获取信息</div></div></div>
-      <div class="action-item" onclick="hideModal('addMovieModal'); showMovieFormModal()"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加影视信息</div></div></div>
+      <div class="action-item" onclick="hideModal('addMovieModal'); showModal('movieFormModal')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加影视信息</div></div></div>
     </div>
   </div>
 
-  <!-- ADD/EDIT VINYL MODAL -->
+  <!-- VINYL FORM MODAL -->
   <div class="modal-overlay" id="vinylFormModal">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
-      <div class="modal-title" id="vinylFormTitle">添加黑胶唱片</div>
-      <form id="vinylForm" onsubmit="submitVinylForm(event)">
-        <input type="hidden" id="vinylEditId">
+      <div class="modal-title">添加黑胶唱片</div>
+      <form id="vinylForm" onsubmit="event.preventDefault(); showToast('保存成功'); hideModal('vinylFormModal');">
         <div class="form-group">
           <label class="form-label">专辑名称 *</label>
-          <input type="text" class="form-input" id="vinylTitle" placeholder="例如：Random Access Memories" required>
+          <input type="text" class="form-input" placeholder="例如：Random Access Memories" required>
         </div>
         <div class="form-group">
           <label class="form-label">艺术家 *</label>
-          <input type="text" class="form-input" id="vinylArtist" placeholder="例如：Daft Punk" required>
+          <input type="text" class="form-input" placeholder="例如：Daft Punk" required>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">发行年份</label>
-            <input type="number" class="form-input" id="vinylYear" placeholder="例如：2013" min="1900" max="2030">
+            <input type="number" class="form-input" placeholder="例如：2013" min="1900" max="2030">
           </div>
           <div class="form-group">
             <label class="form-label">购买价格 (¥)</label>
-            <input type="number" class="form-input" id="vinylPrice" placeholder="例如：298" min="0">
+            <input type="number" class="form-input" placeholder="例如：298" min="0">
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Barcode</label>
-          <input type="text" class="form-input" id="vinylBarcode" placeholder="扫码自动填充">
+          <input type="text" class="form-input" placeholder="扫码自动填充">
         </div>
         <div class="form-group">
           <label class="form-label">版本信息</label>
-          <input type="text" class="form-input" id="vinylVersion" placeholder="例如：180g 双碟版 EU Original">
+          <input type="text" class="form-input" placeholder="例如：180g 双碟版">
         </div>
-        <div class="form-group">
-          <label class="form-label">购买日期</label>
-          <input type="date" class="form-input" id="vinylPurchaseDate">
-        </div>
-        <div class="form-group">
-          <label class="form-label">风格标签</label>
-          <div class="form-tags">
-            <span class="form-tag" onclick="toggleTag(this, 'vinylGenre', '电子')">电子</span>
-            <span class="form-tag" onclick="toggleTag(this, 'vinylGenre', '爵士')">爵士</span>
-            <span class="form-tag" onclick="toggleTag(this, 'vinylGenre', '摇滚')">摇滚</span>
-            <span class="form-tag" onclick="toggleTag(this, 'vinylGenre', '古典')">古典</span>
-            <span class="form-tag" onclick="toggleTag(this, 'vinylGenre', '流行')">流行</span>
-            <span class="form-tag" onclick="toggleTag(this, 'vinylGenre', '嘻哈')">嘻哈</span>
-            <span class="form-tag" onclick="toggleTag(this, 'vinylGenre', '灵魂')">灵魂</span>
-            <span class="form-tag" onclick="toggleTag(this, 'vinylGenre', '民谣')">民谣</span>
-          </div>
-          <input type="hidden" id="vinylGenre">
-        </div>
-        <button type="submit" class="submit-btn" id="vinylSubmitBtn">保存</button>
+        <button type="submit" class="submit-btn">保存</button>
       </form>
     </div>
   </div>
 
-  <!-- ADD/EDIT MOVIE MODAL -->
+  <!-- MOVIE FORM MODAL -->
   <div class="modal-overlay" id="movieFormModal">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
-      <div class="modal-title" id="movieFormTitle">添加影视</div>
-      <form id="movieForm" onsubmit="submitMovieForm(event)">
-        <input type="hidden" id="movieEditId">
+      <div class="modal-title">添加影视</div>
+      <form id="movieForm" onsubmit="event.preventDefault(); showToast('保存成功'); hideModal('movieFormModal');">
         <div class="form-group">
           <label class="form-label">名称 *</label>
-          <input type="text" class="form-input" id="movieTitle" placeholder="例如：肖申克的救赎" required>
+          <input type="text" class="form-input" placeholder="例如：肖申克的救赎" required>
         </div>
         <div class="form-group">
           <label class="form-label">导演</label>
-          <input type="text" class="form-input" id="movieDirector" placeholder="例如：Frank Darabont">
+          <input type="text" class="form-input" placeholder="例如：Frank Darabont">
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">类型</label>
-            <select class="form-select" id="movieType">
-              <option value="Movie">电影</option>
-              <option value="Series">剧集</option>
+            <select class="form-input">
+              <option>电影</option>
+              <option>剧集</option>
             </select>
           </div>
           <div class="form-group">
             <label class="form-label">年份</label>
-            <input type="number" class="form-input" id="movieYear" placeholder="例如：1994" min="1900" max="2030">
+            <input type="number" class="form-input" placeholder="例如：1994" min="1900" max="2030">
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">观影日期</label>
-          <input type="date" class="form-input" id="movieWatchedDate">
-        </div>
-        <div class="form-group">
-          <label class="form-label">我的评分</label>
-          <div class="star-rating" id="starRating">
-            <span class="star" onclick="setRating(1)">★</span>
-            <span class="star" onclick="setRating(2)">★</span>
-            <span class="star" onclick="setRating(3)">★</span>
-            <span class="star" onclick="setRating(4)">★</span>
-            <span class="star" onclick="setRating(5)">★</span>
-            <span class="star" onclick="setRating(6)">★</span>
-            <span class="star" onclick="setRating(7)">★</span>
-            <span class="star" onclick="setRating(8)">★</span>
-            <span class="star" onclick="setRating(9)">★</span>
-            <span class="star" onclick="setRating(10)">★</span>
-          </div>
-          <input type="hidden" id="movieRating">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">IMDb 评分</label>
-            <input type="number" class="form-input" id="movieIMDB" placeholder="例如：9.3" step="0.1" min="0" max="10">
-          </div>
-          <div class="form-group">
-            <label class="form-label">豆瓣评分</label>
-            <input type="number" class="form-input" id="movieDouban" placeholder="例如：9.7" step="0.1" min="0" max="10">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">类型标签</label>
-          <div class="form-tags">
-            <span class="form-tag movie" onclick="toggleTag(this, 'movieGenre', '剧情')">剧情</span>
-            <span class="form-tag movie" onclick="toggleTag(this, 'movieGenre', '科幻')">科幻</span>
-            <span class="form-tag movie" onclick="toggleTag(this, 'movieGenre', '犯罪')">犯罪</span>
-            <span class="form-tag movie" onclick="toggleTag(this, 'movieGenre', '动作')">动作</span>
-            <span class="form-tag movie" onclick="toggleTag(this, 'movieGenre', '喜剧')">喜剧</span>
-            <span class="form-tag movie" onclick="toggleTag(this, 'movieGenre', '悬疑')">悬疑</span>
-            <span class="form-tag movie" onclick="toggleTag(this, 'movieGenre', '恐怖')">恐怖</span>
-            <span class="form-tag movie" onclick="toggleTag(this, 'movieGenre', '爱情')">爱情</span>
-            <span class="form-tag movie" onclick="toggleTag(this, 'movieGenre', '动画')">动画</span>
-            <span class="form-tag movie" onclick="toggleTag(this, 'movieGenre', '纪录片')">纪录片</span>
-          </div>
-          <input type="hidden" id="movieGenre">
-        </div>
-        <button type="submit" class="submit-btn" id="movieSubmitBtn">保存</button>
+        <button type="submit" class="submit-btn">保存</button>
       </form>
     </div>
   </div>
@@ -618,31 +1170,26 @@
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
       <div class="detail-header">
-        <div class="detail-cover" id="vinylDetailCover">
-          <svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
-        </div>
-        <div class="detail-info">
-          <div class="detail-title" id="vinylDetailTitle">-</div>
-          <div class="detail-artist" id="vinylDetailArtist">-</div>
-          <div class="detail-meta" id="vinylDetailMeta"></div>
-        </div>
+        <div class="detail-cover"><svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg></div>
+        <div class="detail-info"><div class="detail-title" id="vinylDetailTitle">Random Access Memories</div><div class="detail-artist" id="vinylDetailArtist">Daft Punk</div><div class="detail-meta"><span class="detail-tag">2013</span><span class="detail-tag">电子</span></div></div>
       </div>
-      <div class="detail-meta-row" id="vinylDetailInfo">
-        <div class="row"><span class="label">购买日期</span><span id="vinylPurchaseDate2">-</span></div>
-        <div class="row"><span class="label">购买价格</span><span id="vinylPrice2">-</span></div>
-        <div class="row"><span class="label">Barcode</span><span class="barcode-value" id="vinylBarcode2">-</span></div>
+      <div class="detail-meta-row">
+        <div class="row"><span class="label">购买日期</span><span>2024-03-15</span></div>
+        <div class="row"><span class="label">购买价格</span><span>¥298</span></div>
+        <div class="row"><span class="label">Barcode</span><span class="barcode-value">190296918293</span></div>
       </div>
-      <div class="detail-meta-row" id="vinylVersionInfo" style="display:none;">
+      <div class="detail-meta-row">
         <div class="row"><span class="label">版本信息</span><span class="version-source">来自 Discogs</span></div>
         <div class="version-detail">
-          <div class="version-tags" id="vinylVersionTags"></div>
-          <div class="version-desc" id="vinylVersionDesc"></div>
+          <div class="version-tags">
+            <span class="v-tag">180g</span>
+            <span class="v-tag">双碟版</span>
+            <span class="v-tag">EU Original</span>
+          </div>
+          <div class="version-desc">2013年欧洲首版，180克重磅黑胶， gatefold 包装</div>
         </div>
       </div>
-      <div class="detail-actions">
-        <div class="detail-btn primary" id="editVinylBtn">编辑</div>
-        <div class="detail-btn danger" id="deleteVinylBtn">删除</div>
-      </div>
+      <div class="detail-actions" style="margin-top: 16px;"><div class="detail-btn secondary">编辑</div><div class="detail-btn danger">删除</div></div>
     </div>
   </div>
 
@@ -651,646 +1198,49 @@
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
       <div class="detail-header">
-        <div class="detail-cover movie" id="movieDetailCover">
-          <svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
-        </div>
-        <div class="detail-info">
-          <div class="detail-title" id="movieDetailTitle">-</div>
-          <div class="detail-artist" id="movieDetailDirector">-</div>
-          <div class="detail-meta" id="movieDetailMeta"></div>
-        </div>
+        <div class="detail-cover" style="aspect-ratio: 2/3;"><svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg></div>
+        <div class="detail-info"><div class="detail-title" id="movieDetailTitle">肖申克的救赎</div><div class="detail-artist" id="movieDetailDirector">Frank Darabont</div><div class="detail-meta"><span class="detail-tag">1994</span><span class="detail-tag">剧情</span><span class="rating">9.7</span></div></div>
       </div>
-      <div class="detail-meta-row" id="movieDetailInfo">
-        <div class="row"><span class="label">类型</span><span id="movieType2">-</span></div>
-        <div class="row"><span class="label">观影日期</span><span id="movieWatchedDate2">-</span></div>
+      <div class="detail-meta-row">
+        <div class="row"><span class="label">类型</span><span>电影</span></div>
+        <div class="row"><span class="label">观影日期</span><span>2024-06-15</span></div>
       </div>
-      <div class="detail-meta-row" id="movieRatingInfo" style="display:none;">
+      <div class="detail-meta-row">
         <div class="row rating-row">
           <span class="label">我的评分</span>
-          <span class="my-rating" id="myRating"><span class="rating-num">-</span></span>
+          <span class="my-rating">★★★★★ <span class="rating-num">9.5</span></span>
         </div>
-        <div class="row rating-row" id="externalRatingsRow" style="display:none;">
+        <div class="row rating-row">
           <span class="label">综合评分</span>
-          <div class="external-ratings" id="externalRatings"></div>
+          <div class="external-ratings">
+            <span class="ext-rating imdb">IMDb <strong>9.3</strong></span>
+            <span class="ext-rating douban">豆瓣 <strong>9.7</strong></span>
+          </div>
         </div>
       </div>
-      <div class="detail-actions">
-        <div class="detail-btn primary" id="editMovieBtn">编辑</div>
-        <div class="detail-btn danger" id="deleteMovieBtn">删除</div>
-      </div>
+      <div class="detail-actions"><div class="detail-btn secondary">编辑</div><div class="detail-btn danger">删除</div></div>
     </div>
   </div>
 
+  <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
   <script>
-    const API_BASE = 'https://media-vault-nu.vercel.app/api/notion';
-    
-    let vinyls = [];
-    let movies = [];
+    const vinyls = [
+      { title: 'Random Access Memories', artist: 'Daft Punk' },
+      { title: 'Kind of Blue', artist: 'Miles Davis' },
+      { title: 'Abbey Road', artist: 'The Beatles' },
+      { title: 'The Dark Side', artist: 'Pink Floyd' },
+    ];
+    const movies = [
+      { title: '肖申克的救赎', director: 'Frank Darabont' },
+      { title: '教父', director: 'Francis Ford Coppola' },
+      { title: '绝命毒师', director: 'Vince Gilligan' },
+      { title: '蝙蝠侠：黑暗骑士', director: 'Christopher Nolan' },
+    ];
+
     let currentType = 'all';
-    let currentTime = 'month';
-    let currentRating = 0;
-    let vinylTags = [];
-    let movieTags = [];
-    let selectedVinylIndex = -1;
-    let selectedMovieIndex = -1;
-    let settings = {
-      dataSource: 'local',
-      notionToken: '',
-      notionVinylDb: '',
-      notionMovieDb: ''
-    };
-
-    function loadSettings() {
-      try {
-        const saved = localStorage.getItem('mediaVaultSettings');
-        if (saved) {
-          settings = { ...settings, ...JSON.parse(saved) };
-          // Apply settings to UI
-          if (settings.dataSource === 'notion') {
-            document.getElementById('sourceNotion').checked = true;
-            document.getElementById('notionSettings').style.display = 'block';
-          } else {
-            document.getElementById('sourceLocal').checked = true;
-            document.getElementById('notionSettings').style.display = 'none';
-          }
-          document.getElementById('notionToken').value = settings.notionToken || '';
-          document.getElementById('notionVinylDb').value = settings.notionVinylDb || '';
-          document.getElementById('notionMovieDb').value = settings.notionMovieDb || '';
-        }
-      } catch (e) {}
-    }
-
-    function saveSettings() {
-      settings.dataSource = document.querySelector('input[name="dataSource"]:checked').value;
-      settings.notionToken = document.getElementById('notionToken').value;
-      settings.notionVinylDb = document.getElementById('notionVinylDb').value;
-      settings.notionMovieDb = document.getElementById('notionMovieDb').value;
-      
-      localStorage.setItem('mediaVaultSettings', JSON.stringify(settings));
-      
-      document.getElementById('notionSettings').style.display = 
-        settings.dataSource === 'notion' ? 'block' : 'none';
-      
-      showToast('设置已保存');
-    }
-
-    async function testNotionConnection() {
-      showToast('测试中...');
-      try {
-        const testRes = await fetch(`/api/notion/vinyls`, {
-          headers: { 'Authorization': `Bearer ${settings.notionToken}` }
-        });
-        if (testRes.ok) {
-          showToast('✅ Notion连接成功！', 'success');
-        } else {
-          showToast('❌ 连接失败，检查Token', 'error');
-        }
-      } catch (e) {
-        showToast('❌ 网络错误', 'error');
-      }
-    }
-
-    async function fetchVinyls() {
-      if (settings.dataSource === 'notion' && settings.notionToken && settings.notionVinylDb) {
-        try {
-          const res = await fetch(`/api/notion/vinyls`, {
-            headers: { 'Authorization': `Bearer ${settings.notionToken}` }
-          });
-          const data = await res.json();
-          if (data.success) vinyls = data.data;
-        } catch (e) {
-          console.error('Notion fetch failed:', e);
-          showToast('Notion读取失败', 'error');
-        }
-      } else {
-        try {
-          const saved = localStorage.getItem('mediaVaultData');
-          if (saved) {
-            vinyls = JSON.parse(saved).vinyls || [];
-          }
-        } catch (e) { vinyls = []; }
-      }
-    }
-
-    async function fetchMovies() {
-      if (settings.dataSource === 'notion' && settings.notionToken && settings.notionMovieDb) {
-        try {
-          const res = await fetch(`/api/notion/movies`, {
-            headers: { 'Authorization': `Bearer ${settings.notionToken}` }
-          });
-          const data = await res.json();
-          if (data.success) movies = data.data;
-        } catch (e) {
-          console.error('Notion fetch failed:', e);
-          showToast('Notion读取失败', 'error');
-        }
-      } else {
-        try {
-          const saved = localStorage.getItem('mediaVaultData');
-          if (saved) {
-            movies = JSON.parse(saved).movies || [];
-          }
-        } catch (e) { movies = []; }
-      }
-    }
-
-    function saveData() {
-      localStorage.setItem('mediaVaultData', JSON.stringify({ vinyls, movies }));
-    }
-
-    async function addVinyl(data) {
-      if (settings.dataSource === 'notion' && settings.notionToken && settings.notionVinylDb) {
-        try {
-          const res = await fetch(`/api/notion/vinyls/add`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${settings.notionToken}`,
-              'X-Database-ID': settings.notionVinylDb
-            },
-            body: JSON.stringify(data)
-          });
-          const result = await res.json();
-          if (result.success) {
-            vinyls.unshift({ ...data, id: result.data?.id || Date.now().toString() });
-            saveData();
-            return { success: true };
-          }
-          return { success: false, error: result.error };
-        } catch (e) {
-          return { success: false, error: e.message };
-        }
-      } else {
-        vinyls.unshift({ ...data, id: Date.now().toString() });
-        saveData();
-        return { success: true };
-      }
-    }
-
-    async function addMovie(data) {
-      if (settings.dataSource === 'notion' && settings.notionToken && settings.notionMovieDb) {
-        try {
-          const res = await fetch(`/api/notion/movies/add`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${settings.notionToken}`,
-              'X-Database-ID': settings.notionMovieDb
-            },
-            body: JSON.stringify(data)
-          });
-          const result = await res.json();
-          if (result.success) {
-            movies.unshift({ ...data, id: result.data?.id || Date.now().toString() });
-            saveData();
-            return { success: true };
-          }
-          return { success: false, error: result.error };
-        } catch (e) {
-          return { success: false, error: e.message };
-        }
-      } else {
-        movies.unshift({ ...data, id: Date.now().toString() });
-        saveData();
-        return { success: true };
-      }
-    }
-
-    async function deleteVinyl(id) {
-      vinyls = vinyls.filter(v => v.id !== id);
-      saveData();
-      return { success: true };
-    }
-
-    async function deleteMovie(id) {
-      movies = movies.filter(m => m.id !== id);
-      saveData();
-      return { success: true };
-    }
-
-    function renderVinylCover(vinyl) {
-      return vinyl.cover ? `<img src="${vinyl.cover}" alt="${vinyl.title}">` : 
-        `<svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>`;
-    }
-
-    function renderMovieCover(movie) {
-      return movie.poster ? `<img src="${movie.poster}" alt="${movie.title}">` : 
-        `<svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>`;
-    }
-
-    function renderHomeVinyls() {
-      const container = document.getElementById('homeVinylList');
-      if (vinyls.length === 0) {
-        container.innerHTML = '<div class="empty">暂无黑胶唱片<br><span style="font-size:12px;color:#0a84ff;cursor:pointer" onclick="showAddVinylModal()">点击添加</span></div>';
-        return;
-      }
-      container.innerHTML = vinyls.slice(0, 5).map((v, i) => `
-        <div class="module-item" onclick="showVinylDetail(${i})">
-          <div class="module-cover" style="background: linear-gradient(145deg, #2a2a4a 0%, #1a1a3a 100%);">
-            ${renderVinylCover(v)}
-          </div>
-          <div class="module-name">${v.title}</div>
-          <div class="module-artist">${v.artist}</div>
-        </div>
-      `).join('');
-    }
-
-    function renderHomeMovies() {
-      const container = document.getElementById('homeMovieList');
-      if (movies.length === 0) {
-        container.innerHTML = '<div class="empty">暂无影视收藏<br><span style="font-size:12px;color:#f472b6;cursor:pointer" onclick="showAddMovieModal()">点击添加</span></div>';
-        return;
-      }
-      container.innerHTML = movies.slice(0, 5).map((m, i) => `
-        <div class="module-item" onclick="showMovieDetail(${i})">
-          <div class="module-cover movie" style="background: linear-gradient(145deg, #3a2a4a 0%, #2a1a3a 100%);">
-            ${renderMovieCover(m)}
-          </div>
-          <div class="module-name">${m.title}</div>
-          <div class="module-artist">${m.year || '-'}</div>
-        </div>
-      `).join('');
-    }
-
-    function renderVinylGrid() {
-      const container = document.getElementById('vinylGrid');
-      if (vinyls.length === 0) {
-        container.innerHTML = '<div class="empty">暂无黑胶唱片<br><span style="font-size:14px;color:#0a84ff;cursor:pointer" onclick="showAddVinylModal()">点击添加</span></div>';
-        return;
-      }
-      container.innerHTML = vinyls.map((v, i) => `
-        <div class="vinyl-item" onclick="showVinylDetail(${i})">
-          <div class="vinyl-cover">${renderVinylCover(v)}</div>
-          <div class="vinyl-info">
-            <div class="vinyl-title">${v.title}</div>
-            <div class="vinyl-artist">${v.artist}</div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderMovieGrid() {
-      const container = document.getElementById('movieGrid');
-      if (movies.length === 0) {
-        container.innerHTML = '<div class="empty">暂无影视收藏<br><span style="font-size:14px;color:#f472b6;cursor:pointer" onclick="showAddMovieModal()">点击添加</span></div>';
-        return;
-      }
-      container.innerHTML = movies.map((m, i) => `
-        <div class="movie-item" onclick="showMovieDetail(${i})">
-          <div class="movie-poster">${renderMovieCover(m)}</div>
-          <div class="movie-info">
-            <div class="movie-title">${m.title}</div>
-            <div class="movie-meta">
-              <span>${m.year || '-'}</span>
-              ${m.myRating ? `<span class="rating">${m.myRating}</span>` : ''}
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function showAddVinylModal() {
-      console.log('showAddVinylModal called');
-      showModal('addVinylModal');
-    }
-    
-    function showVinylFormModal() {
-      console.log('showVinylFormModal called');
-      selectedVinylIndex = -1;
-      document.getElementById('vinylFormTitle').textContent = '添加黑胶唱片';
-      document.getElementById('vinylForm').reset();
-      document.getElementById('vinylEditId').value = '';
-      vinylTags = [];
-      document.querySelectorAll('#vinylForm .form-tag').forEach(t => t.classList.remove('selected'));
-      showModal('vinylFormModal');
-    }
-    
-    function showAddMovieModal() {
-      console.log('showAddMovieModal called');
-      showModal('addMovieModal');
-    }
-    
-    function showMovieFormModal() {
-      console.log('showMovieFormModal called');
-      selectedMovieIndex = -1;
-      document.getElementById('movieFormTitle').textContent = '添加影视';
-      document.getElementById('movieForm').reset();
-      document.getElementById('movieEditId').value = '';
-      movieTags = [];
-      currentRating = 0;
-      document.querySelectorAll('#movieForm .form-tag').forEach(t => t.classList.remove('selected'));
-      document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
-      showModal('movieFormModal');
-    }
-
-    function showVinylDetail(index) {
-      selectedVinylIndex = index;
-      const v = vinyls[index];
-      if (!v) return;
-      
-      document.getElementById('vinylDetailTitle').textContent = v.title || '-';
-      document.getElementById('vinylDetailArtist').textContent = v.artist || '-';
-      
-      const meta = document.getElementById('vinylDetailMeta');
-      meta.innerHTML = (v.year ? `<span class="detail-tag">${v.year}</span>` : '') +
-                       (v.genre && v.genre.length ? v.genre.map(g => `<span class="detail-tag">${g}</span>`).join('') : '');
-      
-      document.getElementById('vinylPurchaseDate2').textContent = v.purchaseDate || '-';
-      document.getElementById('vinylPrice2').textContent = v.purchasePrice ? `¥${v.purchasePrice}` : '-';
-      document.getElementById('vinylBarcode2').textContent = v.barcode || '-';
-      
-      const cover = document.getElementById('vinylDetailCover');
-      cover.innerHTML = v.cover ? `<img src="${v.cover}" alt="${v.title}">` : 
-        `<svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>`;
-      
-      const versionInfo = document.getElementById('vinylVersionInfo');
-      if (v.version) {
-        versionInfo.style.display = 'block';
-        document.getElementById('vinylVersionDesc').textContent = v.version;
-      } else {
-        versionInfo.style.display = 'none';
-      }
-      
-      document.getElementById('editVinylBtn').onclick = () => { hideModal('vinylDetailModal'); setTimeout(() => editVinyl(index), 300); };
-      document.getElementById('deleteVinylBtn').onclick = () => { if (confirm('确定删除此黑胶唱片？')) confirmDeleteVinyl(index); };
-      
-      showModal('vinylDetailModal');
-    }
-
-    function showMovieDetail(index) {
-      selectedMovieIndex = index;
-      const m = movies[index];
-      if (!m) return;
-      
-      document.getElementById('movieDetailTitle').textContent = m.title || '-';
-      document.getElementById('movieDetailDirector').textContent = m.director || '-';
-      
-      const meta = document.getElementById('movieDetailMeta');
-      meta.innerHTML = (m.year ? `<span class="detail-tag">${m.year}</span>` : '') +
-                       (m.genres && m.genres.length ? m.genres.map(g => `<span class="detail-tag">${g}</span>`).join('') : '');
-      
-      document.getElementById('movieType2').textContent = m.type === 'Series' ? '剧集' : '电影';
-      document.getElementById('movieWatchedDate2').textContent = m.watchedDate || '-';
-      
-      const cover = document.getElementById('movieDetailCover');
-      cover.innerHTML = m.poster ? `<img src="${m.poster}" alt="${m.title}">` : 
-        `<svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>`;
-      
-      const ratingInfo = document.getElementById('movieRatingInfo');
-      if (m.myRating || m.imdbRating || m.doubanRating) {
-        ratingInfo.style.display = 'block';
-        document.getElementById('myRating').innerHTML = m.myRating ? 
-          `★★★★★ <span class="rating-num">${m.myRating}</span>` : '<span class="rating-num">-</span>';
-        
-        const extRatings = document.getElementById('externalRatingsRow');
-        const extEl = document.getElementById('externalRatings');
-        if (m.imdbRating || m.doubanRating) {
-          extRatings.style.display = 'flex';
-          extEl.innerHTML = (m.imdbRating ? `<span class="ext-rating imdb">IMDb <strong>${m.imdbRating}</strong></span>` : '') +
-                           (m.doubanRating ? `<span class="ext-rating douban">豆瓣 <strong>${m.doubanRating}</strong></span>` : '');
-        } else {
-          extRatings.style.display = 'none';
-        }
-      } else {
-        ratingInfo.style.display = 'none';
-      }
-      
-      document.getElementById('editMovieBtn').onclick = () => { hideModal('movieDetailModal'); setTimeout(() => editMovie(index), 300); };
-      document.getElementById('deleteMovieBtn').onclick = () => { if (confirm('确定删除此影视？')) confirmDeleteMovie(index); };
-      
-      showModal('movieDetailModal');
-    }
-
-    function editVinyl(index) {
-      const v = vinyls[index];
-      selectedVinylIndex = index;
-      document.getElementById('vinylFormTitle').textContent = '编辑黑胶唱片';
-      document.getElementById('vinylEditId').value = v.id;
-      document.getElementById('vinylTitle').value = v.title || '';
-      document.getElementById('vinylArtist').value = v.artist || '';
-      document.getElementById('vinylYear').value = v.year || '';
-      document.getElementById('vinylPrice').value = v.purchasePrice || '';
-      document.getElementById('vinylBarcode').value = v.barcode || '';
-      document.getElementById('vinylVersion').value = v.version || '';
-      document.getElementById('vinylPurchaseDate').value = v.purchaseDate || '';
-      
-      vinylTags = v.genre || [];
-      document.querySelectorAll('#vinylForm .form-tag').forEach(t => {
-        t.classList.toggle('selected', vinylTags.includes(t.textContent));
-      });
-      
-      showModal('vinylFormModal');
-    }
-
-    function editMovie(index) {
-      const m = movies[index];
-      selectedMovieIndex = index;
-      document.getElementById('movieFormTitle').textContent = '编辑影视';
-      document.getElementById('movieEditId').value = m.id;
-      document.getElementById('movieTitle').value = m.title || '';
-      document.getElementById('movieDirector').value = m.director || '';
-      document.getElementById('movieType').value = m.type || 'Movie';
-      document.getElementById('movieYear').value = m.year || '';
-      document.getElementById('movieWatchedDate').value = m.watchedDate || '';
-      document.getElementById('movieIMDB').value = m.imdbRating || '';
-      document.getElementById('movieDouban').value = m.doubanRating || '';
-      
-      movieTags = m.genres || [];
-      currentRating = m.myRating || 0;
-      document.querySelectorAll('#movieForm .form-tag').forEach(t => {
-        t.classList.toggle('selected', movieTags.includes(t.textContent));
-      });
-      document.querySelectorAll('.star').forEach((s, i) => {
-        s.classList.toggle('active', i < currentRating);
-      });
-      
-      showModal('movieFormModal');
-    }
-
-    async function confirmDeleteVinyl(index) {
-      const v = vinyls[index];
-      try {
-        const result = await deleteVinyl(v.id);
-        if (result.success) {
-          showToast('删除成功', 'success');
-          hideModal('vinylDetailModal');
-          await loadData();
-        } else {
-          showToast('删除失败: ' + result.error, 'error');
-        }
-      } catch (e) {
-        showToast('删除失败', 'error');
-      }
-    }
-
-    async function confirmDeleteMovie(index) {
-      const m = movies[index];
-      try {
-        const result = await deleteMovie(m.id);
-        if (result.success) {
-          showToast('删除成功', 'success');
-          hideModal('movieDetailModal');
-          await loadData();
-        } else {
-          showToast('删除失败: ' + result.error, 'error');
-        }
-      } catch (e) {
-        showToast('删除失败', 'error');
-      }
-    }
-
-    function toggleTag(el, type, tag) {
-      el.classList.toggle('selected');
-      if (type === 'vinylGenre') {
-        if (vinylTags.includes(tag)) {
-          vinylTags = vinylTags.filter(t => t !== tag);
-        } else {
-          vinylTags.push(tag);
-        }
-        document.getElementById('vinylGenre').value = vinylTags.join(',');
-      } else {
-        if (movieTags.includes(tag)) {
-          movieTags = movieTags.filter(t => t !== tag);
-        } else {
-          movieTags.push(tag);
-        }
-        document.getElementById('movieGenre').value = movieTags.join(',');
-      }
-    }
-
-    function setRating(rating) {
-      currentRating = rating;
-      document.querySelectorAll('.star').forEach((s, i) => {
-        s.classList.toggle('active', i < rating);
-      });
-      document.getElementById('movieRating').value = rating;
-    }
-
-    async function submitVinylForm(e) {
-      e.preventDefault();
-      const btn = document.getElementById('vinylSubmitBtn');
-      btn.disabled = true;
-      btn.textContent = '保存中...';
-      
-      const data = {
-        title: document.getElementById('vinylTitle').value,
-        artist: document.getElementById('vinylArtist').value,
-        year: parseInt(document.getElementById('vinylYear').value) || null,
-        purchasePrice: parseFloat(document.getElementById('vinylPrice').value) || null,
-        barcode: document.getElementById('vinylBarcode').value,
-        version: document.getElementById('vinylVersion').value,
-        purchaseDate: document.getElementById('vinylPurchaseDate').value,
-        genre: vinylTags
-      };
-      
-      try {
-        const result = await addVinyl(data);
-        if (result.success) {
-          showToast('添加成功', 'success');
-          hideModal('vinylFormModal');
-          await loadData();
-        } else {
-          showToast('添加失败: ' + result.error, 'error');
-        }
-      } catch (e) {
-        showToast('添加失败', 'error');
-      }
-      
-      btn.disabled = false;
-      btn.textContent = '保存';
-    }
-
-    async function submitMovieForm(e) {
-      e.preventDefault();
-      const btn = document.getElementById('movieSubmitBtn');
-      btn.disabled = true;
-      btn.textContent = '保存中...';
-      
-      const data = {
-        title: document.getElementById('movieTitle').value,
-        director: document.getElementById('movieDirector').value,
-        type: document.getElementById('movieType').value,
-        year: parseInt(document.getElementById('movieYear').value) || null,
-        watchedDate: document.getElementById('movieWatchedDate').value,
-        myRating: parseInt(currentRating) || null,
-        imdbRating: parseFloat(document.getElementById('movieIMDB').value) || null,
-        doubanRating: parseFloat(document.getElementById('movieDouban').value) || null,
-        genres: movieTags
-      };
-      
-      try {
-        const result = await addMovie(data);
-        if (result.success) {
-          showToast('添加成功', 'success');
-          hideModal('movieFormModal');
-          await loadData();
-        } else {
-          showToast('添加失败: ' + result.error, 'error');
-        }
-      } catch (e) {
-        showToast('添加失败', 'error');
-      }
-      
-      btn.disabled = false;
-      btn.textContent = '保存';
-    }
-
-    function updateStats() {
-      const musicCount = vinyls.length;
-      const movieCount = movies.length;
-      const timeLabels = { week: '本周新增', month: '本月新增', year: '今年新增', all: '全部收藏' };
-      let total = currentType === 'movie' ? movieCount : (currentType === 'music' ? musicCount : musicCount + movieCount);
-      
-      document.getElementById('totalCount').textContent = total;
-      document.getElementById('totalLabel').textContent = timeLabels[currentTime];
-      document.getElementById('totalSub').textContent = `黑胶 ${musicCount} · 影视 ${movieCount}`;
-      document.getElementById('musicCount').textContent = musicCount;
-      document.getElementById('movieCount').textContent = movieCount;
-      
-      const statMusic = document.getElementById('statMusic');
-      const statMovie = document.getElementById('statMovie');
-      const legend = document.getElementById('chartLegend');
-      
-      if (currentType === 'music') {
-        statMusic.style.display = 'block'; statMovie.style.display = 'none';
-        legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background: #8b5cf6;"></div><span>黑胶</span></div>';
-      } else if (currentType === 'movie') {
-        statMusic.style.display = 'none'; statMovie.style.display = 'block';
-        legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background: #f472b6;"></div><span>影视</span></div>';
-      } else {
-        statMusic.style.display = 'block'; statMovie.style.display = 'block';
-        legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background: #8b5cf6;"></div><span>黑胶</span></div><div class="legend-item"><div class="legend-dot" style="background: #f472b6;"></div><span>影视</span></div>';
-      }
-      
-      const chartBars = document.getElementById('chartBars');
-      const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月'];
-      const musicBars = [3, 5, 2, 6, Math.min(4, musicCount), Math.min(5, musicCount), Math.min(3, musicCount)];
-      const movieBars = [2, 2, 1, 3, Math.min(2, movieCount), Math.min(3, movieCount), Math.min(1, movieCount)];
-      
-      let barsHtml = '';
-      months.forEach((month, i) => {
-        if (currentType === 'music') {
-          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar all" style="height: ${Math.max(4, musicBars[i] * 10)}px;"><span class="count">${musicBars[i]}</span></div></div><div class="chart-month">${month}</div></div>`;
-        } else if (currentType === 'movie') {
-          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar all" style="height: ${Math.max(4, movieBars[i] * 15)}px;"><span class="count">${movieBars[i]}</span></div></div><div class="chart-month">${month}</div></div>`;
-        } else {
-          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar music" style="height: ${Math.max(4, musicBars[i] * 8)}px;"><span class="count">${musicBars[i]}</span></div><div class="chart-bar movie" style="height: ${Math.max(4, movieBars[i] * 15)}px;"></div></div><div class="chart-month">${month}</div></div>`;
-        }
-      });
-      chartBars.innerHTML = barsHtml;
-    }
-
-    async function loadData() {
-      loadSettings();
-      await Promise.all([fetchVinyls(), fetchMovies()]);
-      renderHomeVinyls();
-      renderHomeMovies();
-      renderVinylGrid();
-      renderMovieGrid();
-      updateStats();
-    }
+    let currentTime = 'year';
 
     function showScreen(name) {
       document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
@@ -1299,25 +1249,15 @@
       document.querySelector('.tab-item:nth-child(' + { home: 1, music: 2, movie: 3, stats: 4 }[name] + ')').classList.add('active');
       document.querySelectorAll('.screen-selector button').forEach(b => b.classList.remove('active'));
       document.querySelector('.screen-selector button:nth-child(' + { home: 1, music: 2, movie: 3, stats: 4 }[name] + ')').classList.add('active');
-      if (name === 'stats') updateStats();
     }
 
-    function showModal(id) { 
-      console.log('showModal called:', id);
-      const modal = document.getElementById(id);
-      if (!modal) {
-        console.error('Modal not found:', id);
-        showToast('系统错误：弹窗未找到', 'error');
-        return;
-      }
-      modal.classList.add('show');
-      console.log('Modal shown:', id);
-    }
-    function hideModal(id) { 
-      const modal = document.getElementById(id);
-      if (modal) modal.classList.remove('show');
-    }
-    function showToast(message, type = '') { const toast = document.getElementById('toast'); toast.textContent = message; toast.className = 'toast show' + (type ? ' ' + type : ''); setTimeout(() => toast.classList.remove('show'), 2000); }
+    function showModal(id) { document.getElementById(id).classList.add('show'); }
+    function hideModal(id) { document.getElementById(id).classList.remove('show'); }
+    function showAddVinylModal() { showModal('addVinylModal'); }
+    function showAddMovieModal() { showModal('addMovieModal'); }
+    function showVinylDetail(index) { document.getElementById('vinylDetailTitle').textContent = vinyls[index].title; document.getElementById('vinylDetailArtist').textContent = vinyls[index].artist; showModal('vinylDetailModal'); }
+    function showMovieDetail(index) { document.getElementById('movieDetailTitle').textContent = movies[index].title; document.getElementById('movieDetailDirector').textContent = movies[index].director; showModal('movieDetailModal'); }
+    function showToast(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
     document.querySelectorAll('.modal-overlay').forEach(overlay => { overlay.addEventListener('click', () => { overlay.classList.remove('show'); }); });
 
     function toggleFilter(el, type, value) {
@@ -1333,7 +1273,62 @@
       updateStats();
     }
 
-    loadData();
+    function updateStats() {
+      const musicData = { all: 28, week: 1, month: 5, year: 28, all_time: 28 };
+      const movieData = { all: 14, week: 0, month: 2, year: 14, all_time: 14 };
+
+      const timeLabels = { week: '本周新增', month: '本月新增', year: '今年新增', all: '全部收藏' };
+      const timeSubs = { week: '较上周持平', month: '较上月增长 20%', year: '较去年增长 23%', all: '累计收藏' };
+
+      document.getElementById('totalCount').textContent = currentType === 'movie' ? movieData[currentTime] : (currentType === 'music' ? musicData[currentTime] : musicData[currentTime] + movieData[currentTime]);
+      document.getElementById('totalLabel').textContent = timeLabels[currentTime];
+      document.getElementById('totalSub').textContent = timeSubs[currentTime];
+
+      document.getElementById('musicCount').textContent = musicData[currentTime];
+      document.getElementById('musicSub').textContent = currentTime === 'week' ? '本周 +1' : (currentTime === 'month' ? '本月 +5' : '今年 +28');
+
+      document.getElementById('movieCount').textContent = movieData[currentTime];
+      document.getElementById('movieSub').textContent = currentTime === 'week' ? '本周 +0' : (currentTime === 'month' ? '本月 +2' : '今年 +14');
+
+      const statMusic = document.getElementById('statMusic');
+      const statMovie = document.getElementById('statMovie');
+      const legend = document.getElementById('chartLegend');
+      const chartBars = document.getElementById('chartBars');
+
+      if (currentType === 'music') {
+        statMusic.style.display = 'block';
+        statMovie.style.display = 'none';
+        legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background: #8b5cf6;"></div><span>黑胶</span></div>';
+      } else if (currentType === 'movie') {
+        statMusic.style.display = 'none';
+        statMovie.style.display = 'block';
+        legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background: #f472b6;"></div><span>影视</span></div>';
+      } else {
+        statMusic.style.display = 'block';
+        statMovie.style.display = 'block';
+        legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background: #8b5cf6;"></div><span>黑胶</span></div><div class="legend-item"><div class="legend-dot" style="background: #f472b6;"></div><span>影视</span></div>';
+      }
+
+      const musicBars = [3, 5, 2, 6, 4, 5, 3];
+      const movieBars = [2, 2, 1, 3, 2, 3, 1];
+      const allBars = musicBars.map((m, i) => m + movieBars[i]);
+
+      let barsHtml = '';
+      const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月'];
+
+      months.forEach((month, i) => {
+        if (currentType === 'music') {
+          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar all" style="height: ${musicBars[i] * 8}px;"><span class="count">${musicBars[i]}</span></div></div><div class="chart-month">${month}</div></div>`;
+        } else if (currentType === 'movie') {
+          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar all" style="height: ${movieBars[i] * 15}px;"><span class="count">${movieBars[i]}</span></div></div><div class="chart-month">${month}</div></div>`;
+        } else {
+          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar music" style="height: ${musicBars[i] * 8}px;"><span class="count">${musicBars[i]}</span></div><div class="chart-bar movie" style="height: ${movieBars[i] * 15}px;"></div></div><div class="chart-month">${month}</div></div>`;
+        }
+      });
+      chartBars.innerHTML = barsHtml;
+    }
+
+    updateStats();
   </script>
 </body>
 </html>
