@@ -617,18 +617,12 @@
     .version-check { color: #0a84ff; font-size: 16px; }
 
     /* Toast */
-    .toast {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
-      background: rgba(0,0,0,0.85);
-      color: #fff;
-      padding: 14px 24px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 500;
-      z-index: 2000;
-      opacity: 0; visibility: hidden;
-      transition: all 0.25s;
-    }
+    .search-results { max-height: 200px; overflow-y: auto; margin: 10px 0; }
+    .search-result-item { background: #2c2c2e; border-radius: 10px; padding: 12px; margin-bottom: 8px; cursor: pointer; }
+    .search-result-item:hover { background: #3a3a3c; }
+    .search-result-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .search-result-subtitle { font-size: 13px; color: rgba(255,255,255,0.6); }
+    .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: rgba(0,0,0,0.85); color: #fff; padding: 14px 24px; border-radius: 12px; font-size: 15px; font-weight: 500; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.25s; }
     .toast.show { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
 
     @media (min-width: 768px) { body { padding-top: 80px; } }
@@ -1080,8 +1074,8 @@
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
       <div class="modal-title">添加黑胶唱片</div>
-      <div class="action-item" onclick="showToast('扫描条形码')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><div><div class="text">扫描条形码</div><div class="desc">从 Discogs 自动获取信息</div></div></div>
-      <div class="action-item" onclick="showToast('搜索唱片')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35"/></svg></div><div><div class="text">搜索唱片</div><div class="desc">输入专辑或艺术家名称</div></div></div>
+      <div class="action-item" onclick="hideModal('addVinylModal'); showModal('vinylScanModal')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><div><div class="text">扫描条形码</div><div class="desc">从 Discogs 自动获取信息</div></div></div>
+      <div class="action-item" onclick="hideModal('addVinylModal'); showModal('vinylSearchModal')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35"/></svg></div><div><div class="text">搜索唱片</div><div class="desc">输入专辑或艺术家名称</div></div></div>
       <div class="action-item" onclick="hideModal('addVinylModal'); showModal('vinylFormModal')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加唱片信息</div></div></div>
     </div>
   </div>
@@ -1091,8 +1085,53 @@
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-handle"></div>
       <div class="modal-title">添加影视</div>
-      <div class="action-item" onclick="showToast('搜索 OMDB')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35"/></svg></div><div><div class="text">搜索电影/剧集</div><div class="desc">从 OMDB 自动获取信息</div></div></div>
+      <div class="action-item" onclick="hideModal('addMovieModal'); showModal('movieSearchModal')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35"/></svg></div><div><div class="text">搜索电影/剧集</div><div class="desc">从 OMDB 自动获取信息</div></div></div>
       <div class="action-item" onclick="hideModal('addMovieModal'); showModal('movieFormModal')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加影视信息</div></div></div>
+    </div>
+  </div>
+
+  <!-- VINYL SCAN MODAL -->
+  <div class="modal-overlay" id="vinylScanModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">扫描条形码</div>
+      <div class="form-group">
+        <label class="form-label">输入条形码</label>
+        <input type="text" class="form-input" id="vinylBarcodeInput" placeholder="例如：0755960322315">
+      </div>
+      <div class="search-results" id="vinylScanResults"></div>
+      <button class="submit-btn" onclick="searchVinylByBarcode()">搜索</button>
+      <button class="submit-btn" style="background:#2c2c2e;margin-top:10px;" onclick="hideModal('vinylScanModal');showModal('addVinylModal')">返回</button>
+    </div>
+  </div>
+
+  <!-- VINYL SEARCH MODAL -->
+  <div class="modal-overlay" id="vinylSearchModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">搜索唱片</div>
+      <div class="form-group">
+        <label class="form-label">专辑或艺术家</label>
+        <input type="text" class="form-input" id="vinylSearchInput" placeholder="输入关键词搜索...">
+      </div>
+      <div class="search-results" id="vinylSearchResults"></div>
+      <button class="submit-btn" onclick="searchVinyl()">搜索</button>
+      <button class="submit-btn" style="background:#2c2c2e;margin-top:10px;" onclick="hideModal('vinylSearchModal');showModal('addVinylModal')">返回</button>
+    </div>
+  </div>
+
+  <!-- MOVIE SEARCH MODAL -->
+  <div class="modal-overlay" id="movieSearchModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">搜索影视</div>
+      <div class="form-group">
+        <label class="form-label">电影或剧集名称</label>
+        <input type="text" class="form-input" id="movieSearchInput" placeholder="输入关键词搜索...">
+      </div>
+      <div class="search-results" id="movieSearchResults"></div>
+      <button class="submit-btn" onclick="searchMovie()">搜索</button>
+      <button class="submit-btn" style="background:#2c2c2e;margin-top:10px;" onclick="hideModal('movieSearchModal');showModal('addMovieModal')">返回</button>
     </div>
   </div>
 
@@ -1255,6 +1294,81 @@
     function hideModal(id) { document.getElementById(id).classList.remove('show'); }
     function showAddVinylModal() { showModal('addVinylModal'); }
     function showAddMovieModal() { showModal('addMovieModal'); }
+    
+    // Search Vinyl
+    function searchVinyl() {
+      const query = document.getElementById('vinylSearchInput').value;
+      const results = [
+        { title: 'Random Access Memories', artist: 'Daft Punk', year: 2013 },
+        { title: 'Kind of Blue', artist: 'Miles Davis', year: 1959 },
+        { title: 'Abbey Road', artist: 'The Beatles', year: 1969 }
+      ].filter(item => 
+        item.title.toLowerCase().includes(query.toLowerCase()) || 
+        item.artist.toLowerCase().includes(query.toLowerCase())
+      );
+      renderSearchResults('vinylSearchResults', results, 'vinyl');
+    }
+    
+    function searchVinylByBarcode() {
+      const barcode = document.getElementById('vinylBarcodeInput').value;
+      const demoResults = [
+        { title: 'Random Access Memories', artist: 'Daft Punk', year: 2013, barcode: '0755960322315' }
+      ].filter(item => item.barcode.includes(barcode));
+      renderSearchResults('vinylScanResults', demoResults, 'vinyl');
+    }
+    
+    // Search Movie
+    function searchMovie() {
+      const query = document.getElementById('movieSearchInput').value;
+      const results = [
+        { title: '肖申克的救赎', director: 'Frank Darabont', year: 1994 },
+        { title: '教父', director: 'Francis Ford Coppola', year: 1972 },
+        { title: '黑暗骑士', director: 'Christopher Nolan', year: 2008 }
+      ].filter(item => 
+        item.title.toLowerCase().includes(query.toLowerCase())
+      );
+      renderSearchResults('movieSearchResults', results, 'movie');
+    }
+    
+    // Render Search Results
+    function renderSearchResults(elementId, results, type) {
+      const container = document.getElementById(elementId);
+      if (results.length === 0) {
+        container.innerHTML = '<div class="search-result-subtitle" style="padding:12px;text-align:center;">未找到结果</div>';
+        return;
+      }
+      container.innerHTML = results.map((item, index) => `
+        <div class="search-result-item" onclick="select${type.charAt(0).toUpperCase() + type.slice(1)}(${index}, '${elementId}')">
+          <div class="search-result-title">${item.title}</div>
+          <div class="search-result-subtitle">${item.artist || item.director} · ${item.year}</div>
+        </div>
+      `).join('');
+    }
+    
+    // Select Search Result
+    function selectVinyl(index, sourceId) {
+      const container = document.getElementById(sourceId);
+      const results = Array.from(container.children);
+      const itemData = {
+        title: 'Selected Album',
+        artist: 'Selected Artist',
+        year: 2023,
+        genre: ['Rock'],
+        barcode: '',
+        version: ''
+      };
+      hideModal('vinylSearchModal');
+      hideModal('vinylScanModal');
+      showModal('vinylFormModal');
+      showToast('已选择，在表单中填写详细信息');
+    }
+    
+    function selectMovie(index, sourceId) {
+      hideModal('movieSearchModal');
+      showModal('movieFormModal');
+      showToast('已选择，在表单中填写详细信息');
+    }
+    
     function showVinylDetail(index) { document.getElementById('vinylDetailTitle').textContent = vinyls[index].title; document.getElementById('vinylDetailArtist').textContent = vinyls[index].artist; showModal('vinylDetailModal'); }
     function showMovieDetail(index) { document.getElementById('movieDetailTitle').textContent = movies[index].title; document.getElementById('movieDetailDirector').textContent = movies[index].director; showModal('movieDetailModal'); }
     function showToast(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
