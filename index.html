@@ -1295,38 +1295,85 @@
     function showAddVinylModal() { showModal('addVinylModal'); }
     function showAddMovieModal() { showModal('addMovieModal'); }
     
+    // Demo Database
+    const demoVinyls = [
+      { title: 'Random Access Memories', artist: 'Daft Punk', year: 2013, barcode: '0755960322315' },
+      { title: 'Kind of Blue', artist: 'Miles Davis', year: 1959, barcode: '074646932917' },
+      { title: 'Abbey Road', artist: 'The Beatles', year: 1969, barcode: '094638241716' },
+      { title: 'The Dark Side of the Moon', artist: 'Pink Floyd', year: 1973, barcode: '072435821315' },
+      { title: 'Thriller', artist: 'Michael Jackson', year: 1982, barcode: '074643811215' },
+      { title: 'Back in Black', artist: 'AC/DC', year: 1980, barcode: '074645073519' },
+      { title: 'Hotel California', artist: 'Eagles', year: 1976, barcode: '075596051718' },
+      { title: 'What\'s Going On', artist: 'Marvin Gaye', year: 1971, barcode: '072435316315' },
+      { title: 'Pet Sounds', artist: 'The Beach Boys', year: 1966, barcode: '072435828710' },
+      { title: 'Blue Train', artist: 'John Coltrane', year: 1957, barcode: '072435601915' },
+      { title: 'Nevermind', artist: 'Nirvana', year: 1991, barcode: '0720642442519' },
+      { title: 'OK Computer', artist: 'Radiohead', year: 1997, barcode: '072438427915' }
+    ];
+
+    const demoMovies = [
+      { title: '肖申克的救赎', director: 'Frank Darabont', year: 1994 },
+      { title: '教父', director: 'Francis Ford Coppola', year: 1972 },
+      { title: '蝙蝠侠：黑暗骑士', director: 'Christopher Nolan', year: 2008 },
+      { title: '阿甘正传', director: 'Robert Zemeckis', year: 1994 },
+      { title: '盗梦空间', director: 'Christopher Nolan', year: 2010 },
+      { title: '泰坦尼克号', director: 'James Cameron', year: 1997 },
+      { title: '星际穿越', director: 'Christopher Nolan', year: 2014 },
+      { title: '黑客帝国', director: 'The Wachowskis', year: 1999 },
+      { title: '辛德勒的名单', director: 'Steven Spielberg', year: 1993 },
+      { title: '搏击俱乐部', director: 'David Fincher', year: 1999 },
+      { title: '教父2', director: 'Francis Ford Coppola', year: 1974 },
+      { title: '低俗小说', director: 'Quentin Tarantino', year: 1994 },
+      { title: '七宗罪', director: 'David Fincher', year: 1995 },
+      { title: '十二怒汉', director: 'Sidney Lumet', year: 1957 },
+      { title: '美丽人生', director: 'Roberto Benigni', year: 1997 },
+      { title: '星球大战', director: 'George Lucas', year: 1977 }
+    ];
+
     // Search Vinyl
     function searchVinyl() {
-      const query = document.getElementById('vinylSearchInput').value;
-      const results = [
-        { title: 'Random Access Memories', artist: 'Daft Punk', year: 2013 },
-        { title: 'Kind of Blue', artist: 'Miles Davis', year: 1959 },
-        { title: 'Abbey Road', artist: 'The Beatles', year: 1969 }
-      ].filter(item => 
-        item.title.toLowerCase().includes(query.toLowerCase()) || 
-        item.artist.toLowerCase().includes(query.toLowerCase())
-      );
+      const query = document.getElementById('vinylSearchInput').value.trim();
+      let results = [];
+      
+      if (query === '') {
+        results = demoVinyls.slice(0, 5);
+      } else {
+        results = demoVinyls.filter(item => 
+          item.title.toLowerCase().includes(query.toLowerCase()) || 
+          item.artist.toLowerCase().includes(query.toLowerCase())
+        );
+      }
       renderSearchResults('vinylSearchResults', results, 'vinyl');
     }
     
     function searchVinylByBarcode() {
-      const barcode = document.getElementById('vinylBarcodeInput').value;
-      const demoResults = [
-        { title: 'Random Access Memories', artist: 'Daft Punk', year: 2013, barcode: '0755960322315' }
-      ].filter(item => item.barcode.includes(barcode));
-      renderSearchResults('vinylScanResults', demoResults, 'vinyl');
+      const barcode = document.getElementById('vinylBarcodeInput').value.trim();
+      let results = [];
+      
+      if (barcode === '') {
+        results = demoVinyls.slice(0, 3);
+      } else {
+        results = demoVinyls.filter(item => 
+          item.barcode.includes(barcode) ||
+          item.title.toLowerCase().includes(barcode.toLowerCase())
+        );
+      }
+      renderSearchResults('vinylScanResults', results, 'vinyl');
     }
     
     // Search Movie
     function searchMovie() {
-      const query = document.getElementById('movieSearchInput').value;
-      const results = [
-        { title: '肖申克的救赎', director: 'Frank Darabont', year: 1994 },
-        { title: '教父', director: 'Francis Ford Coppola', year: 1972 },
-        { title: '黑暗骑士', director: 'Christopher Nolan', year: 2008 }
-      ].filter(item => 
-        item.title.toLowerCase().includes(query.toLowerCase())
-      );
+      const query = document.getElementById('movieSearchInput').value.trim();
+      let results = [];
+      
+      if (query === '') {
+        results = demoMovies.slice(0, 5);
+      } else {
+        results = demoMovies.filter(item => 
+          item.title.toLowerCase().includes(query.toLowerCase()) ||
+          item.director.toLowerCase().includes(query.toLowerCase())
+        );
+      }
       renderSearchResults('movieSearchResults', results, 'movie');
     }
     
@@ -1347,26 +1394,50 @@
     
     // Select Search Result
     function selectVinyl(index, sourceId) {
-      const container = document.getElementById(sourceId);
-      const results = Array.from(container.children);
-      const itemData = {
-        title: 'Selected Album',
-        artist: 'Selected Artist',
-        year: 2023,
-        genre: ['Rock'],
-        barcode: '',
-        version: ''
-      };
+      let selectedItem;
+      if (sourceId === 'vinylSearchResults') {
+        selectedItem = demoVinyls[index];
+      } else {
+        selectedItem = demoVinyls[index];
+      }
+      
       hideModal('vinylSearchModal');
       hideModal('vinylScanModal');
-      showModal('vinylFormModal');
-      showToast('已选择，在表单中填写详细信息');
+      hideModal('addVinylModal');
+      
+      setTimeout(() => {
+        showModal('vinylFormModal');
+        
+        const form = document.getElementById('vinylForm');
+        const inputs = form.querySelectorAll('input');
+        
+        if (inputs[0]) inputs[0].value = selectedItem.title;
+        if (inputs[1]) inputs[1].value = selectedItem.artist;
+        if (inputs[2]) inputs[2].value = selectedItem.year;
+        if (inputs[4]) inputs[4].value = selectedItem.barcode || '';
+        
+        showToast('已选择：' + selectedItem.title);
+      }, 100);
     }
     
     function selectMovie(index, sourceId) {
+      const selectedItem = demoMovies[index];
+      
       hideModal('movieSearchModal');
-      showModal('movieFormModal');
-      showToast('已选择，在表单中填写详细信息');
+      hideModal('addMovieModal');
+      
+      setTimeout(() => {
+        showModal('movieFormModal');
+        
+        const form = document.getElementById('movieForm');
+        const inputs = form.querySelectorAll('input');
+        
+        if (inputs[0]) inputs[0].value = selectedItem.title;
+        if (inputs[1]) inputs[1].value = selectedItem.director;
+        if (inputs[3]) inputs[3].value = selectedItem.year;
+        
+        showToast('已选择：' + selectedItem.title);
+      }, 100);
     }
     
     function showVinylDetail(index) { document.getElementById('vinylDetailTitle').textContent = vinyls[index].title; document.getElementById('vinylDetailArtist').textContent = vinyls[index].artist; showModal('vinylDetailModal'); }
