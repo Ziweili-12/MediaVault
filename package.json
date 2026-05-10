@@ -1,12 +1,15 @@
 {
-  "name": "mediavault",
+  "name": "mediavault-api",
   "version": "1.0.0",
-  "description": "黑胶唱片与影视收藏管理应用",
+  "description": "MediaVault Notion API Functions",
   "main": "index.js",
   "scripts": {
-    "dev": "vercel dev"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.14"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

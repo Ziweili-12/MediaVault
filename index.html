@@ -1913,7 +1913,7 @@
     }
 
     // Save Vinyl with Purchase Info
-    function saveVinylWithPurchase() {
+    async function saveVinylWithPurchase() {
       if (!selectedVinylPreview) {
         showToast('请先选择一个专辑');
         return;
@@ -1951,27 +1951,74 @@
         addedAt: new Date().toISOString()
       };
       
-      // Save to localStorage
+      // Save to localStorage first
       try {
         let vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
         vinyls.push(vinylItem);
         localStorage.setItem('vinyls', JSON.stringify(vinyls));
+      } catch (error) {
+        console.error('本地存储失败:', error);
+      }
+      
+      // Show loading state
+      showToast('⏳ 正在同步到 Notion...');
+      
+      // Try to save to Notion
+      try {
+        const response = await fetch('/api/notion/add-vinyl', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            databaseId: '35bc85a71b1480d19336fae70cf532a3',
+            vinyl: vinylItem
+          })
+        });
         
-        // Close modal and show success message
+        const result = await response.json();
+        
+        if (result.success) {
+          // Close modal and show success message
+          hideModal('vinylPurchaseModal');
+          showToast('✅ 添加成功！已同步到 Notion');
+          
+          // Reset selection
+          selectedVinylPreview = null;
+          selectedVinylVersion = null;
+          
+          // Refresh the collection
+          if (typeof loadVinylCollection === 'function') {
+            loadVinylCollection();
+          }
+        } else {
+          // Notion failed but local succeeded
+          hideModal('vinylPurchaseModal');
+          showToast('⚠️ 已保存到本地，Notion 同步失败');
+          
+          // Reset selection
+          selectedVinylPreview = null;
+          selectedVinylVersion = null;
+          
+          // Refresh the collection
+          if (typeof loadVinylCollection === 'function') {
+            loadVinylCollection();
+          }
+        }
+      } catch (error) {
+        console.error('Notion API Error:', error);
+        // Notion failed but local succeeded
         hideModal('vinylPurchaseModal');
-        showToast('✅ 添加成功！');
+        showToast('⚠️ 已保存到本地，Notion 同步失败');
         
         // Reset selection
         selectedVinylPreview = null;
         selectedVinylVersion = null;
         
-        // Refresh the collection if needed
+        // Refresh the collection
         if (typeof loadVinylCollection === 'function') {
           loadVinylCollection();
         }
-      } catch (error) {
-        console.error('保存失败:', error);
-        showToast('❌ 保存失败，请重试');
       }
     }
 
@@ -2166,10 +2213,30 @@
       selectedMoviePreview = null;
     }
     
-    // Load vinyl collection from localStorage
-    function loadVinylCollection() {
+    // Load vinyl collection from Notion and localStorage
+    async function loadVinylCollection() {
       try {
-        const vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
+        let vinyls = [];
+        
+        // Try to fetch from Notion API
+        try {
+          const response = await fetch('/api/notion/get-vinyls?databaseId=35bc85a71b1480d19336fae70cf532a3');
+          const result = await response.json();
+          
+          if (result.success && result.vinyls) {
+            vinyls = result.vinyls;
+            // Also update localStorage
+            localStorage.setItem('vinyls', JSON.stringify(vinyls));
+          } else {
+            // Fallback to localStorage
+            vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
+          }
+        } catch (error) {
+          console.error('Notion API Error:', error);
+          // Fallback to localStorage
+          vinyls = JSON.parse(localStorage.getItem('vinyls') || '[]');
+        }
+        
         window.vinyls = vinyls;
         
         // Update the vinyl display if on vinyl page
