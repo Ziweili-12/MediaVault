@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Modal Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #000; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    h1 { font-size: 24px; margin-bottom: 20px; }
+    .btn { padding: 16px 32px; margin: 10px; font-size: 16px; border-radius: 12px; border: none; cursor: pointer; transition: transform 0.2s; }
+    .btn:active { transform: scale(0.95); }
+    .btn-primary { background: #0a84ff; color: #fff; }
+    .btn-secondary { background: #8b5cf6; color: #fff; }
+    
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: flex-end; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+    .modal { background: #1c1c1e; border-radius: 20px 20px 0 0; width: 100%; max-width: 430px; max-height: 90vh; overflow-y: auto; padding: 20px; padding-bottom: 50px; transform: translateY(100%); transition: transform 0.3s ease-out; }
+    .modal-overlay.show .modal { transform: translateY(0); }
+    .modal-handle { width: 40px; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; margin: 0 auto 20px; }
+    .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; text-align: center; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+    .form-input { width: 100%; padding: 14px 16px; background: #2c2c2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 16px; }
+    .submit-btn { width: 100%; padding: 16px; background: #0a84ff; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(255,255,255,0.9); color: #000; padding: 12px 24px; border-radius: 20px; font-size: 14px; opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 2000; }
+    .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+    
+    .info { margin-top: 40px; padding: 20px; background: #1c1c1e; border-radius: 12px; max-width: 400px; text-align: center; }
+    .info h3 { margin-bottom: 10px; color: #0a84ff; }
+    .info p { color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <h1>Modal 功能测试</h1>
+  
+  <button class="btn btn-primary" onclick="showAddVinylModal()">添加黑胶唱片</button>
+  <button class="btn btn-secondary" onclick="showAddMovieModal()">添加影视</button>
+  
+  <!-- VINYL MODAL -->
+  <div class="modal-overlay" id="vinylFormModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="vinylFormTitle">添加黑胶唱片</div>
+      <form id="vinylForm" onsubmit="submitVinylForm(event)">
+        <div class="form-group">
+          <label class="form-label">专辑名称 *</label>
+          <input type="text" class="form-input" id="vinylTitle" placeholder="例如：Random Access Memories" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">艺术家 *</label>
+          <input type="text" class="form-input" id="vinylArtist" placeholder="例如：Daft Punk" required>
+        </div>
+        <button type="submit" class="submit-btn">保存</button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- MOVIE MODAL -->
+  <div class="modal-overlay" id="movieFormModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="movieFormTitle">添加影视</div>
+      <form id="movieForm" onsubmit="submitMovieForm(event)">
+        <div class="form-group">
+          <label class="form-label">名称 *</label>
+          <input type="text" class="form-input" id="movieTitle" placeholder="例如：肖申克的救赎" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">导演</label>
+          <input type="text" class="form-input" id="movieDirector" placeholder="例如：Frank Darabont">
+        </div>
+        <button type="submit" class="submit-btn">保存</button>
+      </form>
+    </div>
+  </div>
+  
+  <div class="toast" id="toast"></div>
+  
+  <div class="info">
+    <h3>测试说明</h3>
+    <p>点击上面的按钮测试modal是否正常显示。如果modal正确弹出并显示表单，说明功能正常。</p>
+  </div>
+  
+  <script>
+    let vinyls = [];
+    let movies = [];
+    
+    function showModal(id) { 
+      console.log('showModal called with:', id);
+      const modal = document.getElementById(id);
+      if (modal) {
+        modal.classList.add('show');
+        console.log('Modal should be visible now');
+      } else {
+        console.error('Modal not found:', id);
+      }
+    }
+    
+    function hideModal(id) { 
+      console.log('hideModal called with:', id);
+      document.getElementById(id).classList.remove('show'); 
+    }
+    
+    function showToast(message, type = '') { 
+      const toast = document.getElementById('toast'); 
+      toast.textContent = message; 
+      toast.className = 'toast show' + (type ? ' ' + type : ''); 
+      setTimeout(() => toast.classList.remove('show'), 2000); 
+    }
+    
+    document.querySelectorAll('.modal-overlay').forEach(overlay => { 
+      overlay.addEventListener('click', () => { 
+        overlay.classList.remove('show'); 
+      }); 
+    });
+    
+    function showAddVinylModal() {
+      console.log('showAddVinylModal called');
+      document.getElementById('vinylFormTitle').textContent = '添加黑胶唱片';
+      document.getElementById('vinylForm').reset();
+      showModal('vinylFormModal');
+    }
+    
+    function showAddMovieModal() {
+      console.log('showAddMovieModal called');
+      document.getElementById('movieFormTitle').textContent = '添加影视';
+      document.getElementById('movieForm').reset();
+      showModal('movieFormModal');
+    }
+    
+    function submitVinylForm(e) {
+      e.preventDefault();
+      const title = document.getElementById('vinylTitle').value;
+      const artist = document.getElementById('vinylArtist').value;
+      vinyls.push({ title, artist });
+      showToast('添加成功: ' + title, 'success');
+      hideModal('vinylFormModal');
+      console.log('Current vinyls:', vinyls);
+    }
+    
+    function submitMovieForm(e) {
+      e.preventDefault();
+      const title = document.getElementById('movieTitle').value;
+      const director = document.getElementById('movieDirector').value;
+      movies.push({ title, director });
+      showToast('添加成功: ' + title, 'success');
+      hideModal('movieFormModal');
+      console.log('Current movies:', movies);
+    }
+    
+    console.log('Test page loaded');
+  </script>
+</body>
+</html>
