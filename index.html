@@ -434,6 +434,7 @@
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
+      white-space: nowrap;
     }
     .screen-selector button.active { background: #0a84ff; color: #fff; }
 
@@ -1419,18 +1420,18 @@
     
     // Demo Database (Fallback)
     const demoVinyls = [
-      { title: 'Random Access Memories', artist: 'Daft Punk', year: 2013, barcode: '0755960322315' },
-      { title: 'Kind of Blue', artist: 'Miles Davis', year: 1959, barcode: '074646932917' },
-      { title: 'Abbey Road', artist: 'The Beatles', year: 1969, barcode: '094638241716' },
-      { title: 'The Dark Side of the Moon', artist: 'Pink Floyd', year: 1973, barcode: '072435821315' },
-      { title: 'Thriller', artist: 'Michael Jackson', year: 1982, barcode: '074643811215' },
-      { title: 'Back in Black', artist: 'AC/DC', year: 1980, barcode: '074645073519' },
-      { title: 'Hotel California', artist: 'Eagles', year: 1976, barcode: '075596051718' },
-      { title: 'What\'s Going On', artist: 'Marvin Gaye', year: 1971, barcode: '072435316315' },
-      { title: 'Pet Sounds', artist: 'The Beach Boys', year: 1966, barcode: '072435828710' },
-      { title: 'Blue Train', artist: 'John Coltrane', year: 1957, barcode: '072435601915' },
-      { title: 'Nevermind', artist: 'Nirvana', year: 1991, barcode: '0720642442519' },
-      { title: 'OK Computer', artist: 'Radiohead', year: 1997, barcode: '072438427915' }
+      { title: 'Random Access Memories', artist: 'Daft Punk', year: 2013, barcode: '0755960322315', coverImage: 'https://www.discogs.com/image/R-4571559-1338194431-4827.jpg' },
+      { title: 'Kind of Blue', artist: 'Miles Davis', year: 1959, barcode: '074646932917', coverImage: 'https://www.discogs.com/image/R-155314-1147614077.jpg' },
+      { title: 'Abbey Road', artist: 'The Beatles', year: 1969, barcode: '094638241716', coverImage: 'https://www.discogs.com/image/R-6169544-1430762542-1402.jpg' },
+      { title: 'The Dark Side of the Moon', artist: 'Pink Floyd', year: 1973, barcode: '072435821315', coverImage: 'https://www.discogs.com/image/R-252574-1148946994.jpg' },
+      { title: 'Thriller', artist: 'Michael Jackson', year: 1982, barcode: '074643811215', coverImage: 'https://www.discogs.com/image/R-6231378-1433574695-2597.jpg' },
+      { title: 'Back in Black', artist: 'AC/DC', year: 1980, barcode: '074645073519', coverImage: 'https://www.discogs.com/image/R-351368-1167881506.jpg' },
+      { title: 'Hotel California', artist: 'Eagles', year: 1976, barcode: '075596051718', coverImage: 'https://www.discogs.com/image/R-305156-1156164141.jpg' },
+      { title: 'What\'s Going On', artist: 'Marvin Gaye', year: 1971, barcode: '072435316315', coverImage: 'https://www.discogs.com/image/R-296439-1155051921.jpg' },
+      { title: 'Pet Sounds', artist: 'The Beach Boys', year: 1966, barcode: '072435828710', coverImage: 'https://www.discogs.com/image/R-165549-1148111838.jpg' },
+      { title: 'Blue Train', artist: 'John Coltrane', year: 1957, barcode: '072435601915', coverImage: 'https://www.discogs.com/image/R-151658-1147277073.jpg' },
+      { title: 'Nevermind', artist: 'Nirvana', year: 1991, barcode: '0720642442519', coverImage: 'https://www.discogs.com/image/R-1065499-1270016712.jpg' },
+      { title: 'OK Computer', artist: 'Radiohead', year: 1997, barcode: '072438427915', coverImage: 'https://www.discogs.com/image/R-155503-1147624667.jpg' }
     ];
 
     const demoMovies = [
