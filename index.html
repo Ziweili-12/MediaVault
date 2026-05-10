@@ -1935,7 +1935,7 @@
       showToast('⏳ 正在保存...');
       
       try {
-        const response = await fetch('/api/tidb/vinyls', {
+        const response = await fetch('/api/tidb-vinyls', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -2135,7 +2135,7 @@
       showToast('⏳ 正在保存...');
       
       try {
-        const response = await fetch('/api/tidb/movies', {
+        const response = await fetch('/api/tidb-movies', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -2182,7 +2182,7 @@
         let vinyls = [];
         
         try {
-          const response = await fetch('/api/tidb/vinyls');
+          const response = await fetch('/api/tidb-vinyls');
           const result = await response.json();
           
           if (result.success && result.data) {
@@ -2215,7 +2215,7 @@
         let movies = [];
         
         try {
-          const response = await fetch('/api/tidb/movies');
+          const response = await fetch('/api/tidb-movies');
           const result = await response.json();
           
           if (result.success && result.data) {
