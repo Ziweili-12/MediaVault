@@ -480,6 +480,15 @@
     .action-item .text { font-size: 17px; font-weight: 500; }
     .action-item .desc { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 2px; }
 
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+    .form-input { width: 100%; padding: 14px 16px; background: #2c2c2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 16px; box-sizing: border-box; }
+    .form-input:focus { outline: none; border-color: #0a84ff; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
+    .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #0a84ff 0%, #0066dd 100%); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    .submit-btn:active { opacity: 0.9; transform: scale(0.98); }
+
     .detail-header { display: flex; gap: 16px; margin-bottom: 20px; }
     .detail-cover {
       width: 120px; height: 120px;
@@ -1073,7 +1082,7 @@
       <div class="modal-title">添加黑胶唱片</div>
       <div class="action-item" onclick="showToast('扫描条形码')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><div><div class="text">扫描条形码</div><div class="desc">从 Discogs 自动获取信息</div></div></div>
       <div class="action-item" onclick="showToast('搜索唱片')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35"/></svg></div><div><div class="text">搜索唱片</div><div class="desc">输入专辑或艺术家名称</div></div></div>
-      <div class="action-item" onclick="showToast('手动输入')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加唱片信息</div></div></div>
+      <div class="action-item" onclick="hideModal('addVinylModal'); showModal('vinylFormModal')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加唱片信息</div></div></div>
     </div>
   </div>
 
@@ -1083,7 +1092,76 @@
       <div class="modal-handle"></div>
       <div class="modal-title">添加影视</div>
       <div class="action-item" onclick="showToast('搜索 OMDB')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35"/></svg></div><div><div class="text">搜索电影/剧集</div><div class="desc">从 OMDB 自动获取信息</div></div></div>
-      <div class="action-item" onclick="showToast('手动输入')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加影视信息</div></div></div>
+      <div class="action-item" onclick="hideModal('addMovieModal'); showModal('movieFormModal')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加影视信息</div></div></div>
+    </div>
+  </div>
+
+  <!-- VINYL FORM MODAL -->
+  <div class="modal-overlay" id="vinylFormModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">添加黑胶唱片</div>
+      <form id="vinylForm" onsubmit="event.preventDefault(); showToast('保存成功'); hideModal('vinylFormModal');">
+        <div class="form-group">
+          <label class="form-label">专辑名称 *</label>
+          <input type="text" class="form-input" placeholder="例如：Random Access Memories" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">艺术家 *</label>
+          <input type="text" class="form-input" placeholder="例如：Daft Punk" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">发行年份</label>
+            <input type="number" class="form-input" placeholder="例如：2013" min="1900" max="2030">
+          </div>
+          <div class="form-group">
+            <label class="form-label">购买价格 (¥)</label>
+            <input type="number" class="form-input" placeholder="例如：298" min="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Barcode</label>
+          <input type="text" class="form-input" placeholder="扫码自动填充">
+        </div>
+        <div class="form-group">
+          <label class="form-label">版本信息</label>
+          <input type="text" class="form-input" placeholder="例如：180g 双碟版">
+        </div>
+        <button type="submit" class="submit-btn">保存</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MOVIE FORM MODAL -->
+  <div class="modal-overlay" id="movieFormModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">添加影视</div>
+      <form id="movieForm" onsubmit="event.preventDefault(); showToast('保存成功'); hideModal('movieFormModal');">
+        <div class="form-group">
+          <label class="form-label">名称 *</label>
+          <input type="text" class="form-input" placeholder="例如：肖申克的救赎" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">导演</label>
+          <input type="text" class="form-input" placeholder="例如：Frank Darabont">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">类型</label>
+            <select class="form-input">
+              <option>电影</option>
+              <option>剧集</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">年份</label>
+            <input type="number" class="form-input" placeholder="例如：1994" min="1900" max="2030">
+          </div>
+        </div>
+        <button type="submit" class="submit-btn">保存</button>
+      </form>
     </div>
   </div>
 
@@ -1174,6 +1252,9 @@
     }
 
     function showModal(id) { document.getElementById(id).classList.add('show'); }
+    function hideModal(id) { document.getElementById(id).classList.remove('show'); }
+    function showAddVinylModal() { showModal('addVinylModal'); }
+    function showAddMovieModal() { showModal('addMovieModal'); }
     function showVinylDetail(index) { document.getElementById('vinylDetailTitle').textContent = vinyls[index].title; document.getElementById('vinylDetailArtist').textContent = vinyls[index].artist; showModal('vinylDetailModal'); }
     function showMovieDetail(index) { document.getElementById('movieDetailTitle').textContent = movies[index].title; document.getElementById('movieDetailDirector').textContent = movies[index].director; showModal('movieDetailModal'); }
     function showToast(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
