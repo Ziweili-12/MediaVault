@@ -67,9 +67,19 @@
         .media-card { height: 180px; border-radius: 20px; margin-bottom: 16px; overflow: hidden; position: relative; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 20px var(--card-shadow); }
         .media-card:hover { transform: scale(1.01); box-shadow: 0 8px 30px var(--card-shadow-hover); }
         .card-cover-wall { position: absolute; inset: 0; }
-        .cover-grid { display: flex; flex-wrap: wrap; width: 100%; height: 100%; opacity: 0.15; }
-        .cover-cell { width: 33.33%; }
-        .cover-img { width: 100%; height: 100%; object-fit: cover; }
+        .cover-grid { display: flex; flex-wrap: wrap; width: 100%; height: 100%; opacity: 0.12; }
+        .cover-cell { width: 33.33%; overflow: hidden; }
+        .cover-img { width: 100%; height: 100%; object-fit: cover; transition: transform 8s ease-in-out; }
+        .cover-grid.music-flow .cover-img { animation: musicFlow 20s infinite ease-in-out; }
+        .cover-grid.movie-flow .cover-img { animation: movieFlow 25s infinite ease-in-out; }
+        @keyframes musicFlow {
+            0%, 100% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1.15) translateY(-8px); }
+        }
+        @keyframes movieFlow {
+            0%, 100% { transform: scale(1) translateX(0); }
+            50% { transform: scale(1.12) translateX(-6px); }
+        }
         .card-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.95)); }
         @media (prefers-color-scheme: dark) {
             .card-overlay { background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.8)); }
@@ -172,6 +182,9 @@
         .time-filter { display: flex; background: var(--bg-secondary); border-radius: 12px; padding: 4px; margin-bottom: 20px; }
         .time-filter-item { flex: 1; padding: 10px 8px; text-align: center; border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
         .time-filter-item.active { background: var(--bg-primary); color: var(--accent-blue); font-weight: 600; box-shadow: 0 2px 8px var(--card-shadow); }
+        
+        .artist-tag { padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary); cursor: pointer; transition: all 0.2s; }
+        .artist-tag:hover { background: var(--accent-blue); color: #fff; }
         
         /* 添加方式页面 */
         .add-method-page { padding: 20px; padding-bottom: 110px; }
@@ -288,7 +301,7 @@
                 
                 <div class="media-card" onclick="showPage('music')">
                     <div class="card-cover-wall">
-                        <div class="cover-grid">
+                        <div class="cover-grid music-flow">
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/200?random=1" /></div>
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/200?random=2" /></div>
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/200?random=3" /></div>
@@ -317,7 +330,7 @@
                 
                 <div class="media-card" onclick="showPage('movie')">
                     <div class="card-cover-wall">
-                        <div class="cover-grid">
+                        <div class="cover-grid movie-flow">
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/300?random=7" /></div>
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/300?random=8" /></div>
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/300?random=9" /></div>
@@ -472,10 +485,10 @@
                     
                     <!-- 时间筛选器 -->
                     <div class="time-filter">
-                        <div class="time-filter-item active">全部</div>
-                        <div class="time-filter-item">2026</div>
-                        <div class="time-filter-item">2025</div>
-                        <div class="time-filter-item">2024</div>
+                        <div class="time-filter-item active" onclick="filterByYear('all', this)">全部</div>
+                        <div class="time-filter-item" onclick="filterByYear('2026', this)">2026</div>
+                        <div class="time-filter-item" onclick="filterByYear('2025', this)">2025</div>
+                        <div class="time-filter-item" onclick="filterByYear('2024', this)">2024</div>
                     </div>
                     
                     <div id="stats-music">
@@ -486,14 +499,20 @@
                         <div class="trend-card">
                             <div class="trend-header">
                                 <div class="trend-title">月度购买趋势</div>
-                                <div style="display: flex; gap: 16px;">
-                                    <span style="font-size: 12px; color: var(--text-secondary);">2026</span>
-                                    <span style="font-size: 12px; display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: var(--accent-blue); border-radius: 2px;"></span>数量</span>
-                                    <span style="font-size: 12px; display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 2px; background: var(--accent-orange);"></span>金额</span>
+                                <span style="font-size: 12px; color: var(--text-secondary); margin-left: auto;">2026</span>
+                            </div>
+                            <div style="display: flex; align-items: flex-end; gap: 24px; margin-bottom: 12px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 10px; height: 10px; background: var(--accent-blue); border-radius: 2px; display: inline-block;"></span>
+                                    <span style="font-size: 11px; color: var(--text-secondary);">数量</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 16px; height: 2px; background: var(--accent-orange); display: inline-block;"></span>
+                                    <span style="font-size: 11px; color: var(--text-secondary);">金额</span>
                                 </div>
                             </div>
-                            <div style="position: relative; height: 140px;">
-                                <div class="trend-bars" style="position: absolute; bottom: 20px; left: 0; right: 0;">
+                            <div style="position: relative; height: 100px;">
+                                <div class="trend-bars" style="position: absolute; bottom: 18px; left: 0; right: 0;">
                                     <div class="trend-bar-wrapper"><div class="trend-bar" style="height: 25%; background: var(--accent-blue);"></div></div>
                                     <div class="trend-bar-wrapper"><div class="trend-bar" style="height: 37.5%; background: var(--accent-blue);"></div></div>
                                     <div class="trend-bar-wrapper"><div class="trend-bar" style="height: 62.5%; background: var(--accent-blue);"></div></div>
@@ -501,22 +520,16 @@
                                     <div class="trend-bar-wrapper"><div class="trend-bar" style="height: 25%; background: var(--accent-blue);"></div></div>
                                     <div class="trend-bar-wrapper"><div class="trend-bar" style="height: 37.5%; background: var(--accent-blue);"></div></div>
                                 </div>
-                                <svg style="position: absolute; top: 0; left: 0; right: 0; bottom: 20px;" viewBox="0 0 350 120" preserveAspectRatio="none">
-                                    <defs>
-                                        <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                            <stop offset="0%" style="stop-color:var(--accent-orange);stop-opacity:0.3" />
-                                            <stop offset="100%" style="stop-color:var(--accent-orange);stop-opacity:0.3" />
-                                        </linearGradient>
-                                    </defs>
-                                    <path d="M 25 90 Q 45 70 85 70 T 145 40 T 205 60 T 265 70 T 325 70" fill="none" stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <circle cx="25" cy="90" r="4" fill="var(--accent-orange)"/>
-                                    <circle cx="85" cy="70" r="4" fill="var(--accent-orange)"/>
-                                    <circle cx="145" cy="40" r="4" fill="var(--accent-orange)"/>
-                                    <circle cx="205" cy="60" r="4" fill="var(--accent-orange)"/>
-                                    <circle cx="265" cy="70" r="4" fill="var(--accent-orange)"/>
-                                    <circle cx="325" cy="70" r="4" fill="var(--accent-orange)"/>
+                                <svg style="position: absolute; top: 0; left: 0; right: 0; bottom: 18px;" viewBox="0 0 350 85" preserveAspectRatio="none">
+                                    <path d="M 25 65 Q 45 50 85 50 T 145 28 T 205 42 T 265 50 T 325 50" fill="none" stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <circle cx="25" cy="65" r="3" fill="var(--accent-orange)"/>
+                                    <circle cx="85" cy="50" r="3" fill="var(--accent-orange)"/>
+                                    <circle cx="145" cy="28" r="3" fill="var(--accent-orange)"/>
+                                    <circle cx="205" cy="42" r="3" fill="var(--accent-orange)"/>
+                                    <circle cx="265" cy="50" r="3" fill="var(--accent-orange)"/>
+                                    <circle cx="325" cy="50" r="3" fill="var(--accent-orange)"/>
                                 </svg>
-                                <div style="display: flex; justify-content: space-between; padding: 0 4px; margin-top: 144px;">
+                                <div style="display: flex; justify-content: space-between; padding: 0 4px; margin-top: 100px;">
                                     <span class="trend-bar-label">1月</span>
                                     <span class="trend-bar-label">2月</span>
                                     <span class="trend-bar-label">3月</span>
@@ -536,22 +549,22 @@
                         <div class="trend-card">
                             <div class="trend-header"><div class="trend-title">艺术家合集</div><span style="font-size: 13px; color: var(--text-secondary);">热门</span></div>
                             <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Pink Floyd (3)</span>
-                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Led Zeppelin (2)</span>
-                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">The Beatles (2)</span>
-                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Radiohead (2)</span>
-                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">David Bowie (2)</span>
-                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Fleetwood Mac (2)</span>
-                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Queen (1)</span>
-                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Pink Floyd (1)</span>
+                                <span class="artist-tag" onclick="showArtistDetail('Pink Floyd')">Pink Floyd (3)</span>
+                                <span class="artist-tag" onclick="showArtistDetail('Led Zeppelin')">Led Zeppelin (2)</span>
+                                <span class="artist-tag" onclick="showArtistDetail('The Beatles')">The Beatles (2)</span>
+                                <span class="artist-tag" onclick="showArtistDetail('Radiohead')">Radiohead (2)</span>
+                                <span class="artist-tag" onclick="showArtistDetail('David Bowie')">David Bowie (2)</span>
+                                <span class="artist-tag" onclick="showArtistDetail('Fleetwood Mac')">Fleetwood Mac (2)</span>
+                                <span class="artist-tag" onclick="showArtistDetail('Queen')">Queen (1)</span>
+                                <span class="artist-tag" onclick="showArtistDetail('Pink Floyd')">Pink Floyd (1)</span>
                             </div>
                         </div>
                         <div class="trend-card">
                             <div class="trend-header"><div class="trend-title">发行年份</div><span style="font-size: 13px; color: var(--text-secondary);">分布</span></div>
-                            <div class="type-item"><div class="type-header"><div class="type-name">70年代</div><div class="type-value">5</div></div><div class="type-bar"><div class="type-fill" style="width: 33%; background: var(--accent-blue);"></div></div></div>
-                            <div class="type-item"><div class="type-header"><div class="type-name">80年代</div><div class="type-value">4</div></div><div class="type-bar"><div class="type-fill" style="width: 27%; background: var(--accent-blue);"></div></div></div>
-                            <div class="type-item"><div class="type-header"><div class="type-name">90年代</div><div class="type-value">3</div></div><div class="type-bar"><div class="type-fill" style="width: 20%; background: var(--accent-blue);"></div></div></div>
-                            <div class="type-item" style="margin-bottom: 0;"><div class="type-header"><div class="type-name">00年代后</div><div class="type-value">3</div></div><div class="type-bar"><div class="type-fill" style="width: 20%; background: var(--accent-blue);"></div></div></div>
+                            <div class="type-item"><div class="type-header"><div class="type-name">2024</div><div class="type-value">2</div></div><div class="type-bar"><div class="type-fill" style="width: 20%; background: var(--accent-blue);"></div></div></div>
+                            <div class="type-item"><div class="type-header"><div class="type-name">2023</div><div class="type-value">3</div></div><div class="type-bar"><div class="type-fill" style="width: 30%; background: var(--accent-blue);"></div></div></div>
+                            <div class="type-item"><div class="type-header"><div class="type-name">2022</div><div class="type-value">4</div></div><div class="type-bar"><div class="type-fill" style="width: 40%; background: var(--accent-blue);"></div></div></div>
+                            <div class="type-item" style="margin-bottom: 0;"><div class="type-header"><div class="type-name">2021</div><div class="type-value">6</div></div><div class="type-bar"><div class="type-fill" style="width: 60%; background: var(--accent-blue);"></div></div></div>
                         </div>
                         <div class="recent-card">
                             <div class="recent-header">
@@ -621,6 +634,66 @@
                                     <div class="recent-sub">剧集 · 2025</div>
                                 </div>
                                 <div class="recent-date">4月25日</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 艺术家详情页面 -->
+            <div id="artist-detail" class="page page-content">
+                <div class="detail-page-content">
+                    <div class="detail-nav">
+                        <div class="back-btn" onclick="showPage('stats')">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </div>
+                        <div class="detail-title" id="artist-name-title">艺术家</div>
+                    </div>
+                    <div id="artist-detail-content">
+                        <div style="text-align: center; padding: 40px 20px;">
+                            <img id="artist-avatar" src="https://picsum.photos/120/120?random=100" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 20px;" />
+                            <div style="font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;" id="artist-display-name">Pink Floyd</div>
+                            <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px;">摇滚 · 英国</div>
+                            <div style="display: flex; justify-content: center; gap: 32px; margin-bottom: 32px;">
+                                <div style="text-align: center;"><div style="font-size: 24px; font-weight: 700; color: var(--text-primary);" id="artist-album-count">3</div><div style="font-size: 12px; color: var(--text-secondary);">专辑</div></div>
+                                <div style="text-align: center;"><div style="font-size: 24px; font-weight: 700; color: var(--text-primary);">¥894</div><div style="font-size: 12px; color: var(--text-secondary);">总花费</div></div>
+                            </div>
+                            <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 32px;">
+                                <span style="padding: 8px 16px; background: var(--accent-blue); color: #fff; border-radius: 20px; font-size: 14px; font-weight: 500;">1970s</span>
+                                <span style="padding: 8px 16px; background: var(--bg-secondary); color: var(--text-primary); border-radius: 20px; font-size: 14px; font-weight: 500;">渐进摇滚</span>
+                                <span style="padding: 8px 16px; background: var(--bg-secondary); color: var(--text-primary); border-radius: 20px; font-size: 14px; font-weight: 500;">迷幻摇滚</span>
+                            </div>
+                        </div>
+                        <div style="padding: 0 20px 20px;">
+                            <div style="font-size: 17px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px;">收藏专辑</div>
+                            <div class="vinyl-grid">
+                                <div class="vinyl-card" onclick="showPage('vinyl-detail')">
+                                    <div class="vinyl-cover">
+                                        <img class="cover-image" src="https://picsum.photos/300/300?random=1" />
+                                    </div>
+                                    <div class="vinyl-info">
+                                        <div class="vinyl-title">Dark Side of the Moon</div>
+                                        <div class="vinyl-artist">1973</div>
+                                    </div>
+                                </div>
+                                <div class="vinyl-card">
+                                    <div class="vinyl-cover">
+                                        <img class="cover-image" src="https://picsum.photos/300/300?random=50" />
+                                    </div>
+                                    <div class="vinyl-info">
+                                        <div class="vinyl-title">The Wall</div>
+                                        <div class="vinyl-artist">1979</div>
+                                    </div>
+                                </div>
+                                <div class="vinyl-card">
+                                    <div class="vinyl-cover">
+                                        <img class="cover-image" src="https://picsum.photos/300/300?random=51" />
+                                    </div>
+                                    <div class="vinyl-info">
+                                        <div class="vinyl-title">Wish You Were Here</div>
+                                        <div class="vinyl-artist">1975</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1008,6 +1081,17 @@
             }
             
             window.scrollTo(0, 0);
+        }
+        
+        function showArtistDetail(artistName) {
+            document.getElementById('artist-display-name').textContent = artistName;
+            document.getElementById('artist-name-title').textContent = artistName;
+            showPage('artist-detail');
+        }
+        
+        function filterByYear(year, el) {
+            document.querySelectorAll('.time-filter-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
         }
         
         function filterMovies(type) {
