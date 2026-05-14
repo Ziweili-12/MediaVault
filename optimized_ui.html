@@ -479,31 +479,51 @@
                     </div>
                     
                     <div id="stats-music">
-                        <div class="metric-grid">
+                        <div class="metric-grid" style="grid-template-columns: repeat(2, 1fr);">
                             <div class="metric-card"><div class="metric-value">15</div><div class="metric-label">黑胶总数</div></div>
                             <div class="metric-card"><div class="metric-value">¥4,470</div><div class="metric-label">总金额</div></div>
-                            <div class="metric-card"><div class="metric-value">9</div><div class="metric-label">艺术家</div></div>
                         </div>
                         <div class="trend-card">
-                            <div class="trend-header"><div class="trend-title">月度购买数量</div><span style="font-size: 13px; color: var(--text-secondary);">2026</span></div>
-                            <div class="trend-bars">
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">2</div><div class="trend-bar" style="height: 25%; background: var(--accent-blue);"></div><div class="trend-bar-label">1月</div></div>
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">3</div><div class="trend-bar" style="height: 37.5%; background: var(--accent-blue);"></div><div class="trend-bar-label">2月</div></div>
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">5</div><div class="trend-bar" style="height: 62.5%; background: var(--accent-blue);"></div><div class="trend-bar-label">3月</div></div>
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">4</div><div class="trend-bar" style="height: 50%; background: var(--accent-blue);"></div><div class="trend-bar-label">4月</div></div>
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">2</div><div class="trend-bar" style="height: 25%; background: var(--accent-blue);"></div><div class="trend-bar-label">5月</div></div>
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">3</div><div class="trend-bar" style="height: 37.5%; background: var(--accent-blue);"></div><div class="trend-bar-label">6月</div></div>
+                            <div class="trend-header">
+                                <div class="trend-title">月度购买趋势</div>
+                                <div style="display: flex; gap: 16px;">
+                                    <span style="font-size: 12px; color: var(--text-secondary);">2026</span>
+                                    <span style="font-size: 12px; display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: var(--accent-blue); border-radius: 2px;"></span>数量</span>
+                                    <span style="font-size: 12px; display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 2px; background: var(--accent-orange);"></span>金额</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="trend-card">
-                            <div class="trend-header"><div class="trend-title">月度消费金额</div><span style="font-size: 13px; color: var(--text-secondary);">2026</span></div>
-                            <div class="trend-bars">
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥596</div><div class="trend-bar" style="height: 33%; background: var(--accent-orange);"></div><div class="trend-bar-label">1月</div></div>
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥894</div><div class="trend-bar" style="height: 50%; background: var(--accent-orange);"></div><div class="trend-bar-label">2月</div></div>
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥1,490</div><div class="trend-bar" style="height: 83%; background: var(--accent-orange);"></div><div class="trend-bar-label">3月</div></div>
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥1,192</div><div class="trend-bar" style="height: 66%; background: var(--accent-orange);"></div><div class="trend-bar-label">4月</div></div>
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥596</div><div class="trend-bar" style="height: 33%; background: var(--accent-orange);"></div><div class="trend-bar-label">5月</div></div>
-                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥894</div><div class="trend-bar" style="height: 50%; background: var(--accent-orange);"></div><div class="trend-bar-label">6月</div></div>
+                            <div style="position: relative; height: 140px;">
+                                <div class="trend-bars" style="position: absolute; bottom: 20px; left: 0; right: 0;">
+                                    <div class="trend-bar-wrapper"><div class="trend-bar" style="height: 25%; background: var(--accent-blue);"></div></div>
+                                    <div class="trend-bar-wrapper"><div class="trend-bar" style="height: 37.5%; background: var(--accent-blue);"></div></div>
+                                    <div class="trend-bar-wrapper"><div class="trend-bar" style="height: 62.5%; background: var(--accent-blue);"></div></div>
+                                    <div class="trend-bar-wrapper"><div class="trend-bar" style="height: 50%; background: var(--accent-blue);"></div></div>
+                                    <div class="trend-bar-wrapper"><div class="trend-bar" style="height: 25%; background: var(--accent-blue);"></div></div>
+                                    <div class="trend-bar-wrapper"><div class="trend-bar" style="height: 37.5%; background: var(--accent-blue);"></div></div>
+                                </div>
+                                <svg style="position: absolute; top: 0; left: 0; right: 0; bottom: 20px;" viewBox="0 0 350 120" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" style="stop-color:var(--accent-orange);stop-opacity:0.3" />
+                                            <stop offset="100%" style="stop-color:var(--accent-orange);stop-opacity:0.3" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M 25 90 Q 45 70 85 70 T 145 40 T 205 60 T 265 70 T 325 70" fill="none" stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <circle cx="25" cy="90" r="4" fill="var(--accent-orange)"/>
+                                    <circle cx="85" cy="70" r="4" fill="var(--accent-orange)"/>
+                                    <circle cx="145" cy="40" r="4" fill="var(--accent-orange)"/>
+                                    <circle cx="205" cy="60" r="4" fill="var(--accent-orange)"/>
+                                    <circle cx="265" cy="70" r="4" fill="var(--accent-orange)"/>
+                                    <circle cx="325" cy="70" r="4" fill="var(--accent-orange)"/>
+                                </svg>
+                                <div style="display: flex; justify-content: space-between; padding: 0 4px; margin-top: 144px;">
+                                    <span class="trend-bar-label">1月</span>
+                                    <span class="trend-bar-label">2月</span>
+                                    <span class="trend-bar-label">3月</span>
+                                    <span class="trend-bar-label">4月</span>
+                                    <span class="trend-bar-label">5月</span>
+                                    <span class="trend-bar-label">6月</span>
+                                </div>
                             </div>
                         </div>
                         <div class="trend-card">
