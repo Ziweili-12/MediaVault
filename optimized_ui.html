@@ -66,19 +66,22 @@
         /* 媒体卡片 */
         .media-card { height: 180px; border-radius: 20px; margin-bottom: 16px; overflow: hidden; position: relative; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 20px var(--card-shadow); }
         .media-card:hover { transform: scale(1.01); box-shadow: 0 8px 30px var(--card-shadow-hover); }
-        .card-cover-wall { position: absolute; inset: 0; }
-        .cover-grid { display: flex; flex-wrap: wrap; width: 100%; height: 100%; opacity: 0.12; }
-        .cover-cell { width: 33.33%; overflow: hidden; }
-        .cover-img { width: 100%; height: 100%; object-fit: cover; transition: transform 8s ease-in-out; }
-        .cover-grid.music-flow .cover-img { animation: musicFlow 20s infinite ease-in-out; }
-        .cover-grid.movie-flow .cover-img { animation: movieFlow 25s infinite ease-in-out; }
-        @keyframes musicFlow {
-            0%, 100% { transform: scale(1) translateY(0); }
-            50% { transform: scale(1.15) translateY(-8px); }
-        }
-        @keyframes movieFlow {
-            0%, 100% { transform: scale(1) translateX(0); }
-            50% { transform: scale(1.12) translateX(-6px); }
+        .card-cover-wall { position: absolute; inset: 0; overflow: hidden; }
+        .cover-grid { display: flex; flex-wrap: wrap; width: 200%; height: 200%; opacity: 0.25; }
+        .cover-cell { width: 16.666%; height: 50%; overflow: hidden; }
+        .cover-img { width: 100%; height: 100%; object-fit: cover; animation: coverFlow 25s linear infinite; }
+        .cover-cell:nth-child(1) .cover-img { animation-delay: 0s; }
+        .cover-cell:nth-child(2) .cover-img { animation-delay: -3s; }
+        .cover-cell:nth-child(3) .cover-img { animation-delay: -6s; }
+        .cover-cell:nth-child(4) .cover-img { animation-delay: -9s; }
+        .cover-cell:nth-child(5) .cover-img { animation-delay: -12s; }
+        .cover-cell:nth-child(6) .cover-img { animation-delay: -15s; }
+        @keyframes coverFlow {
+            0% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(-15%, -10%) scale(1.1); }
+            50% { transform: translate(-30%, -5%) scale(1.05); }
+            75% { transform: translate(-15%, -15%) scale(1.12); }
+            100% { transform: translate(0, 0) scale(1); }
         }
         .card-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.95)); }
         @media (prefers-color-scheme: dark) {
@@ -221,6 +224,8 @@
         
         /* 详情页面 */
         .detail-page { padding: 20px; padding-bottom: 110px; }
+        .detail-nav { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .detail-title { font-size: 17px; font-weight: 600; color: var(--text-primary); }
         .detail-cover-section { text-align: center; margin-bottom: 24px; position: relative; }
         .detail-cover { width: 220px; height: 220px; border-radius: 20px; object-fit: cover; box-shadow: 0 12px 40px var(--card-shadow); }
         .detail-poster { width: 160px; height: 240px; border-radius: 16px; }
@@ -301,7 +306,7 @@
                 
                 <div class="media-card" onclick="showPage('music')">
                     <div class="card-cover-wall">
-                        <div class="cover-grid music-flow">
+                        <div class="cover-grid">
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/200?random=1" /></div>
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/200?random=2" /></div>
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/200?random=3" /></div>
@@ -330,7 +335,7 @@
                 
                 <div class="media-card" onclick="showPage('movie')">
                     <div class="card-cover-wall">
-                        <div class="cover-grid movie-flow">
+                        <div class="cover-grid">
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/300?random=7" /></div>
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/300?random=8" /></div>
                             <div class="cover-cell"><img class="cover-img" src="https://picsum.photos/200/300?random=9" /></div>
@@ -435,7 +440,7 @@
                     </div>
                 </div>
                 <div class="movie-grid">
-                    <div class="movie-card" onclick="showPage('movie-detail')">
+                    <div class="movie-card" onclick="showMovieDetail('Inception', '2010', 'Christopher Nolan', '电影', '9.3', '148 分钟')">
                         <div class="movie-cover">
                             <img class="poster-image" src="https://picsum.photos/200/300?random=10" />
                             <div class="type-badge type-badge-movie">电影</div>
@@ -445,7 +450,7 @@
                             <div class="movie-year">2010</div>
                         </div>
                     </div>
-                    <div class="movie-card">
+                    <div class="movie-card" onclick="showMovieDetail('Stranger Things', '2016', 'Duffer Brothers', '剧集', '8.7', '4季')">
                         <div class="movie-cover">
                             <img class="poster-image" src="https://picsum.photos/200/300?random=11" />
                             <div class="type-badge type-badge-tv">剧集</div>
@@ -455,7 +460,7 @@
                             <div class="movie-year">2016</div>
                         </div>
                     </div>
-                    <div class="movie-card">
+                    <div class="movie-card" onclick="showMovieDetail('The Shawshank Redemption', '1994', 'Frank Darabont', '电影', '9.7', '142 分钟')">
                         <div class="movie-cover">
                             <div class="poster-placeholder">
                                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#86868b" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line></svg>
@@ -466,6 +471,33 @@
                             <div class="movie-title">The Shawshank</div>
                             <div class="movie-year">1994</div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 影视详情页面 -->
+            <div id="movie-detail" class="page page-content">
+                <div class="detail-page">
+                    <div class="detail-nav">
+                        <div class="back-btn" onclick="showPage('movie')">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </div>
+                        <div class="detail-title">影视详情</div>
+                    </div>
+                    <div class="detail-cover-section">
+                        <img id="detail-poster" class="detail-poster" src="https://picsum.photos/320/480?random=10" alt="Poster">
+                        <div id="detail-type-badge" class="detail-badge">电影</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-row"><div class="detail-label">标题</div><div class="detail-value" id="detail-movie-title">-</div></div>
+                        <div class="detail-row"><div class="detail-label">导演</div><div class="detail-value" id="detail-movie-director">-</div></div>
+                        <div class="detail-row"><div class="detail-label">上映年份</div><div class="detail-value" id="detail-movie-year">-</div></div>
+                        <div class="detail-row"><div class="detail-label">类型</div><div class="detail-value" id="detail-movie-genre">-</div></div>
+                        <div class="detail-row"><div class="detail-label">IMDb评分</div><div class="detail-value" id="detail-movie-rating">-</div></div>
+                        <div class="detail-row"><div class="detail-label">片长</div><div class="detail-value" id="detail-movie-duration">-</div></div>
+                    </div>
+                    <div style="padding: 0 20px 20px;">
+                        <div class="save-btn" style="background: var(--bg-secondary); color: var(--text-primary);">查看 Discogs 信息</div>
                     </div>
                 </div>
             </div>
@@ -1087,6 +1119,17 @@
             document.getElementById('artist-display-name').textContent = artistName;
             document.getElementById('artist-name-title').textContent = artistName;
             showPage('artist-detail');
+        }
+        
+        function showMovieDetail(title, year, director, type, rating, duration) {
+            document.getElementById('detail-movie-title').textContent = title;
+            document.getElementById('detail-movie-year').textContent = year;
+            document.getElementById('detail-movie-director').textContent = director;
+            document.getElementById('detail-movie-rating').textContent = rating;
+            document.getElementById('detail-movie-duration').textContent = duration;
+            document.getElementById('detail-type-badge').textContent = type;
+            document.getElementById('detail-type-badge').className = type === '电影' ? 'detail-badge' : 'detail-badge type-badge-tv';
+            showPage('movie-detail');
         }
         
         function filterByYear(year, el) {
