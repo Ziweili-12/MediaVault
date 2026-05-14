@@ -16,6 +16,27 @@
         .nav-icon { font-size: 24px; margin-bottom: 4px; }
         .page { min-height: calc(667px - 127px); padding: 16px; padding-bottom: 100px; }
         
+        /* 首页样式 */
+        .home-header { margin-bottom: 20px; }
+        .home-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+        .home-subtitle { font-size: 15px; color: rgba(255,255,255,0.55); }
+        
+        .recent-section { margin-bottom: 24px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .section-title { font-size: 17px; font-weight: 600; }
+        .see-all { font-size: 14px; color: #0a84ff; }
+        
+        .recent-card { background: #1c1c1e; border-radius: 16px; padding: 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.08); display: flex; gap: 12px; }
+        .recent-thumb { width: 60px; height: 60px; border-radius: 10px; background: #2c2c2e; object-fit: cover; }
+        .recent-info { flex: 1; }
+        .recent-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .recent-meta { font-size: 13px; color: rgba(255,255,255,0.55); }
+        
+        .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+        .action-card { background: #1c1c1e; border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); text-align: center; }
+        .action-icon { font-size: 32px; margin-bottom: 8px; }
+        .action-title { font-size: 14px; font-weight: 600; }
+        
         /* 音乐页面 */
         .music-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
         .header-title { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
@@ -47,12 +68,24 @@
         .movie-title { font-size: 12px; font-weight: 600; }
         .movie-year { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 1px; }
         
+        /* 统计页面 */
+        .stats-header { margin-bottom: 20px; }
+        .stats-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+        .stat-card { background: #1c1c1e; border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); }
+        .stat-value { font-size: 24px; font-weight: 700; margin-bottom: 4px; color: #0a84ff; }
+        .stat-label { font-size: 13px; color: rgba(255,255,255,0.55); }
+        .chart-section { margin-bottom: 24px; }
+        .chart-bar { background: #1c1c1e; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; }
+        .bar-label { font-size: 14px; font-weight: 500; width: 80px; }
+        .bar-fill { height: 24px; background: linear-gradient(90deg, #0a84ff, #30d158); border-radius: 6px; flex: 1; margin-right: 10px; }
+        .bar-value { font-size: 13px; color: rgba(255,255,255,0.75); min-width: 30px; text-align: right; }
+        
         /* 添加弹窗 */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; z-index: 100; }
         .modal-content { background: #1c1c1e; border-radius: 24px 24px 0 0; padding: 22px; padding-bottom: 40px; width: 100%; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
         .modal-title { font-size: 20px; font-weight: 700; }
         .close-btn { color: #0a84ff; font-size: 17px; font-weight: 600; }
+        .back-btn { color: #0a84ff; font-size: 15px; font-weight: 500; margin-bottom: 14px; display: inline-block; }
         
         /* 欢迎页面 */
         .welcome-container { padding: 40px 8px; text-align: center; }
@@ -99,35 +132,96 @@
         .action-btn-danger { background: transparent; color: #ff375f; }
         
         /* Tab切换 */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; padding: 10px; background: #0d0d0d; border-radius: 12px; }
-        .tab { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; background: #1a1a1a; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; padding: 10px; background: #0d0d0d; border-radius: 12px; overflow-x: auto; }
+        .tab { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; background: #1a1a1a; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
         .tab.active { background: #0a84ff; color: #fff; }
         
         .page-content { display: none; }
         .page-content.active { display: block; }
+        
+        /* 扫码界面 */
+        .scan-area { background: #2c2c2e; border-radius: 16px; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px; }
+        .scan-frame { width: 200px; height: 200px; border: 2px dashed #0a84ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+        .scan-icon { font-size: 48px; }
+        .scan-text { font-size: 15px; color: rgba(255,255,255,0.55); }
     </style>
 </head>
 <body>
     <div class="tabs">
-        <div class="tab active" onclick="showPage('music')">音乐收藏</div>
-        <div class="tab" onclick="showPage('movie')">影视收藏</div>
-        <div class="tab" onclick="showPage('add-vinyl')">添加黑胶</div>
-        <div class="tab" onclick="showPage('add-movie')">添加影视</div>
-        <div class="tab" onclick="showPage('detail')">详情页</div>
+        <div class="tab active" onclick="showPage('home')">🏠 首页</div>
+        <div class="tab" onclick="showPage('music')">🎵 音乐</div>
+        <div class="tab" onclick="showPage('movie')">🎬 影视</div>
+        <div class="tab" onclick="showPage('stats')">📊 统计</div>
+        <div class="tab" onclick="showPage('add-vinyl-1')">➕ 黑胶流程</div>
+        <div class="tab" onclick="showPage('add-movie-1')">➕ 影视流程</div>
     </div>
 
     <div class="iphone-container">
         <div class="iphone-screen">
             <div class="status-bar">9:41</div>
             
+            <!-- 首页 -->
+            <div id="home" class="page page-content active">
+                <div class="home-header">
+                    <div class="home-title">欢迎回来 🎶</div>
+                    <div class="home-subtitle">管理您的黑胶与影视收藏</div>
+                </div>
+                
+                <div class="quick-actions">
+                    <div class="action-card" onclick="showPage('add-vinyl-1')">
+                        <div class="action-icon">💿</div>
+                        <div class="action-title">添加黑胶</div>
+                    </div>
+                    <div class="action-card" onclick="showPage('add-movie-1')">
+                        <div class="action-icon">🎬</div>
+                        <div class="action-title">添加影视</div>
+                    </div>
+                </div>
+                
+                <div class="recent-section">
+                    <div class="section-header">
+                        <div class="section-title">最近添加的黑胶</div>
+                        <div class="see-all" onclick="showPage('music')">查看全部</div>
+                    </div>
+                    <div class="recent-card">
+                        <img class="recent-thumb" src="https://picsum.photos/120/120?random=40" alt="Album">
+                        <div class="recent-info">
+                            <div class="recent-title">Dark Side of the Moon</div>
+                            <div class="recent-meta">Pink Floyd • 添加于 3月15日</div>
+                        </div>
+                    </div>
+                    <div class="recent-card">
+                        <img class="recent-thumb" src="https://picsum.photos/120/120?random=41" alt="Album">
+                        <div class="recent-info">
+                            <div class="recent-title">Random Access Memories</div>
+                            <div class="recent-meta">Daft Punk • 添加于 3月10日</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recent-section">
+                    <div class="section-header">
+                        <div class="section-title">最近添加的影视</div>
+                        <div class="see-all" onclick="showPage('movie')">查看全部</div>
+                    </div>
+                    <div class="recent-card">
+                        <img class="recent-thumb" src="https://picsum.photos/120/180?random=42" alt="Movie">
+                        <div class="recent-info">
+                            <div class="recent-title">Dune: Part Two</div>
+                            <div class="recent-meta">2024 • 电影 • 添加于 3月12日</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- 音乐页面 -->
-            <div id="music" class="page page-content active">
+            <div id="music" class="page page-content">
                 <div class="music-header">
                     <div>
                         <div class="header-title">我的黑胶</div>
                         <div class="header-sub">共 12 张专辑</div>
                     </div>
-                    <div class="add-btn">+</div>
+                    <div class="add-btn" onclick="showPage('add-vinyl-1')">+</div>
                 </div>
                 <div class="music-grid">
                     <div class="music-card">
@@ -179,7 +273,7 @@
                         <div class="header-title">影视</div>
                         <div class="header-sub">共 28 部作品</div>
                     </div>
-                    <div class="add-btn movie-add-btn">+</div>
+                    <div class="add-btn movie-add-btn" onclick="showPage('add-movie-1')">+</div>
                 </div>
                 <div class="segment-container">
                     <div class="segment">
@@ -254,20 +348,109 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- 统计页面 -->
+            <div id="stats" class="page page-content">
+                <div class="stats-header">
+                    <div class="header-title">数据统计</div>
+                    <div class="header-subtitle">了解您的收藏情况</div>
+                </div>
+                
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">黑胶唱片</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">28</div>
+                        <div class="stat-label">影视作品</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">¥3,580</div>
+                        <div class="stat-label">黑胶总花费</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">186h</div>
+                        <div class="stat-label">影视总时长</div>
+                    </div>
+                </div>
+                
+                <div class="chart-section">
+                    <div class="section-header">
+                        <div class="section-title">黑胶按流派</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">Rock</div>
+                        <div class="bar-fill" style="width: 85%;"></div>
+                        <div class="bar-value">5</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">Jazz</div>
+                        <div class="bar-fill" style="width: 51%;"></div>
+                        <div class="bar-value">3</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">Pop</div>
+                        <div class="bar-fill" style="width: 34%;"></div>
+                        <div class="bar-value">2</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">Funk</div>
+                        <div class="bar-fill" style="width: 17%;"></div>
+                        <div class="bar-value">1</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">Classical</div>
+                        <div class="bar-fill" style="width: 17%;"></div>
+                        <div class="bar-value">1</div>
+                    </div>
+                </div>
+                
+                <div class="chart-section">
+                    <div class="section-header">
+                        <div class="section-title">影视按类型</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">剧情</div>
+                        <div class="bar-fill" style="width: 89%; background: linear-gradient(90deg, #30d158, #0a84ff);"></div>
+                        <div class="bar-value">10</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">科幻</div>
+                        <div class="bar-fill" style="width: 53%; background: linear-gradient(90deg, #30d158, #0a84ff);"></div>
+                        <div class="bar-value">6</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">动作</div>
+                        <div class="bar-fill" style="width: 35%; background: linear-gradient(90deg, #30d158, #0a84ff);"></div>
+                        <div class="bar-value">4</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">喜剧</div>
+                        <div class="bar-fill" style="width: 27%; background: linear-gradient(90deg, #30d158, #0a84ff);"></div>
+                        <div class="bar-value">3</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">悬疑</div>
+                        <div class="bar-fill" style="width: 18%; background: linear-gradient(90deg, #30d158, #0a84ff);"></div>
+                        <div class="bar-value">2</div>
+                    </div>
+                </div>
+            </div>
 
-            <!-- 添加黑胶弹窗 -->
-            <div id="add-vinyl" class="page page-content">
+            <!-- 添加黑胶 - 欢迎页 -->
+            <div id="add-vinyl-1" class="page page-content">
                 <div class="modal-content">
                     <div class="modal-header">
                         <div class="modal-title">添加黑胶</div>
-                        <div class="close-btn">取消</div>
+                        <div class="close-btn" onclick="showPage('home')">取消</div>
                     </div>
                     
                     <div class="welcome-container">
                         <div class="welcome-title">添加黑胶唱片</div>
                         <div class="welcome-sub">选择添加方式</div>
                         
-                        <div class="welcome-option">
+                        <div class="welcome-option" onclick="showPage('add-vinyl-2')">
                             <div class="option-icon" style="background: #0a84ff20;">🔍</div>
                             <div class="option-text">
                                 <div class="option-title">搜索添加</div>
@@ -276,7 +459,7 @@
                             <div class="option-arrow">→</div>
                         </div>
                         
-                        <div class="welcome-option">
+                        <div class="welcome-option" onclick="showPage('add-vinyl-scan')">
                             <div class="option-icon" style="background: #30d15820;">📷</div>
                             <div class="option-text">
                                 <div class="option-title">扫码添加</div>
@@ -287,86 +470,247 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 添加影视弹窗 -->
-            <div id="add-movie" class="page page-content">
+            
+            <!-- 添加黑胶 - 扫码页 -->
+            <div id="add-vinyl-scan" class="page page-content">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <div class="modal-title">添加影视</div>
-                        <div class="close-btn" style="color: #30d158;">取消</div>
+                        <div class="back-btn" onclick="showPage('add-vinyl-1')">← 返回</div>
                     </div>
                     
-                    <input type="text" class="search-input" placeholder="搜索电影或剧集名称...">
+                    <div style="text-align: center;">
+                        <div class="scan-area">
+                            <div class="scan-frame">
+                                <div class="scan-icon">📷</div>
+                            </div>
+                            <div class="scan-text">点击扫描区域开始扫描</div>
+                        </div>
+                        <div style="margin-top: 16px; color: rgba(255,255,255,0.45); font-size: 14px;">
+                            扫描黑胶封底的条形码
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加黑胶 - 搜索页 -->
+            <div id="add-vinyl-2" class="page page-content">
+                <div class="modal-content">
+                    <div class="back-btn" onclick="showPage('add-vinyl-1')">← 返回</div>
                     
-                    <div class="search-result">
-                        <img class="result-thumb result-thumb-portrait" src="https://picsum.photos/200/300?random=20" alt="Poster">
+                    <input type="text" class="search-input" placeholder="搜索专辑名或艺术家..." value="Pink Floyd">
+                    
+                    <div style="font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 10px; padding: 0 4px;">
+                        找到 4 个结果
+                    </div>
+                    
+                    <div class="search-result" onclick="showPage('add-vinyl-3')">
+                        <img class="result-thumb" src="https://picsum.photos/112/112?random=50" alt="Album">
                         <div class="result-info">
-                            <div class="result-title">The Dark Knight</div>
-                            <div class="result-subtitle">2008 • 电影 • IMDb 9.0</div>
+                            <div class="result-title">The Dark Side of the Moon</div>
+                            <div class="result-subtitle">Pink Floyd • 1973 • Progressive Rock</div>
                         </div>
                         <div class="option-arrow" style="font-size: 18px;">→</div>
                     </div>
                     
-                    <div class="search-result">
-                        <img class="result-thumb result-thumb-portrait" src="https://picsum.photos/200/300?random=21" alt="Poster">
+                    <div class="search-result" onclick="showPage('add-vinyl-3')">
+                        <img class="result-thumb" src="https://picsum.photos/112/112?random=51" alt="Album">
                         <div class="result-info">
-                            <div class="result-title">The Godfather</div>
-                            <div class="result-subtitle">1972 • 电影 • IMDb 9.2</div>
+                            <div class="result-title">Wish You Were Here</div>
+                            <div class="result-subtitle">Pink Floyd • 1975 • Progressive Rock</div>
+                        </div>
+                        <div class="option-arrow" style="font-size: 18px;">→</div>
+                    </div>
+                    
+                    <div class="search-result" onclick="showPage('add-vinyl-3')">
+                        <img class="result-thumb" src="https://picsum.photos/112/112?random=52" alt="Album">
+                        <div class="result-info">
+                            <div class="result-title">The Wall</div>
+                            <div class="result-subtitle">Pink Floyd • 1979 • Progressive Rock</div>
                         </div>
                         <div class="option-arrow" style="font-size: 18px;">→</div>
                     </div>
                 </div>
             </div>
-
-            <!-- 详情页 -->
-            <div id="detail" class="page page-content">
+            
+            <!-- 添加黑胶 - 确认页 -->
+            <div id="add-vinyl-3" class="page page-content">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <div class="modal-title">专辑详情</div>
-                        <div class="close-btn">完成</div>
-                    </div>
+                    <div class="back-btn" onclick="showPage('add-vinyl-2')">← 返回</div>
                     
                     <div class="confirm-cover-section">
-                        <img class="confirm-cover" src="https://picsum.photos/300/300?random=30" alt="Cover">
-                        <div class="confirm-badge">Vinyl</div>
+                        <img class="confirm-cover" src="https://picsum.photos/400/400?random=53" alt="Cover">
+                        <div class="confirm-badge">180g Vinyl</div>
                     </div>
                     
-                    <div class="detail-field">
-                        <div class="detail-label">专辑名</div>
-                        <div class="detail-value">Dark Side of the Moon</div>
-                    </div>
-                    <div class="detail-field">
-                        <div class="detail-label">艺术家</div>
-                        <div class="detail-value">Pink Floyd</div>
-                    </div>
-                    <div class="detail-field">
-                        <div class="detail-label">流派</div>
-                        <div class="detail-value">Progressive Rock</div>
-                    </div>
-                    <div class="detail-field">
-                        <div class="detail-label">购买日期</div>
-                        <div class="detail-value">2024-01-15</div>
-                    </div>
-                    <div class="detail-field">
-                        <div class="detail-label">价格</div>
-                        <div class="detail-value">¥299.00</div>
-                    </div>
-                    <div class="detail-field">
-                        <div class="detail-label">个人评分</div>
-                        <div class="detail-value">⭐⭐⭐⭐⭐</div>
+                    <div class="confirm-section">
+                        <div class="confirm-label">专辑名</div>
+                        <div class="confirm-value">The Dark Side of the Moon</div>
                     </div>
                     
-                    <div class="action-btn action-btn-primary">编辑</div>
-                    <div class="action-btn action-btn-secondary">同步到Notion</div>
-                    <div class="action-btn action-btn-danger">删除</div>
+                    <div class="confirm-section">
+                        <div class="confirm-label">艺术家</div>
+                        <div class="confirm-value">Pink Floyd</div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <div class="confirm-label">流派</div>
+                        <div class="confirm-value">Progressive Rock</div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <div class="confirm-label">购买日期</div>
+                        <input type="text" class="confirm-input" placeholder="2024-05-14" value="2024-05-14">
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <div class="confirm-label">价格</div>
+                        <input type="text" class="confirm-input" placeholder="¥0.00" value="¥299.00">
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <div class="confirm-label">个人评分</div>
+                        <div class="confirm-value" style="color: #ffcc00;">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    
+                    <div class="save-btn" onclick="showPage('add-vinyl-success')">
+                        添加到收藏
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加黑胶 - 成功页 -->
+            <div id="add-vinyl-success" class="page page-content">
+                <div class="modal-content">
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <div style="font-size: 80px; margin-bottom: 24px;">🎉</div>
+                        <div style="font-size: 22px; font-weight: 700; margin-bottom: 8px;">添加成功！</div>
+                        <div style="font-size: 15px; color: rgba(255,255,255,0.55); margin-bottom: 40px;">
+                            已添加到您的黑胶收藏
+                        </div>
+                        
+                        <div class="save-btn" onclick="showPage('music')">
+                            查看黑胶收藏
+                        </div>
+                        
+                        <div style="margin-top: 14px; color: #0a84ff; font-size: 15px; font-weight: 500; cursor: pointer;" onclick="showPage('add-vinyl-1')">
+                            继续添加
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加影视 - 欢迎页 -->
+            <div id="add-movie-1" class="page page-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title">添加影视</div>
+                        <div class="close-btn" style="color: #30d158;" onclick="showPage('home')">取消</div>
+                    </div>
+                    
+                    <div class="welcome-container">
+                        <div class="welcome-title">添加影视作品</div>
+                        <div class="welcome-sub">搜索电影或剧集</div>
+                        
+                        <input type="text" class="search-input" placeholder="搜索电影或剧集..." value="Dune">
+                        
+                        <div class="search-result" onclick="showPage('add-movie-2')">
+                            <img class="result-thumb result-thumb-portrait" src="https://picsum.photos/112/168?random=60" alt="Poster">
+                            <div class="result-info">
+                                <div class="result-title">Dune: Part Two</div>
+                                <div class="result-subtitle">2024 • 电影 • IMDb 8.8</div>
+                            </div>
+                            <div class="option-arrow" style="font-size: 18px;">→</div>
+                        </div>
+                        
+                        <div class="search-result" onclick="showPage('add-movie-2')">
+                            <img class="result-thumb result-thumb-portrait" src="https://picsum.photos/112/168?random=61" alt="Poster">
+                            <div class="result-info">
+                                <div class="result-title">Dune</div>
+                                <div class="result-subtitle">2021 • 电影 • IMDb 8.0</div>
+                            </div>
+                            <div class="option-arrow" style="font-size: 18px;">→</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加影视 - 确认页 -->
+            <div id="add-movie-2" class="page page-content">
+                <div class="modal-content">
+                    <div class="back-btn" onclick="showPage('add-movie-1')">← 返回</div>
+                    
+                    <div class="confirm-cover-section">
+                        <img class="confirm-poster" src="https://picsum.photos/320/480?random=62" alt="Poster">
+                        <div class="confirm-badge">电影</div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <div class="confirm-label">标题</div>
+                        <div class="confirm-value">Dune: Part Two</div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <div class="confirm-label">导演</div>
+                        <div class="confirm-value">Denis Villeneuve</div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <div class="confirm-label">年份</div>
+                        <div class="confirm-value">2024</div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <div class="confirm-label">类型</div>
+                        <div class="confirm-value">科幻 • 冒险 • 剧情</div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <div class="confirm-label">IMDb评分</div>
+                        <div class="confirm-value">8.8</div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <div class="confirm-label">观看日期</div>
+                        <input type="text" class="confirm-input" placeholder="2024-05-14" value="2024-03-12">
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <div class="confirm-label">个人评分</div>
+                        <input type="text" class="confirm-input" placeholder="⭐⭐⭐⭐⭐" value="⭐⭐⭐⭐⭐">
+                    </div>
+                    
+                    <div class="save-btn save-btn-green" onclick="showPage('add-movie-success')">
+                        添加到收藏
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加影视 - 成功页 -->
+            <div id="add-movie-success" class="page page-content">
+                <div class="modal-content">
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <div style="font-size: 80px; margin-bottom: 24px;">🍿</div>
+                        <div style="font-size: 22px; font-weight: 700; margin-bottom: 8px;">添加成功！</div>
+                        <div style="font-size: 15px; color: rgba(255,255,255,0.55); margin-bottom: 40px;">
+                            已添加到您的影视收藏
+                        </div>
+                        
+                        <div class="save-btn save-btn-green" onclick="showPage('movie')">
+                            查看影视收藏
+                        </div>
+                        
+                        <div style="margin-top: 14px; color: #30d158; font-size: 15px; font-weight: 500; cursor: pointer;" onclick="showPage('add-movie-1')">
+                            继续添加
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="nav-bar">
-                <div class="nav-item"><div class="nav-icon">🏠</div><div>首页</div></div>
-                <div class="nav-item active"><div class="nav-icon">🎵</div><div>音乐</div></div>
-                <div class="nav-item"><div class="nav-icon">🎬</div><div>影视</div></div>
-                <div class="nav-item"><div class="nav-icon">📊</div><div>统计</div></div>
+                <div class="nav-item" onclick="showPage('home')"><div class="nav-icon">🏠</div><div>首页</div></div>
+                <div class="nav-item" onclick="showPage('music')"><div class="nav-icon">🎵</div><div>音乐</div></div>
+                <div class="nav-item" onclick="showPage('movie')"><div class="nav-icon">🎬</div><div>影视</div></div>
+                <div class="nav-item" onclick="showPage('stats')"><div class="nav-icon">📊</div><div>统计</div></div>
             </div>
         </div>
     </div>
@@ -375,7 +719,15 @@
         function showPage(pageId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-            document.querySelector(`.tab[onclick="showPage('${pageId}')"]`).classList.add('active');
+            
+            // 自动高亮对应的tab
+            if (pageId === 'home') document.querySelector('[onclick="showPage(\'home\')"]')?.classList.add('active');
+            else if (pageId === 'music') document.querySelector('[onclick="showPage(\'music\')"]')?.classList.add('active');
+            else if (pageId === 'movie') document.querySelector('[onclick="showPage(\'movie\')"]')?.classList.add('active');
+            else if (pageId === 'stats') document.querySelector('[onclick="showPage(\'stats\')"]')?.classList.add('active');
+            else if (pageId.startsWith('add-vinyl')) document.querySelector('[onclick="showPage(\'add-vinyl-1\')"]')?.classList.add('active');
+            else if (pageId.startsWith('add-movie')) document.querySelector('[onclick="showPage(\'add-movie-1\')"]')?.classList.add('active');
+            
             document.getElementById(pageId).classList.add('active');
         }
     </script>
