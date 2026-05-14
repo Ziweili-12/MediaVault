@@ -416,9 +416,9 @@
                 </div>
                 <div class="segment-container">
                     <div class="segment">
-                        <div class="segment-item active">全部</div>
-                        <div class="segment-item">电影</div>
-                        <div class="segment-item">剧集</div>
+                        <div class="segment-item active" onclick="filterMovies('all')">全部</div>
+                        <div class="segment-item" onclick="filterMovies('movie')">电影</div>
+                        <div class="segment-item" onclick="filterMovies('tv')">剧集</div>
                     </div>
                 </div>
                 <div class="movie-grid">
@@ -465,8 +465,8 @@
                     <!-- 音乐/影视切换 -->
                     <div class="segment-container">
                         <div class="segment">
-                            <div class="segment-item active">音乐</div>
-                            <div class="segment-item">影视</div>
+                            <div class="segment-item active" onclick="switchStats('music')">音乐</div>
+                            <div class="segment-item" onclick="switchStats('movie')">影视</div>
                         </div>
                     </div>
                     
@@ -547,7 +547,7 @@
                             </div>
                         </div>
                         <div class="trend-card">
-                            <div class="trend-header"><div class="trend-title">发行年代</div><span style="font-size: 13px; color: var(--text-secondary);">分布</span></div>
+                            <div class="trend-header"><div class="trend-title">发行年份</div><span style="font-size: 13px; color: var(--text-secondary);">分布</span></div>
                             <div class="type-item"><div class="type-header"><div class="type-name">70年代</div><div class="type-value">5</div></div><div class="type-bar"><div class="type-fill" style="width: 33%; background: var(--accent-blue);"></div></div></div>
                             <div class="type-item"><div class="type-header"><div class="type-name">80年代</div><div class="type-value">4</div></div><div class="type-bar"><div class="type-fill" style="width: 27%; background: var(--accent-blue);"></div></div></div>
                             <div class="type-item"><div class="type-header"><div class="type-name">90年代</div><div class="type-value">3</div></div><div class="type-bar"><div class="type-fill" style="width: 20%; background: var(--accent-blue);"></div></div></div>
@@ -1008,6 +1008,21 @@
             }
             
             window.scrollTo(0, 0);
+        }
+        
+        function filterMovies(type) {
+            const items = document.querySelectorAll('.segment-item');
+            items.forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function switchStats(type) {
+            const items = document.querySelectorAll('.segment-item');
+            items.forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('stats-music').style.display = type === 'music' ? 'block' : 'none';
+            document.getElementById('stats-movie').style.display = type === 'movie' ? 'block' : 'none';
         }
         
         function previewImage(input, previewId, placeholderId) {
