@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, ScrollView, Alert, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { updateVinyl } from '../../database/database';
 import { formatVinylForNotion, updateNotionPage } from '../../services/api';
 
@@ -68,57 +69,81 @@ export default function VinylDetailModal({ visible, vinyl, onClose, onDelete, on
             </TouchableOpacity>
           </View>
 
-          <ScrollView>
-            <View style={styles.coverSquare}>
-              <Text style={styles.coverEmoji}>💿</Text>
+          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            <View style={styles.coverSection}>
+              {vinyl.cover_url ? (
+                <Image
+                  source={{ uri: vinyl.cover_url }}
+                  style={styles.coverImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.coverPlaceholder}>
+                  <Ionicons name="disc" size={64} color="rgba(255,255,255,0.3)" />
+                </View>
+              )}
+              {vinyl.version && (
+                <View style={styles.versionBadge}>
+                  <Text style={styles.versionText}>{vinyl.version}</Text>
+                </View>
+              )}
             </View>
 
-            <View style={styles.field}>
-              <Text style={styles.fieldLabel}>专辑名</Text>
-              <Text style={styles.fieldValue}>{vinyl.album_name}</Text>
+            <View style={styles.infoSection}>
+              <View style={styles.field}>
+                <Text style={styles.fieldLabel}>专辑名</Text>
+                <Text style={styles.fieldValue}>{vinyl.album_name}</Text>
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.fieldLabel}>艺术家</Text>
+                <Text style={styles.fieldValue}>{vinyl.artist}</Text>
+              </View>
+
+              {vinyl.genre && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>流派</Text>
+                  <Text style={styles.fieldValue}>{vinyl.genre}</Text>
+                </View>
+              )}
+
+              {vinyl.release_date && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>发行日期</Text>
+                  <Text style={styles.fieldValue}>{vinyl.release_date}</Text>
+                </View>
+              )}
+
+              {vinyl.purchase_date && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>购买日期</Text>
+                  <Text style={styles.fieldValue}>{vinyl.purchase_date}</Text>
+                </View>
+              )}
+
+              {vinyl.price && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>价格</Text>
+                  <Text style={styles.fieldValue}>¥{vinyl.price}</Text>
+                </View>
+              )}
+
+              {vinyl.personal_rating && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>个人评分</Text>
+                  <Text style={styles.fieldValue}>
+                    {'⭐'.repeat(vinyl.personal_rating)}
+                  </Text>
+                </View>
+              )}
+
+              {vinyl.notes && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>备注</Text>
+                  <Text style={styles.fieldValue}>{vinyl.notes}</Text>
+                </View>
+              )}
             </View>
-
-            <View style={styles.field}>
-              <Text style={styles.fieldLabel}>艺术家</Text>
-              <Text style={styles.fieldValue}>{vinyl.artist}</Text>
-            </View>
-
-            {vinyl.version && (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>版本</Text>
-                <Text style={styles.fieldValue}>{vinyl.version}</Text>
-              </View>
-            )}
-
-            {vinyl.purchase_date && (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>购买日期</Text>
-                <Text style={styles.fieldValue}>{vinyl.purchase_date}</Text>
-              </View>
-            )}
-
-            {vinyl.price && (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>价格</Text>
-                <Text style={styles.fieldValue}>¥{vinyl.price}</Text>
-              </View>
-            )}
-
-            {vinyl.genre && (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>流派</Text>
-                <Text style={styles.fieldValue}>{vinyl.genre}</Text>
-              </View>
-            )}
-
-            {vinyl.personal_rating && (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>个人评分</Text>
-                <Text style={styles.fieldValue}>
-                  {'⭐'.repeat(vinyl.personal_rating)}
-                </Text>
-              </View>
-            )}
           </ScrollView>
 
           <TouchableOpacity style={styles.editButton} onPress={() => setEditing(!editing)}>
@@ -141,16 +166,16 @@ export default function VinylDetailModal({ visible, vinyl, onClose, onDelete, on
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: '#1c1c1e',
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     padding: 22,
-    paddingBottom: 34,
-    maxHeight: '82%',
+    paddingBottom: 40,
+    maxHeight: '85%',
   },
   header: {
     flexDirection: 'row',
@@ -169,20 +194,46 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
   },
-  coverSquare: {
-    width: 180,
-    height: 180,
-    borderRadius: 10,
-    marginHorizontal: 'auto',
-    marginBottom: 22,
+  scrollView: {
+    flex: 1,
+    paddingBottom: 20,
+  },
+  coverSection: {
+    position: 'relative',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  coverImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 16,
+    backgroundColor: '#2c2c2e',
+  },
+  coverPlaceholder: {
+    width: 200,
+    height: 200,
+    borderRadius: 16,
     backgroundColor: '#2c2c2e',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
   },
-  coverEmoji: {
-    fontSize: 72,
+  versionBadge: {
+    position: 'absolute',
+    top: 12,
+    left: '50%',
+    transform: [{ translateX: -60 }],
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  versionText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  infoSection: {
+    paddingHorizontal: 4,
   },
   field: {
     flexDirection: 'row',
@@ -190,7 +241,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
+    borderBottomColor: 'rgba(255,255,255,0.06)',
   },
   fieldLabel: {
     color: 'rgba(255,255,255,0.55)',
@@ -202,12 +253,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
     letterSpacing: -0.2,
+    flex: 1,
+    textAlign: 'right',
+    marginLeft: 20,
   },
   editButton: {
     backgroundColor: '#0a84ff',
-    borderRadius: 10,
-    padding: 15,
+    borderRadius: 14,
+    padding: 16,
     marginTop: 16,
+    shadowColor: '#0a84ff',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   editButtonText: {
     color: '#fff',
@@ -217,8 +275,8 @@ const styles = StyleSheet.create({
   },
   syncButton: {
     backgroundColor: '#2c2c2e',
-    borderRadius: 10,
-    padding: 15,
+    borderRadius: 14,
+    padding: 16,
     marginTop: 10,
   },
   syncButtonText: {
@@ -229,7 +287,7 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     backgroundColor: 'transparent',
-    padding: 15,
+    padding: 16,
     marginTop: 10,
   },
   deleteButtonText: {

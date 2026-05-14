@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { insertVinyl } from '../../database/database';
 import { searchDiscogsByBarcode, searchDiscogsByQuery, getDiscogsRelease } from '../../services/api';
@@ -20,7 +20,6 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
   const [selectedRelease, setSelectedRelease] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // 表单数据
   const [purchaseDate, setPurchaseDate] = useState('');
   const [price, setPrice] = useState('');
   const [personalRating, setPersonalRating] = useState('');
@@ -160,6 +159,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                     <Text style={styles.welcomeOptionTitle}>搜索添加</Text>
                     <Text style={styles.welcomeOptionSub}>按专辑名或艺术家搜索</Text>
                   </View>
+                  <Ionicons name="chevron-right" size={20} color="rgba(255,255,255,0.4)" />
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -174,6 +174,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                     <Text style={styles.welcomeOptionTitle}>扫码添加</Text>
                     <Text style={styles.welcomeOptionSub}>扫描黑胶条形码</Text>
                   </View>
+                  <Ionicons name="chevron-right" size={20} color="rgba(255,255,255,0.4)" />
                 </TouchableOpacity>
               </View>
             )}
@@ -194,35 +195,47 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                     autoFocus
                   />
                 </View>
-                <View style={styles.searchResultsArea}>
-                  {loading && <ActivityIndicator color="#0a84ff" />}
-                  <Text style={styles.searchCount}>{searchResults.length > 0 ? `找到 ${searchResults.length} 个结果` : ''}</Text>
+                <ScrollView style={styles.searchResultsArea} showsVerticalScrollIndicator={false}>
+                  {loading && <View style={styles.loadingContainer}><ActivityIndicator color="#0a84ff" /></View>}
+                  {!loading && searchResults.length > 0 && <Text style={styles.searchCount}>找到 {searchResults.length} 个结果</Text>}
                   {searchResults.map((result, index) => (
                     <TouchableOpacity
                       key={index}
                       style={styles.searchResult}
                       onPress={() => handleSelectResult(result)}
                     >
-                      <View style={styles.resultThumb} />
+                      {result.cover_image ? (
+                        <Image
+                          source={{ uri: result.cover_image }}
+                          style={styles.resultThumb}
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <View style={styles.resultThumbPlaceholder}>
+                          <Ionicons name="disc" size={20} color="rgba(255,255,255,0.3)" />
+                        </View>
+                      )}
                       <View style={styles.resultInfo}>
                         <Text style={styles.resultTitle}>{result.title}</Text>
                         <Text style={styles.resultSubtitle}>
                           {result.year} • {result.genres?.join(', ')}
                         </Text>
                       </View>
+                      <Ionicons name="chevron-right" size={18} color="rgba(255,255,255,0.3)" />
                     </TouchableOpacity>
                   ))}
-                </View>
+                </ScrollView>
               </View>
             )}
 
             {(step === 'scan') && (
               <View style={styles.scanFullScreen}>
                 <View style={styles.scanHeader}>
-                  <Text style={styles.scanHeaderTitle}>扫描条形码</Text>
                   <TouchableOpacity onPress={() => setStep('welcome')}>
-                    <Text style={styles.scanCancelBtn}>返回</Text>
+                    <Text style={styles.scanBackBtn}>← 返回</Text>
                   </TouchableOpacity>
+                  <Text style={styles.scanHeaderTitle}>扫描条形码</Text>
+                  <View style={{width: 60}} />
                 </View>
                 <View style={styles.scanAreaBig} onTouchStart={async () => {
                   if (!permission?.granted) {
@@ -245,8 +258,14 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                     />
                   ) : (
                     <>
+                      <View style={styles.scanFrame}>
+                        <View style={styles.scanCorner} />
+                        <View style={[styles.scanCorner, { transform: [{ rotate: '90deg' }] }]} />
+                        <View style={[styles.scanCorner, { transform: [{ rotate: '180deg' }] }]} />
+                        <View style={[styles.scanCorner, { transform: [{ rotate: '270deg' }] }]} />
+                      </View>
                       <Text style={styles.scanIcon}>📷</Text>
-                      <Text style={styles.scanText}>点击扫描条形码</Text>
+                      <Text style={styles.scanText}>点击开始扫描</Text>
                     </>
                   )}
                 </View>
@@ -254,7 +273,24 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
             )}
 
             {(step === 'confirm') && selectedRelease && (
-              <>
+              <ScrollView style={styles.confirmScroll} showsVerticalScrollIndicator={false}>
+                <View style={styles.confirmCoverSection}>
+                  {selectedRelease.images?.[0]?.uri ? (
+                    <Image
+                      source={{ uri: selectedRelease.images[0].uri }}
+                      style={styles.confirmCover}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View style={styles.confirmCoverPlaceholder}>
+                      <Ionicons name="disc" size={64} color="rgba(255,255,255,0.3)" />
+                    </View>
+                  )}
+                  <View style={styles.confirmVersionBadge}>
+                    <Text style={styles.confirmVersionText}>{selectedRelease.formats?.[0]?.name || 'Vinyl'}</Text>
+                  </View>
+                </View>
+
                 <View style={styles.confirmSection}>
                   <Text style={styles.confirmLabel}>专辑名</Text>
                   <Text style={styles.confirmValue}>
@@ -267,6 +303,22 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                     {selectedRelease.artists?.[0]?.name}
                   </Text>
                 </View>
+                {selectedRelease.formats?.[0]?.descriptions?.join(', ') && (
+                  <View style={styles.confirmSection}>
+                    <Text style={styles.confirmLabel}>版本</Text>
+                    <Text style={styles.confirmValue}>
+                      {selectedRelease.formats[0].descriptions.join(', ')}
+                    </Text>
+                  </View>
+                )}
+                {selectedRelease.genres && (
+                  <View style={styles.confirmSection}>
+                    <Text style={styles.confirmLabel}>流派</Text>
+                    <Text style={styles.confirmValue}>
+                      {selectedRelease.genres.join(', ')}
+                    </Text>
+                  </View>
+                )}
                 <View style={styles.confirmSection}>
                   <Text style={styles.confirmLabel}>购买日期</Text>
                   <TextInput
@@ -299,7 +351,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                     keyboardType="numeric"
                   />
                 </View>
-              </>
+              </ScrollView>
             )}
 
             {(step === 'confirm') && selectedRelease && (
@@ -311,7 +363,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.saveButtonText}>保存</Text>
+                  <Text style={styles.saveButtonText}>添加到收藏</Text>
                 )}
               </TouchableOpacity>
             )}
@@ -322,19 +374,21 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
   );
 }
 
+import { Ionicons } from '@expo/vector-icons';
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: '#1c1c1e',
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     padding: 22,
-    paddingBottom: 34,
-    height: '92%',
+    paddingBottom: 40,
+    height: '90%',
   },
   header: {
     flexDirection: 'row',
@@ -353,171 +407,9 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
   },
-  scanArea: {
-    backgroundColor: '#1c1c1e',
-    borderRadius: 16,
-    padding: 50,
-    alignItems: 'center',
-    marginBottom: 18,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.1)',
-    borderStyle: 'dashed',
-  },
-  scanIcon: {
-    fontSize: 44,
-    marginBottom: 12,
-  },
-  scanText: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.55)',
-    fontWeight: '500',
-  },
-  divider: {
-    textAlign: 'center',
-    color: 'rgba(255,255,255,0.3)',
-    fontSize: 14,
-    marginVertical: 16,
-    fontWeight: '500',
-  },
-  searchInput: {
-    width: '100%',
-    backgroundColor: '#2c2c2e',
-    borderRadius: 10,
-    padding: 13,
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 14,
-  },
-  searchResult: {
-    padding: 14,
-    borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
-    flexDirection: 'row',
-    gap: 12,
-  },
-  resultThumb: {
-    width: 46,
-    height: 46,
-    borderRadius: 6,
-    backgroundColor: '#2c2c2e',
-  },
-  resultInfo: {
-    flex: 1,
-  },
-  resultTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 2,
-  },
-  resultSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.55)',
-    lineHeight: 18,
-  },
-  confirmSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
-  },
-  confirmLabel: {
-    color: 'rgba(255,255,255,0.55)',
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  confirmValue: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#fff',
-    letterSpacing: -0.2,
-    flex: 1,
-    textAlign: 'right',
-  },
-  input: {
-    flex: 1,
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'right',
-  },
-  saveButton: {
-    backgroundColor: '#0a84ff',
-    borderRadius: 10,
-    padding: 15,
-    marginTop: 16,
-  },
-  saveButtonDisabled: {
-    opacity: 0.6,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 17,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  searchButton: {
-    backgroundColor: '#2c2c2e',
-    borderRadius: 10,
-    padding: 15,
-    marginTop: 10,
-  },
-  searchButtonText: {
-    color: '#0a84ff',
-    fontSize: 17,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  scanFullScreen: {
-    flex: 1,
-  },
-  scanHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-  },
-  scanHeaderTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  scanCancelBtn: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#0a84ff',
-  },
-  scanAreaBig: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 16,
-    borderRadius: 16,
-    backgroundColor: '#2c2c2e',
-    overflow: 'hidden',
-  },
-  scanButtonRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    backgroundColor: '#2c2c2e',
-    borderRadius: 12,
-  },
-  scanButtonRowIcon: {
-    fontSize: 22,
-    marginRight: 10,
-  },
-  scanButtonRowText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#0a84ff',
-  },
+
   welcomeContainer: {
-    padding: 16,
+    padding: 8,
     paddingTop: 40,
     alignItems: 'center',
   },
@@ -535,13 +427,13 @@ const styles = StyleSheet.create({
   welcomeOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#2c2c2e',
     borderRadius: 16,
     padding: 20,
     marginBottom: 14,
     width: '100%',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.06)',
   },
   welcomeOptionIcon: {
     width: 52,
@@ -567,9 +459,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: 'rgba(255,255,255,0.45)',
   },
-  searchTopBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
+
+  searchContainer: {
+    flex: 1,
+  },
+  searchHeadArea: {
     marginBottom: 12,
   },
   backRow: {
@@ -580,5 +474,211 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#0a84ff',
   },
+  searchInput: {
+    width: '100%',
+    backgroundColor: '#2c2c2e',
+    borderRadius: 12,
+    padding: 14,
+    color: '#fff',
+    fontSize: 16,
+  },
+  searchResultsArea: {
+    flex: 1,
+    paddingBottom: 20,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  searchCount: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.45)',
+    paddingVertical: 10,
+    paddingHorizontal: 4,
+  },
+  searchResult: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    backgroundColor: '#2c2c2e',
+    borderRadius: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.04)',
+  },
+  resultThumb: {
+    width: 56,
+    height: 56,
+    borderRadius: 8,
+    backgroundColor: '#3c3c3e',
+  },
+  resultThumbPlaceholder: {
+    width: 56,
+    height: 56,
+    borderRadius: 8,
+    backgroundColor: '#3c3c3e',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  resultInfo: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  resultTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 3,
+    lineHeight: 18,
+  },
+  resultSubtitle: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.55)',
+    lineHeight: 16,
+  },
 
+  scanFullScreen: {
+    flex: 1,
+  },
+  scanHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+  },
+  scanBackBtn: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#0a84ff',
+  },
+  scanHeaderTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  scanAreaBig: {
+    flex: 1,
+    margin: 16,
+    borderRadius: 20,
+    backgroundColor: '#2c2c2e',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scanFrame: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    borderWidth: 2,
+    borderColor: '#0a84ff',
+    borderRadius: 16,
+    opacity: 0.8,
+  },
+  scanCorner: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderLeftWidth: 3,
+    borderTopWidth: 3,
+    borderColor: '#0a84ff',
+    top: -2,
+    left: -2,
+  },
+  scanIcon: {
+    fontSize: 56,
+    marginBottom: 16,
+  },
+  scanText: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '500',
+  },
+
+  confirmScroll: {
+    flex: 1,
+    paddingBottom: 20,
+  },
+  confirmCoverSection: {
+    position: 'relative',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  confirmCover: {
+    width: 200,
+    height: 200,
+    borderRadius: 16,
+    backgroundColor: '#2c2c2e',
+  },
+  confirmCoverPlaceholder: {
+    width: 200,
+    height: 200,
+    borderRadius: 16,
+    backgroundColor: '#2c2c2e',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  confirmVersionBadge: {
+    position: 'absolute',
+    top: 12,
+    left: '50%',
+    transform: [{ translateX: -80 }],
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  confirmVersionText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  confirmSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(255,255,255,0.06)',
+  },
+  confirmLabel: {
+    color: 'rgba(255,255,255,0.55)',
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  confirmValue: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#fff',
+    letterSpacing: -0.2,
+    flex: 1,
+    textAlign: 'right',
+    marginLeft: 20,
+  },
+  input: {
+    flex: 1,
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'right',
+    marginLeft: 20,
+  },
+  saveButton: {
+    backgroundColor: '#0a84ff',
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 16,
+    shadowColor: '#0a84ff',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  saveButtonDisabled: {
+    opacity: 0.6,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
 });

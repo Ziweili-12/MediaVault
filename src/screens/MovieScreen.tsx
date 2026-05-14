@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, RefreshControl, useColorScheme } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, RefreshControl, useColorScheme, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { getAllMovies, deleteMovie } from '../database/database';
@@ -58,13 +58,37 @@ export default function MovieScreen() {
     <TouchableOpacity
       style={[styles.gridItem, { backgroundColor: c.card, borderColor: c.border }]}
       onPress={() => handleMoviePress(item)}
-      activeOpacity={0.8}
+      activeOpacity={0.85}
     >
-      <View style={[styles.movieInner, { backgroundColor: c.card }]}>
-        {!item.poster_url && <Text style={styles.movieEmoji}>🎬</Text>}
+      <View style={styles.movieCover}>
+        {item.poster_url ? (
+          <Image
+            source={{ uri: item.poster_url }}
+            style={styles.posterImage}
+            resizeMode="cover"
+            defaultSource={{ uri: 'https://via.placeholder.com/200x300' }}
+          />
+        ) : (
+          <View style={[styles.posterPlaceholder, { backgroundColor: '#2c2c2e' }]}>
+            <Ionicons name="film" size={48} color={c.secondary} />
+          </View>
+        )}
+        <View style={styles.typeBadge}>
+          <Text style={styles.typeText}>{item.type === 'movie' ? '电影' : '剧集'}</Text>
+        </View>
+        {item.personal_rating && (
+          <View style={styles.ratingBadge}>
+            <Text style={styles.ratingText}>{'⭐'.repeat(item.personal_rating)}</Text>
+          </View>
+        )}
       </View>
-      <View style={styles.movieTitle}>
-        <Text style={styles.titleText} numberOfLines={2}>{item.title}</Text>
+      <View style={styles.movieInfo}>
+        <Text style={[styles.titleText, { color: c.text }]} numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text style={[styles.yearText, { color: c.secondary }]}>
+          {item.year}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -72,9 +96,14 @@ export default function MovieScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: c.bg }]} edges={['top']}>
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: c.text }]}>影视</Text>
+        <View>
+          <Text style={[styles.headerTitle, { color: c.text }]}>影视</Text>
+          <Text style={[styles.headerSub, { color: c.secondary }]}>
+            共 {movies.length} 部作品
+          </Text>
+        </View>
         <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)} activeOpacity={0.8}>
-          <Ionicons name="add" size={24} color="#fff" />
+          <Ionicons name="plus" size={22} color="#fff" />
         </TouchableOpacity>
       </View>
 
@@ -86,7 +115,7 @@ export default function MovieScreen() {
               style={[styles.segmentItem, filter === type && styles.segmentActive]}
               onPress={() => setFilter(type)}
             >
-              <Text style={[styles.segmentText, { color: c.secondary }, filter === type && { color: c.text }]}>
+              <Text style={[styles.segmentText, filter === type ? { color: '#0a84ff', fontWeight: '600' } : { color: c.secondary }]}>
                 {type === 'all' ? '全部' : type === 'movie' ? '电影' : '剧集'}
               </Text>
             </TouchableOpacity>
@@ -115,36 +144,108 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 16,
   },
-  headerTitle: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3 },
+  headerTitle: { fontSize: 26, fontWeight: '700', letterSpacing: -0.5 },
+  headerSub: { fontSize: 14, fontWeight: '400', marginTop: 2 },
   addButton: {
-    width: 40, height: 40,
-    backgroundColor: '#0a84ff',
-    borderRadius: 20,
-    justifyContent: 'center', alignItems: 'center',
+    width: 44,
+    height: 44,
+    backgroundColor: '#30d158',
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#30d158',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   segmentContainer: { paddingHorizontal: 16, marginBottom: 12 },
   segment: {
-    flexDirection: 'row', borderRadius: 8, padding: 2, borderWidth: 1,
+    flexDirection: 'row',
+    borderRadius: 10,
+    padding: 3,
+    borderWidth: 1,
+    backgroundColor: '#1c1c1e',
   },
-  segmentItem: { flex: 1, paddingVertical: 7, alignItems: 'center', borderRadius: 6 },
-  segmentActive: { backgroundColor: '#2c2c2e' },
-  segmentText: { fontSize: 14, fontWeight: '500' },
+  segmentItem: {
+    flex: 1,
+    paddingVertical: 9,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  segmentActive: {
+    backgroundColor: '#2c2c2e',
+  },
+  segmentText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
   grid: { padding: 16, paddingBottom: 100 },
   gridItem: {
-    flex: 1, aspectRatio: 2/3,
-    margin: 5, borderRadius: 8, overflow: 'hidden',
+    flex: 1,
+    aspectRatio: 2 / 3,
+    margin: 5,
+    borderRadius: 12,
+    overflow: 'hidden',
     borderWidth: 1,
+    backgroundColor: '#1c1c1e',
   },
-  movieInner: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  movieEmoji: { fontSize: 44 },
-  movieTitle: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    padding: 20,
-    backgroundColor: 'rgba(0,0,0,0.9)',
+  movieCover: {
+    flex: 1,
+    position: 'relative',
   },
-  titleText: { color: '#fff', fontSize: 10, fontWeight: '600', lineHeight: 12 },
+  posterImage: {
+    width: '100%',
+    height: '100%',
+  },
+  posterPlaceholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  typeBadge: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 3,
+  },
+  typeText: {
+    color: '#fff',
+    fontSize: 9,
+    fontWeight: '600',
+  },
+  ratingBadge: {
+    position: 'absolute',
+    bottom: 6,
+    right: 6,
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 3,
+  },
+  ratingText: {
+    fontSize: 9,
+  },
+  movieInfo: {
+    padding: 8,
+    backgroundColor: '#1c1c1e',
+  },
+  titleText: {
+    fontSize: 12,
+    fontWeight: '600',
+    lineHeight: 16,
+  },
+  yearText: {
+    fontSize: 11,
+    fontWeight: '400',
+    marginTop: 1,
+    lineHeight: 14,
+  },
 });

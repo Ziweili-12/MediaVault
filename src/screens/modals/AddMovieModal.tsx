@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { searchOMDBByTitle, getOMDBMovieDetails } from '../../services/api';
 import { insertMovie } from '../../database/database';
 import { createNotionPage, formatMovieForNotion } from '../../services/api';
@@ -16,7 +17,6 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
   const [selectedMovie, setSelectedMovie] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // 表单数据
   const [watchDate, setWatchDate] = useState('');
   const [personalRating, setPersonalRating] = useState('');
   const [currentSeason, setCurrentSeason] = useState('');
@@ -76,7 +76,6 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
 
       const movieId = await insertMovie(movieData);
 
-      // 同步到Notion（可选）
       try {
         const notionProperties = formatMovieForNotion(movieData);
         const pageId = await createNotionPage(
@@ -124,6 +123,7 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
                 <Text style={styles.closeButton}>取消</Text>
               </TouchableOpacity>
             </View>
+
             <ScrollView
               style={styles.scrollArea}
               contentContainerStyle={styles.scrollContent}
@@ -145,22 +145,33 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
                 />
               </View>
               <View style={styles.searchResultsArea}>
-                {loading && <ActivityIndicator color="#0a84ff" />}
-                {searchResults.length > 0 ? <Text style={styles.searchCount}>找到 {searchResults.length} 个结果</Text> : null}
+                {loading && <View style={styles.loadingContainer}><ActivityIndicator color="#30d158" /></View>}
+                {!loading && searchResults.length > 0 && <Text style={styles.searchCount}>找到 {searchResults.length} 个结果</Text>}
                 {searchResults.map((item, index) => (
                   <TouchableOpacity
                     key={index}
                     style={styles.searchResult}
                     onPress={() => handleSelectResult(item)}
                   >
-                    <View style={styles.resultThumb} />
+                    {item.Poster !== 'N/A' ? (
+                      <Image
+                        source={{ uri: item.Poster }}
+                        style={styles.resultThumb}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View style={styles.resultThumbPlaceholder}>
+                        <Ionicons name="film" size={20} color="rgba(255,255,255,0.3)" />
+                      </View>
+                    )}
                     <View style={styles.resultInfo}>
                       <Text style={styles.resultTitle}>{item.Title}</Text>
                       <Text style={styles.resultSubtitle}>
-                        {item.Year} · {item.Type === 'movie' ? '电影' : '剧集'}
-                        {item.imdbRating ? <Text> · IMDb {item.imdbRating}</Text> : null}
+                        {item.Year} • {item.Type === 'movie' ? '电影' : '剧集'}
+                        {item.imdbRating && <Text> • IMDb {item.imdbRating}</Text>}
                       </Text>
                     </View>
+                    <Ionicons name="chevron-right" size={18} color="rgba(255,255,255,0.3)" />
                   </TouchableOpacity>
                 ))}
               </View>
@@ -169,6 +180,23 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
 
           {selectedMovie && (
             <>
+              <View style={styles.confirmCoverSection}>
+                {selectedMovie.Poster !== 'N/A' ? (
+                  <Image
+                    source={{ uri: selectedMovie.Poster }}
+                    style={styles.confirmPoster}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={styles.confirmPosterPlaceholder}>
+                    <Ionicons name="film" size={64} color="rgba(255,255,255,0.3)" />
+                  </View>
+                )}
+                <View style={styles.confirmTypeBadge}>
+                  <Text style={styles.confirmTypeText}>{selectedMovie.Type === 'movie' ? '电影' : '剧集'}</Text>
+                </View>
+              </View>
+
               <View style={styles.confirmSection}>
                 <Text style={styles.confirmLabel}>标题</Text>
                 <Text style={styles.confirmValue}>{selectedMovie.Title}</Text>
@@ -181,10 +209,24 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
                 <Text style={styles.confirmLabel}>年份</Text>
                 <Text style={styles.confirmValue}>{selectedMovie.Year}</Text>
               </View>
-              <View style={styles.confirmSection}>
-                <Text style={styles.confirmLabel}>类型</Text>
-                <Text style={styles.confirmValue}>{selectedMovie.Type === 'movie' ? '电影' : '剧集'}</Text>
-              </View>
+              {selectedMovie.Genre !== 'N/A' && (
+                <View style={styles.confirmSection}>
+                  <Text style={styles.confirmLabel}>类型</Text>
+                  <Text style={styles.confirmValue}>{selectedMovie.Genre}</Text>
+                </View>
+              )}
+              {selectedMovie.Runtime !== 'N/A' && (
+                <View style={styles.confirmSection}>
+                  <Text style={styles.confirmLabel}>时长</Text>
+                  <Text style={styles.confirmValue}>{selectedMovie.Runtime}</Text>
+                </View>
+              )}
+              {selectedMovie.imdbRating !== 'N/A' && (
+                <View style={styles.confirmSection}>
+                  <Text style={styles.confirmLabel}>IMDb评分</Text>
+                  <Text style={styles.confirmValue}>{selectedMovie.imdbRating}</Text>
+                </View>
+              )}
 
               <View style={styles.confirmSection}>
                 <Text style={styles.confirmLabel}>观看日期</Text>
@@ -249,7 +291,7 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.saveButtonText}>确认添加</Text>
+                <Text style={styles.saveButtonText}>添加到收藏</Text>
               )}
             </TouchableOpacity>
           )}
@@ -264,16 +306,16 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: '#1c1c1e',
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     padding: 22,
-    paddingBottom: 34,
-    height: '92%',
+    paddingBottom: 40,
+    height: '90%',
   },
   header: {
     flexDirection: 'row',
@@ -288,45 +330,104 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   closeButton: {
-    color: '#0a84ff',
+    color: '#30d158',
     fontSize: 17,
     fontWeight: '600',
   },
   searchInput: {
     width: '100%',
     backgroundColor: '#2c2c2e',
-    borderRadius: 10,
-    padding: 13,
+    borderRadius: 12,
+    padding: 14,
     color: '#fff',
     fontSize: 16,
-    marginBottom: 14,
+  },
+  searchResultsArea: {
+    paddingBottom: 20,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  searchCount: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.45)',
+    paddingVertical: 10,
+    paddingHorizontal: 4,
   },
   searchResult: {
-    padding: 14,
-    borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
     flexDirection: 'row',
-    gap: 12,
+    alignItems: 'center',
+    padding: 14,
+    backgroundColor: '#2c2c2e',
+    borderRadius: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.04)',
   },
   resultThumb: {
-    width: 46,
-    height: 46,
-    borderRadius: 6,
-    backgroundColor: '#2c2c2e',
+    width: 56,
+    height: 72,
+    borderRadius: 8,
+    backgroundColor: '#3c3c3e',
+  },
+  resultThumbPlaceholder: {
+    width: 56,
+    height: 72,
+    borderRadius: 8,
+    backgroundColor: '#3c3c3e',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   resultInfo: {
     flex: 1,
+    marginLeft: 14,
   },
   resultTitle: {
     fontSize: 15,
     fontWeight: '600',
     color: '#fff',
-    marginBottom: 2,
+    marginBottom: 3,
+    lineHeight: 18,
   },
   resultSubtitle: {
     fontSize: 13,
     color: 'rgba(255,255,255,0.55)',
-    lineHeight: 18,
+    lineHeight: 16,
+  },
+  confirmCoverSection: {
+    position: 'relative',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  confirmPoster: {
+    width: 160,
+    height: 240,
+    borderRadius: 16,
+    backgroundColor: '#2c2c2e',
+  },
+  confirmPosterPlaceholder: {
+    width: 160,
+    height: 240,
+    borderRadius: 16,
+    backgroundColor: '#2c2c2e',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  confirmTypeBadge: {
+    position: 'absolute',
+    top: 12,
+    left: '50%',
+    transform: [{ translateX: -60 }],
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  confirmTypeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   confirmSection: {
     flexDirection: 'row',
@@ -334,7 +435,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
+    borderBottomColor: 'rgba(255,255,255,0.06)',
   },
   confirmLabel: {
     color: 'rgba(255,255,255,0.55)',
@@ -348,6 +449,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
     flex: 1,
     textAlign: 'right',
+    marginLeft: 20,
   },
   input: {
     flex: 1,
@@ -355,12 +457,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     textAlign: 'right',
+    marginLeft: 20,
   },
   saveButton: {
-    backgroundColor: '#0a84ff',
-    borderRadius: 10,
-    padding: 15,
+    backgroundColor: '#30d158',
+    borderRadius: 14,
+    padding: 16,
     marginTop: 16,
+    shadowColor: '#30d158',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   saveButtonDisabled: {
     opacity: 0.6,
@@ -377,5 +484,4 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 20,
   },
-
 });

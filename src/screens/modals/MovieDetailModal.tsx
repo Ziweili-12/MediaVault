@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, ScrollView, Alert, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { updateMovie } from '../../database/database';
 import { formatMovieForNotion, updateNotionPage } from '../../services/api';
 
@@ -61,74 +62,103 @@ export default function MovieDetailModal({ visible, movie, onClose, onDelete, on
             </TouchableOpacity>
           </View>
 
-          <ScrollView>
-            <View style={styles.coverPortrait}>
-              <Text style={styles.coverEmoji}>🎬</Text>
+          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            <View style={styles.posterSection}>
+              {movie.poster_url ? (
+                <Image
+                  source={{ uri: movie.poster_url }}
+                  style={styles.posterImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.posterPlaceholder}>
+                  <Ionicons name="film" size={64} color="rgba(255,255,255,0.3)" />
+                </View>
+              )}
+              <View style={styles.typeBadge}>
+                <Text style={styles.typeText}>{movie.type === 'movie' ? '电影' : '剧集'}</Text>
+              </View>
             </View>
 
-            <View style={styles.field}>
-              <Text style={styles.fieldLabel}>标题</Text>
-              <Text style={styles.fieldValue}>{movie.title}</Text>
+            <View style={styles.infoSection}>
+              <View style={styles.field}>
+                <Text style={styles.fieldLabel}>标题</Text>
+                <Text style={styles.fieldValue}>{movie.title}</Text>
+              </View>
+
+              {movie.director && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>导演</Text>
+                  <Text style={styles.fieldValue}>{movie.director}</Text>
+                </View>
+              )}
+
+              {movie.year && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>年份</Text>
+                  <Text style={styles.fieldValue}>{movie.year}</Text>
+                </View>
+              )}
+
+              {movie.genre && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>类型</Text>
+                  <Text style={styles.fieldValue}>{movie.genre}</Text>
+                </View>
+              )}
+
+              {movie.runtime && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>时长</Text>
+                  <Text style={styles.fieldValue}>{movie.runtime} 分钟</Text>
+                </View>
+              )}
+
+              {movie.imdb_rating && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>IMDb评分</Text>
+                  <Text style={styles.fieldValue}>{movie.imdb_rating}</Text>
+                </View>
+              )}
+
+              {movie.watch_date && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>观看日期</Text>
+                  <Text style={styles.fieldValue}>{movie.watch_date}</Text>
+                </View>
+              )}
+
+              {movie.personal_rating && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>个人评分</Text>
+                  <Text style={styles.fieldValue}>{'⭐'.repeat(movie.personal_rating)}</Text>
+                </View>
+              )}
+
+              {movie.type === 'series' && (
+                <>
+                  {movie.current_season && (
+                    <View style={styles.field}>
+                      <Text style={styles.fieldLabel}>当前季数</Text>
+                      <Text style={styles.fieldValue}>第 {movie.current_season} 季</Text>
+                    </View>
+                  )}
+                  {movie.current_episode && (
+                    <View style={styles.field}>
+                      <Text style={styles.fieldLabel}>当前集数</Text>
+                      <Text style={styles.fieldValue}>第 {movie.current_episode} 集</Text>
+                    </View>
+                  )}
+                </>
+              )}
+
+              {movie.notes && (
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>备注</Text>
+                  <Text style={styles.fieldValue}>{movie.notes}</Text>
+                </View>
+              )}
             </View>
-
-            {movie.director && (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>导演</Text>
-                <Text style={styles.fieldValue}>{movie.director}</Text>
-              </View>
-            )}
-
-            {movie.year && (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>年份</Text>
-                <Text style={styles.fieldValue}>{movie.year}</Text>
-              </View>
-            )}
-
-            {movie.type && (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>类型</Text>
-                <Text style={styles.fieldValue}>{movie.type === 'movie' ? '电影' : '剧集'}</Text>
-              </View>
-            )}
-
-            {movie.genre && (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>分类</Text>
-                <Text style={styles.fieldValue}>{movie.genre}</Text>
-              </View>
-            )}
-
-            {movie.watch_date && (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>观看日期</Text>
-                <Text style={styles.fieldValue}>{movie.watch_date}</Text>
-              </View>
-            )}
-
-            {movie.personal_rating && (
-              <View style={styles.field}>
-                <Text style={styles.fieldLabel}>个人评分</Text>
-                <Text style={styles.fieldValue}>{'⭐'.repeat(movie.personal_rating)}</Text>
-              </View>
-            )}
-
-            {movie.type === 'series' && (
-              <>
-                {movie.current_season && (
-                  <View style={styles.field}>
-                    <Text style={styles.fieldLabel}>当前季数</Text>
-                    <Text style={styles.fieldValue}>{movie.current_season}</Text>
-                  </View>
-                )}
-                {movie.current_episode && (
-                  <View style={styles.field}>
-                    <Text style={styles.fieldLabel}>当前集数</Text>
-                    <Text style={styles.fieldValue}>{movie.current_episode}</Text>
-                  </View>
-                )}
-              </>
-            )}
           </ScrollView>
 
           <TouchableOpacity style={styles.editButton} onPress={onUpdate}>
@@ -151,16 +181,16 @@ export default function MovieDetailModal({ visible, movie, onClose, onDelete, on
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: '#1c1c1e',
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     padding: 22,
-    paddingBottom: 34,
-    maxHeight: '82%',
+    paddingBottom: 40,
+    maxHeight: '85%',
   },
   header: {
     flexDirection: 'row',
@@ -175,24 +205,50 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   closeButton: {
-    color: '#0a84ff',
+    color: '#30d158',
     fontSize: 17,
     fontWeight: '600',
   },
-  coverPortrait: {
+  scrollView: {
+    flex: 1,
+    paddingBottom: 20,
+  },
+  posterSection: {
+    position: 'relative',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  posterImage: {
     width: 160,
     height: 240,
-    borderRadius: 10,
-    marginHorizontal: 'auto',
-    marginBottom: 22,
+    borderRadius: 16,
+    backgroundColor: '#2c2c2e',
+  },
+  posterPlaceholder: {
+    width: 160,
+    height: 240,
+    borderRadius: 16,
     backgroundColor: '#2c2c2e',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
   },
-  coverEmoji: {
-    fontSize: 72,
+  typeBadge: {
+    position: 'absolute',
+    top: 12,
+    left: '50%',
+    transform: [{ translateX: -50 }],
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  typeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  infoSection: {
+    paddingHorizontal: 4,
   },
   field: {
     flexDirection: 'row',
@@ -200,7 +256,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
+    borderBottomColor: 'rgba(255,255,255,0.06)',
   },
   fieldLabel: {
     color: 'rgba(255,255,255,0.55)',
@@ -214,12 +270,17 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
     flex: 1,
     textAlign: 'right',
+    marginLeft: 20,
   },
   editButton: {
-    backgroundColor: '#0a84ff',
-    borderRadius: 10,
-    padding: 15,
+    backgroundColor: '#30d158',
+    borderRadius: 14,
+    padding: 16,
     marginTop: 16,
+    shadowColor: '#30d158',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   editButtonText: {
     color: '#fff',
@@ -229,19 +290,19 @@ const styles = StyleSheet.create({
   },
   syncButton: {
     backgroundColor: '#2c2c2e',
-    borderRadius: 10,
-    padding: 15,
+    borderRadius: 14,
+    padding: 16,
     marginTop: 10,
   },
   syncButtonText: {
-    color: '#0a84ff',
+    color: '#30d158',
     fontSize: 17,
     fontWeight: '600',
     textAlign: 'center',
   },
   deleteButton: {
     backgroundColor: 'transparent',
-    padding: 15,
+    padding: 16,
     marginTop: 10,
   },
   deleteButtonText: {
