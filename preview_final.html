@@ -157,6 +157,18 @@
         .icon-green { stroke: #30d158; fill: none; }
         .icon-small { width: 20px; height: 20px; }
         .icon-large { width: 36px; height: 36px; }
+        
+        /* 趋势图样式 */
+        .trend-tab { padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.55); cursor: pointer; transition: all 0.2s; background: rgba(44,44,46,0.8); }
+        .trend-tab.active { background: #0a84ff; color: #fff; }
+        .trend-chart { background: linear-gradient(135deg, rgba(28,28,30,0.95), rgba(44,44,46,0.9)); border-radius: 14px; padding: 16px; border: 1px solid rgba(255,255,255,0.06); }
+        .trend-months { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 11px; color: rgba(255,255,255,0.45); }
+        .trend-months span { flex: 1; text-align: center; }
+        .trend-bars { display: flex; justify-content: space-between; align-items: flex-end; height: 120px; padding: 0 4px; gap: 8px; }
+        .trend-bar { flex: 1; background: linear-gradient(180deg, #0a84ff, #0066cc); border-radius: 6px 6px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 8px; position: relative; transition: height 0.3s ease; }
+        .trend-bar span { font-size: 11px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+        .trend-bars-green .trend-bar { background: linear-gradient(180deg, #30d158, #00a853); }
+        .trend-summary { text-align: center; margin-top: 12px; font-size: 13px; color: rgba(255,255,255,0.55); }
     </style>
 </head>
 <body>
@@ -449,6 +461,46 @@
                         <div class="bar-label">科幻</div>
                         <div class="bar-fill green" style="width: 53%;"></div>
                         <div class="bar-value">6</div>
+                    </div>
+                </div>
+                
+                <div class="chart-section">
+                    <div class="section-header">
+                        <div class="section-title">添加趋势</div>
+                        <div class="segment-container" style="padding: 0; margin-left: auto;">
+                            <div class="segment" style="border: none; background: transparent;">
+                                <div class="trend-tab" id="trend-vinyl" onclick="showTrend('vinyl')">黑胶</div>
+                                <div class="trend-tab" id="trend-movie" onclick="showTrend('movie')">影视</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trend-chart" id="trend-chart-vinyl">
+                        <div class="trend-months">
+                            <span>1月</span><span>2月</span><span>3月</span><span>4月</span><span>5月</span><span>6月</span>
+                        </div>
+                        <div class="trend-bars">
+                            <div class="trend-bar" style="height: 40%;"><span>2</span></div>
+                            <div class="trend-bar" style="height: 60%;"><span>3</span></div>
+                            <div class="trend-bar" style="height: 100%;"><span>5</span></div>
+                            <div class="trend-bar" style="height: 80%;"><span>4</span></div>
+                            <div class="trend-bar" style="height: 50%;"><span>2</span></div>
+                            <div class="trend-bar" style="height: 70%;"><span>3</span></div>
+                        </div>
+                        <div class="trend-summary">近6个月共添加 19 张黑胶</div>
+                    </div>
+                    <div class="trend-chart" id="trend-chart-movie" style="display: none;">
+                        <div class="trend-months">
+                            <span>1月</span><span>2月</span><span>3月</span><span>4月</span><span>5月</span><span>6月</span>
+                        </div>
+                        <div class="trend-bars trend-bars-green">
+                            <div class="trend-bar" style="height: 70%;"><span>5</span></div>
+                            <div class="trend-bar" style="height: 85%;"><span>6</span></div>
+                            <div class="trend-bar" style="height: 100%;"><span>7</span></div>
+                            <div class="trend-bar" style="height: 55%;"><span>4</span></div>
+                            <div class="trend-bar" style="height: 90%;"><span>6</span></div>
+                            <div class="trend-bar" style="height: 60%;"><span>4</span></div>
+                        </div>
+                        <div class="trend-summary">近6个月共观看 32 部影视</div>
                     </div>
                 </div>
             </div>
@@ -821,6 +873,23 @@
                 document.querySelector('.nav-bar .nav-item:nth-child(3)').classList.add('active');
             } else if (pageId === 'stats') {
                 document.querySelector('.nav-bar .nav-item:nth-child(4)').classList.add('active');
+                document.getElementById('trend-vinyl').classList.add('active');
+                document.getElementById('trend-movie').classList.remove('active');
+            }
+        }
+        
+        function showTrend(type) {
+            document.getElementById('trend-vinyl').classList.remove('active');
+            document.getElementById('trend-movie').classList.remove('active');
+            document.getElementById('trend-chart-vinyl').style.display = 'none';
+            document.getElementById('trend-chart-movie').style.display = 'none';
+            
+            if (type === 'vinyl') {
+                document.getElementById('trend-vinyl').classList.add('active');
+                document.getElementById('trend-chart-vinyl').style.display = 'block';
+            } else {
+                document.getElementById('trend-movie').classList.add('active');
+                document.getElementById('trend-chart-movie').style.display = 'block';
             }
         }
     </script>
