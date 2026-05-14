@@ -47,15 +47,47 @@
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-secondary); color: var(--text-primary); }
-        .iphone-container { width: 390px; margin: 20px auto; background: var(--bg-primary); border-radius: 50px; padding: 20px; box-shadow: 0 20px 60px var(--card-shadow); }
-        .iphone-screen { background: var(--bg-primary); border-radius: 30px; overflow: hidden; position: relative; }
+        .iphone-container { width: 390px; margin: 0 auto; background: var(--bg-primary); border-radius: 0; padding: 0; box-shadow: none; max-width: 100vw; min-height: 100vh; }
+        .iphone-screen { background: var(--bg-primary); border-radius: 0; overflow: visible; position: relative; min-height: 100vh; }
+        
+        /* iPhone 自适应 */
+        @media (max-width: 375px) {
+            .page { padding: 16px; padding-bottom: 100px; }
+            .home-header { margin-bottom: 20px; }
+            .media-card { height: 160px; margin-bottom: 12px; }
+            .card-title { font-size: 22px; }
+            .card-count { font-size: 40px; }
+            .greeting-title { font-size: 28px; }
+            .music-grid { gap: 12px; }
+            .movie-grid { gap: 10px; }
+            .trend-card { padding: 16px; margin-bottom: 12px; }
+        }
+        @media (min-width: 390px) and (max-width: 430px) {
+            .page { padding: 18px; padding-bottom: 105px; }
+            .home-header { margin-bottom: 24px; }
+            .media-card { height: 170px; }
+        }
+        @media (min-width: 430px) {
+            .page { padding: 24px; padding-bottom: 120px; }
+            .home-header { margin-bottom: 28px; }
+            .media-card { height: 200px; }
+            .card-title { font-size: 28px; }
+            .card-count { font-size: 52px; }
+            .greeting-title { font-size: 36px; }
+        }
+        @media (min-width: 500px) {
+            .page { padding: 32px; padding-bottom: 140px; }
+            .media-card { height: 220px; }
+            .card-title { font-size: 32px; }
+        }
+        
         .status-bar { height: 54px; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-color); }
-        .nav-bar { height: 90px; background: var(--bg-primary); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-bar { height: 90px; background: var(--bg-primary); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); font-size: 10px; font-weight: 500; cursor: pointer; transition: all 0.2s; padding: 8px 20px; }
         .nav-item.active { color: var(--accent-blue); }
         .nav-item:hover { background: rgba(0,113,227,0.05); }
         .nav-icon { width: 26px; height: 26px; margin-bottom: 4px; }
-        .page { min-height: calc(844px - 144px); padding: 20px; padding-bottom: 110px; }
+        .page { min-height: 100vh; }
         
         /* 首页样式 */
         .home-header { margin-bottom: 28px; margin-top: 8px; }
