@@ -494,7 +494,7 @@
                         <div class="detail-row"><div class="detail-label">上映年份</div><div class="detail-value" id="detail-movie-year">-</div></div>
                         <div class="detail-row"><div class="detail-label">类型</div><div class="detail-value" id="detail-movie-genre">-</div></div>
                         <div class="detail-row"><div class="detail-label">IMDb评分</div><div class="detail-value" id="detail-movie-rating">-</div></div>
-                        <div class="detail-row"><div class="detail-label">片长</div><div class="detail-value" id="detail-movie-duration">-</div></div>
+                        <div class="detail-row"><div class="detail-label" id="detail-duration-label">片长</div><div class="detail-value" id="detail-movie-duration">-</div></div>
                     </div>
                     <div style="padding: 0 20px 20px;">
                         <div class="save-btn" style="background: var(--bg-secondary); color: var(--text-primary);">查看 OMDb 信息</div>
@@ -1127,6 +1127,7 @@
             document.getElementById('detail-movie-director').textContent = director;
             document.getElementById('detail-movie-rating').textContent = rating;
             document.getElementById('detail-movie-duration').textContent = duration;
+            document.getElementById('detail-duration-label').textContent = type === '剧集' ? '总季数' : '片长';
             document.getElementById('detail-type-badge').textContent = type;
             document.getElementById('detail-type-badge').className = type === '电影' ? 'detail-badge' : 'detail-badge type-badge-tv';
             showPage('movie-detail');
