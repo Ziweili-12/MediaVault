@@ -203,7 +203,14 @@
         .stats-page-content { padding: 20px; padding-bottom: 110px; }
         .stats-title { font-size: 28px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 24px; color: var(--text-primary); }
         .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
-        .metric-card { border-radius: 16px; padding: 18px; background: var(--bg-secondary); text-align: center; }
+        .metric-card { border-radius: 16px; padding: 18px; background: var(--bg-secondary); text-align: center; position: relative; overflow: hidden; }
+        .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .metric-card.blue::before { background: linear-gradient(90deg, var(--accent-blue), #64b5f6); }
+        .metric-card.blue { border: 1px solid rgba(0,113,227,0.2); }
+        .metric-card.orange::before { background: linear-gradient(90deg, var(--accent-orange), #ffb74d); }
+        .metric-card.orange { border: 1px solid rgba(255,149,0,0.2); }
+        .metric-card.purple::before { background: linear-gradient(90deg, #9c27b0, #ba68c8); }
+        .metric-card.purple { border: 1px solid rgba(156,39,176,0.2); }
         .metric-value { font-size: 28px; font-weight: 700; letter-spacing: -1px; line-height: 32px; margin-bottom: 4px; }
         .metric-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
         .trend-card { border-radius: 20px; padding: 20px; background: var(--bg-primary); margin-bottom: 16px; box-shadow: 0 2px 12px var(--card-shadow); }
@@ -594,9 +601,9 @@
                     </div>
                     
                     <div id="stats-music">
-                        <div class="metric-grid" style="grid-template-columns: repeat(2, 1fr);">
-                            <div class="metric-card"><div class="metric-value">15</div><div class="metric-label">黑胶总数</div></div>
-                            <div class="metric-card"><div class="metric-value">¥4,470</div><div class="metric-label">总金额</div></div>
+                        <div class="metric-grid" style="grid-template-columns: 1fr 1fr;">
+                            <div class="metric-card blue"><div class="metric-value" style="color: var(--accent-blue);">15</div><div class="metric-label">黑胶总数</div></div>
+                            <div class="metric-card orange"><div class="metric-value" style="color: var(--accent-orange);">¥4,470</div><div class="metric-label">总金额</div></div>
                         </div>
                         <div class="trend-card">
                             <div class="trend-header">
@@ -694,20 +701,20 @@
                     </div>
                     
                     <div id="stats-movie" style="display: none;">
-                        <div class="highlight-grid" style="margin-bottom: 16px;">
-                            <div class="highlight-card">
-                                <div class="highlight-icon" style="background: var(--accent-orange); color: #fff;">
+                        <div class="metric-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 16px;">
+                            <div class="metric-card orange">
+                                <div class="highlight-icon" style="background: rgba(255,149,0,0.15); color: var(--accent-orange); margin-bottom: 12px;">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line></svg>
                                 </div>
-                                <div class="highlight-value">32h</div>
-                                <div class="highlight-label">总观影时长</div>
+                                <div class="metric-value" style="color: var(--accent-orange);">32h</div>
+                                <div class="metric-label">总观影时长</div>
                             </div>
-                            <div class="highlight-card">
-                                <div class="highlight-icon" style="background: var(--accent-blue); color: #fff;">
+                            <div class="metric-card blue">
+                                <div class="highlight-icon" style="background: rgba(0,113,227,0.15); color: var(--accent-blue); margin-bottom: 12px;">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                                 </div>
-                                <div class="highlight-value">4.6</div>
-                                <div class="highlight-label">平均评分</div>
+                                <div class="metric-value" style="color: var(--accent-blue);">4.6</div>
+                                <div class="metric-label">平均评分</div>
                             </div>
                         </div>
                         <div class="trend-card">
