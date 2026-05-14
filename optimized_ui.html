@@ -479,24 +479,13 @@
                     </div>
                     
                     <div id="stats-music">
-                        <div class="highlight-grid" style="margin-bottom: 16px;">
-                            <div class="highlight-card">
-                                <div class="highlight-icon" style="background: var(--accent-blue); color: #fff;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
-                                </div>
-                                <div class="highlight-value">¥298</div>
-                                <div class="highlight-label">平均每张</div>
-                            </div>
-                            <div class="highlight-card">
-                                <div class="highlight-icon" style="background: var(--accent-green); color: #fff;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                                </div>
-                                <div class="highlight-value">¥895</div>
-                                <div class="highlight-label">本月消费</div>
-                            </div>
+                        <div class="metric-grid">
+                            <div class="metric-card"><div class="metric-value">15</div><div class="metric-label">黑胶总数</div></div>
+                            <div class="metric-card"><div class="metric-value">¥4,470</div><div class="metric-label">总金额</div></div>
+                            <div class="metric-card"><div class="metric-value">9</div><div class="metric-label">艺术家</div></div>
                         </div>
                         <div class="trend-card">
-                            <div class="trend-header"><div class="trend-title">月度购买趋势</div><span style="font-size: 13px; color: var(--text-secondary);">2026</span></div>
+                            <div class="trend-header"><div class="trend-title">月度购买数量</div><span style="font-size: 13px; color: var(--text-secondary);">2026</span></div>
                             <div class="trend-bars">
                                 <div class="trend-bar-wrapper"><div class="trend-bar-value">2</div><div class="trend-bar" style="height: 25%; background: var(--accent-blue);"></div><div class="trend-bar-label">1月</div></div>
                                 <div class="trend-bar-wrapper"><div class="trend-bar-value">3</div><div class="trend-bar" style="height: 37.5%; background: var(--accent-blue);"></div><div class="trend-bar-label">2月</div></div>
@@ -505,6 +494,44 @@
                                 <div class="trend-bar-wrapper"><div class="trend-bar-value">2</div><div class="trend-bar" style="height: 25%; background: var(--accent-blue);"></div><div class="trend-bar-label">5月</div></div>
                                 <div class="trend-bar-wrapper"><div class="trend-bar-value">3</div><div class="trend-bar" style="height: 37.5%; background: var(--accent-blue);"></div><div class="trend-bar-label">6月</div></div>
                             </div>
+                        </div>
+                        <div class="trend-card">
+                            <div class="trend-header"><div class="trend-title">月度消费金额</div><span style="font-size: 13px; color: var(--text-secondary);">2026</span></div>
+                            <div class="trend-bars">
+                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥596</div><div class="trend-bar" style="height: 33%; background: var(--accent-orange);"></div><div class="trend-bar-label">1月</div></div>
+                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥894</div><div class="trend-bar" style="height: 50%; background: var(--accent-orange);"></div><div class="trend-bar-label">2月</div></div>
+                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥1,490</div><div class="trend-bar" style="height: 83%; background: var(--accent-orange);"></div><div class="trend-bar-label">3月</div></div>
+                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥1,192</div><div class="trend-bar" style="height: 66%; background: var(--accent-orange);"></div><div class="trend-bar-label">4月</div></div>
+                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥596</div><div class="trend-bar" style="height: 33%; background: var(--accent-orange);"></div><div class="trend-bar-label">5月</div></div>
+                                <div class="trend-bar-wrapper"><div class="trend-bar-value">¥894</div><div class="trend-bar" style="height: 50%; background: var(--accent-orange);"></div><div class="trend-bar-label">6月</div></div>
+                            </div>
+                        </div>
+                        <div class="trend-card">
+                            <div class="trend-header"><div class="trend-title">流派分布</div><span style="font-size: 13px; color: var(--text-secondary);">全部</span></div>
+                            <div class="type-item"><div class="type-header"><div class="type-name">摇滚</div><div class="type-value">40%</div></div><div class="type-bar"><div class="type-fill" style="width: 40%; background: var(--accent-blue);"></div></div></div>
+                            <div class="type-item"><div class="type-header"><div class="type-name">爵士</div><div class="type-value">25%</div></div><div class="type-bar"><div class="type-fill" style="width: 25%; background: var(--accent-blue);"></div></div></div>
+                            <div class="type-item"><div class="type-header"><div class="type-name">电子</div><div class="type-value">20%</div></div><div class="type-bar"><div class="type-fill" style="width: 20%; background: var(--accent-blue);"></div></div></div>
+                            <div class="type-item" style="margin-bottom: 0;"><div class="type-header"><div class="type-name">古典</div><div class="type-value">15%</div></div><div class="type-bar"><div class="type-fill" style="width: 15%; background: var(--accent-blue);"></div></div></div>
+                        </div>
+                        <div class="trend-card">
+                            <div class="trend-header"><div class="trend-title">艺术家合集</div><span style="font-size: 13px; color: var(--text-secondary);">热门</span></div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Pink Floyd (3)</span>
+                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Led Zeppelin (2)</span>
+                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">The Beatles (2)</span>
+                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Radiohead (2)</span>
+                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">David Bowie (2)</span>
+                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Fleetwood Mac (2)</span>
+                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Queen (1)</span>
+                                <span style="padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-primary);">Pink Floyd (1)</span>
+                            </div>
+                        </div>
+                        <div class="trend-card">
+                            <div class="trend-header"><div class="trend-title">发行年代</div><span style="font-size: 13px; color: var(--text-secondary);">分布</span></div>
+                            <div class="type-item"><div class="type-header"><div class="type-name">70年代</div><div class="type-value">5</div></div><div class="type-bar"><div class="type-fill" style="width: 33%; background: var(--accent-blue);"></div></div></div>
+                            <div class="type-item"><div class="type-header"><div class="type-name">80年代</div><div class="type-value">4</div></div><div class="type-bar"><div class="type-fill" style="width: 27%; background: var(--accent-blue);"></div></div></div>
+                            <div class="type-item"><div class="type-header"><div class="type-name">90年代</div><div class="type-value">3</div></div><div class="type-bar"><div class="type-fill" style="width: 20%; background: var(--accent-blue);"></div></div></div>
+                            <div class="type-item" style="margin-bottom: 0;"><div class="type-header"><div class="type-name">00年代后</div><div class="type-value">3</div></div><div class="type-bar"><div class="type-fill" style="width: 20%; background: var(--accent-blue);"></div></div></div>
                         </div>
                         <div class="recent-card">
                             <div class="recent-header">
