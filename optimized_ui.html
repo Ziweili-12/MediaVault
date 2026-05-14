@@ -101,6 +101,11 @@
         .type-bar { height: 10px; background: #f5f5f7; border-radius: 5px; overflow: hidden; }
         .type-fill { height: 100%; border-radius: 5px; }
         
+        /* 时间筛选器 */
+        .time-filter { display: flex; background: #f5f5f7; border-radius: 12px; padding: 4px; margin-bottom: 20px; }
+        .time-filter-item { flex: 1; padding: 10px 8px; text-align: center; border-radius: 10px; font-size: 14px; font-weight: 500; color: #86868b; cursor: pointer; transition: all 0.2s; }
+        .time-filter-item.active { background: #fff; color: #0071e3; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        
         /* 添加方式页面 */
         .add-method-page { padding: 20px; padding-bottom: 110px; }
         .method-header { text-align: center; margin-bottom: 32px; }
@@ -390,11 +395,21 @@
             <div id="stats" class="page page-content">
                 <div class="stats-page-content">
                     <div class="stats-title">统计</div>
+                    
+                    <!-- 音乐/影视切换 -->
                     <div class="segment-container">
                         <div class="segment">
                             <div class="segment-item active">音乐</div>
                             <div class="segment-item">影视</div>
                         </div>
+                    </div>
+                    
+                    <!-- 时间筛选器 -->
+                    <div class="time-filter">
+                        <div class="time-filter-item active">全部</div>
+                        <div class="time-filter-item">2026</div>
+                        <div class="time-filter-item">2025</div>
+                        <div class="time-filter-item">2024</div>
                     </div>
                     
                     <div id="stats-music">
@@ -404,7 +419,7 @@
                             <div class="metric-card"><div class="metric-value" style="color: #5ac8fa;">8</div><div class="metric-label">艺术家</div></div>
                         </div>
                         <div class="trend-card">
-                            <div class="trend-header"><div class="trend-title">月度购买趋势</div><span style="font-size: 13px; color: #86868b;">2024-2026</span></div>
+                            <div class="trend-header"><div class="trend-title">月度购买趋势</div><span style="font-size: 13px; color: #86868b;">全部时间</span></div>
                             <div class="trend-bars">
                                 <div class="trend-bar-wrapper"><div class="trend-bar-value">2</div><div class="trend-bar" style="height: 25%; background: linear-gradient(180deg, #0071e3, #5ac8fa);"></div><div class="trend-bar-label">1月</div></div>
                                 <div class="trend-bar-wrapper"><div class="trend-bar-value">3</div><div class="trend-bar" style="height: 37.5%; background: linear-gradient(180deg, #34c759, #30d158);"></div><div class="trend-bar-label">2月</div></div>
@@ -536,6 +551,7 @@
                     <div class="detail-section">
                         <div class="detail-row"><div class="detail-label">专辑名称</div><div class="detail-value">The Dark Side of the Moon</div></div>
                         <div class="detail-row"><div class="detail-label">艺术家</div><div class="detail-value">Pink Floyd</div></div>
+                        <div class="detail-row"><div class="detail-label">版本</div><div class="detail-value">180g Vinyl, Yellow Marble</div></div>
                         <div class="detail-row"><div class="detail-label">发行日期</div><div class="detail-value">1973-03-01</div></div>
                         <div class="detail-row"><div class="detail-label">流派风格</div><div class="detail-value">Progressive Rock</div></div>
                         <div class="detail-row"><div class="detail-label">Barcode</div><div class="detail-value">602547681039</div></div>
