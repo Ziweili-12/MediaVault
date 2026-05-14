@@ -99,7 +99,7 @@
         .media-card { height: 180px; border-radius: 20px; margin-bottom: 16px; overflow: hidden; position: relative; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 20px var(--card-shadow); }
         .media-card:hover { transform: scale(1.01); box-shadow: 0 8px 30px var(--card-shadow-hover); }
         .card-cover-wall { position: absolute; inset: 0; overflow: hidden; }
-        .cover-grid { display: flex; flex-wrap: wrap; width: 200%; height: 200%; opacity: 0.25; }
+        .cover-grid { display: flex; flex-wrap: wrap; width: 200%; height: 200%; opacity: 0.45; }
         .cover-cell { width: 16.666%; height: 50%; overflow: hidden; }
         .cover-img { width: 100%; height: 100%; object-fit: cover; animation: coverFlow 25s linear infinite; }
         .cover-cell:nth-child(1) .cover-img { animation-delay: 0s; }
@@ -115,9 +115,9 @@
             75% { transform: translate(-15%, -15%) scale(1.12); }
             100% { transform: translate(0, 0) scale(1); }
         }
-        .card-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.95)); }
+        .card-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.85)); }
         @media (prefers-color-scheme: dark) {
-            .card-overlay { background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.8)); }
+            .card-overlay { background: linear-gradient(135deg, rgba(0,0,0,0.5), rgba(0,0,0,0.7)); }
             .card-icon-row .icon-circle { background: rgba(0,113,227,0.2); }
             .stats-card .icon-circle { background: rgba(90,200,250,0.2); }
         }
