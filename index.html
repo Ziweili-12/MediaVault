@@ -253,9 +253,10 @@
       color: rgba(255,255,255,0.2);
     }
     .vinyl-cover svg { width: 48px; height: 48px; }
-    .vinyl-info { padding: 12px; }
-    .vinyl-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .vinyl-artist { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+    .vinyl-info { padding: 10px 12px 8px; }
+    .vinyl-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+    .vinyl-artist { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+    .vinyl-date { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 2px; }
 
     /* Movie Screen */
     .movie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 20px; }
@@ -321,7 +322,7 @@
     .stat-card .value { font-size: 28px; font-weight: 700; }
     .stat-card .sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
     .stat-card.music { border-left: 3px solid #8b5cf6; }
-    .stat-card.movie { border-left: 3px solid #f472b6; }
+    .stat-card.movie { border-left: 3px solid #3b82f6; }
 
     .chart-area {
       margin: 0 20px;
@@ -366,7 +367,8 @@
     }
     .chart-bar:active { opacity: 0.7; }
     .chart-bar.music { background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%); }
-    .chart-bar.movie { background: linear-gradient(180deg, #f472b6 0%, #db2777 100%); }
+    .chart-bar.movie { background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%); }
+    .chart-bar.tv { background: linear-gradient(180deg, #f97316 0%, #ea580c 100%); border-radius: 0; }
     .chart-bar.all { background: linear-gradient(180deg, #0a84ff 0%, #0066dd 100%); }
     .chart-bar .count {
       position: absolute;
@@ -989,56 +991,64 @@
           <span>月度趋势</span>
           <div class="chart-legend" id="chartLegend">
             <div class="legend-item"><div class="legend-dot" style="background: #8b5cf6;"></div><span>黑胶</span></div>
-            <div class="legend-item"><div class="legend-dot" style="background: #f472b6;"></div><span>影视</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background: #3b82f6;"></div><span>电影</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background: #f97316;"></div><span>剧集</span></div>
           </div>
         </div>
         <div class="chart-bars" id="chartBars">
           <div class="chart-bar-wrapper">
             <div class="chart-bar-stack">
               <div class="chart-bar music" style="height: 30px;"><span class="count">3</span></div>
-              <div class="chart-bar movie" style="height: 15px;"><span class="count">2</span></div>
+              <div class="chart-bar movie" style="height: 14px;"></div>
+              <div class="chart-bar tv" style="height: 14px;"></div>
             </div>
             <div class="chart-month">1月</div>
           </div>
           <div class="chart-bar-wrapper">
             <div class="chart-bar-stack">
-              <div class="chart-bar music" style="height: 45px;"><span class="count">5</span></div>
-              <div class="chart-bar movie" style="height: 20px;"><span class="count">2</span></div>
+              <div class="chart-bar music" style="height: 50px;"><span class="count">5</span></div>
+              <div class="chart-bar movie" style="height: 12px;"></div>
+              <div class="chart-bar tv" style="height: 12px;"></div>
             </div>
             <div class="chart-month">2月</div>
           </div>
           <div class="chart-bar-wrapper">
             <div class="chart-bar-stack">
               <div class="chart-bar music" style="height: 20px;"><span class="count">2</span></div>
-              <div class="chart-bar movie" style="height: 10px;"><span class="count">1</span></div>
+              <div class="chart-bar movie" style="height: 12px;"></div>
+              <div class="chart-bar tv" style="height: 0;"></div>
             </div>
             <div class="chart-month">3月</div>
           </div>
           <div class="chart-bar-wrapper">
             <div class="chart-bar-stack">
-              <div class="chart-bar music" style="height: 55px;"><span class="count">6</span></div>
-              <div class="chart-bar movie" style="height: 30px;"><span class="count">3</span></div>
+              <div class="chart-bar music" style="height: 60px;"><span class="count">6</span></div>
+              <div class="chart-bar movie" style="height: 24px;"></div>
+              <div class="chart-bar tv" style="height: 12px;"></div>
             </div>
             <div class="chart-month">4月</div>
           </div>
           <div class="chart-bar-wrapper">
             <div class="chart-bar-stack">
-              <div class="chart-bar music" style="height: 35px;"><span class="count">4</span></div>
-              <div class="chart-bar movie" style="height: 20px;"><span class="count">2</span></div>
+              <div class="chart-bar music" style="height: 40px;"><span class="count">4</span></div>
+              <div class="chart-bar movie" style="height: 12px;"></div>
+              <div class="chart-bar tv" style="height: 12px;"></div>
             </div>
             <div class="chart-month">5月</div>
           </div>
           <div class="chart-bar-wrapper">
             <div class="chart-bar-stack">
               <div class="chart-bar music" style="height: 50px;"><span class="count">5</span></div>
-              <div class="chart-bar movie" style="height: 25px;"><span class="count">3</span></div>
+              <div class="chart-bar movie" style="height: 24px;"></div>
+              <div class="chart-bar tv" style="height: 12px;"></div>
             </div>
             <div class="chart-month">6月</div>
           </div>
           <div class="chart-bar-wrapper">
             <div class="chart-bar-stack">
-              <div class="chart-bar music" style="height: 25px;"><span class="count">3</span></div>
-              <div class="chart-bar movie" style="height: 15px;"><span class="count">1</span></div>
+              <div class="chart-bar music" style="height: 30px;"><span class="count">3</span></div>
+              <div class="chart-bar movie" style="height: 12px;"></div>
+              <div class="chart-bar tv" style="height: 0;"></div>
             </div>
             <div class="chart-month">7月</div>
           </div>
@@ -2379,7 +2389,7 @@
       } else if (currentType === 'movie') {
         statMusic.style.display = 'none';
         statMovie.style.display = 'block';
-        legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background: #f472b6;"></div><span>影视</span></div>';
+        legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background: #3b82f6;"></div><span>电影</span></div><div class="legend-item"><div class="legend-dot" style="background: #f97316;"></div><span>剧集</span></div>';
       } else {
         statMusic.style.display = 'block';
         statMovie.style.display = 'block';
@@ -2387,19 +2397,22 @@
       }
 
       const musicBars = [3, 5, 2, 6, 4, 5, 3];
-      const movieBars = [2, 2, 1, 3, 2, 3, 1];
-      const allBars = musicBars.map((m, i) => m + movieBars[i]);
+      const movieBars = [1, 1, 1, 2, 1, 2, 1];
+      const tvBars =   [1, 1, 0, 1, 1, 1, 0];
+      const movieTotalBars = movieBars.map((m, i) => m + tvBars[i]);
 
       let barsHtml = '';
       const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月'];
 
       months.forEach((month, i) => {
         if (currentType === 'music') {
-          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar all" style="height: ${musicBars[i] * 8}px;"><span class="count">${musicBars[i]}</span></div></div><div class="chart-month">${month}</div></div>`;
+          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar music" style="height: ${musicBars[i] * 10}px;"><span class="count">${musicBars[i]}</span></div></div><div class="chart-month">${month}</div></div>`;
         } else if (currentType === 'movie') {
-          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar all" style="height: ${movieBars[i] * 15}px;"><span class="count">${movieBars[i]}</span></div></div><div class="chart-month">${month}</div></div>`;
+          const total = movieBars[i] + tvBars[i];
+          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar movie" style="height: ${movieBars[i] * 14}px;"><span class="count" style="color:#60a5fa;">${movieBars[i]}</span></div><div class="chart-bar tv" style="height: ${tvBars[i] * 14}px;"><span class="count" style="color:#fb923c;">${tvBars[i]}</span></div></div><div class="chart-month">${month}</div></div>`;
         } else {
-          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar music" style="height: ${musicBars[i] * 8}px;"><span class="count">${musicBars[i]}</span></div><div class="chart-bar movie" style="height: ${movieBars[i] * 15}px;"></div></div><div class="chart-month">${month}</div></div>`;
+          const total = musicBars[i] + movieBars[i] + tvBars[i];
+          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar music" style="height: ${musicBars[i] * 8}px;"><span class="count">${musicBars[i]}</span></div><div class="chart-bar movie" style="height: ${movieBars[i] * 12}px;"></div><div class="chart-bar tv" style="height: ${tvBars[i] * 12}px;"></div></div><div class="chart-month">${month}</div></div>`;
         }
       });
       chartBars.innerHTML = barsHtml;

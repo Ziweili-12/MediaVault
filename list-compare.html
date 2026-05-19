@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>影视列表对比</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',-apple-system,sans-serif;background:#111;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px;gap:24px;flex-wrap:wrap}
+  
+  .phone{width:390px;background:#000;border-radius:44px;overflow:hidden;box-shadow:0 0 0 4px #333,0 20px 60px rgba(0,0,0,0.5);display:flex;flex-direction:column}
+  .phone-header{padding:48px 16px 12px;display:flex;justify-content:space-between;align-items:center}
+  .phone-title{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.3px}
+  .badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;letter-spacing:.5px}
+  .badge.current{background:rgba(255,159,10,.85);color:#fff}
+  .badge.new{background:rgba(10,132,255,.85);color:#fff}
+  .phone-label{text-align:center;font-size:13px;font-weight:600;color:rgba(255,255,255,.5);padding:10px 0 4px}
+  .content{padding:0 16px 24px;display:flex;flex-direction:column;gap:8px}
+  
+  /* Shared item styles */
+  .item{display:flex;flex-direction:row;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .12s}
+  .item:active{transform:scale(.97)}
+  
+  /* Cover */
+  .cover{flex-shrink:0;overflow:hidden;position:relative;background:#1c1c1e}
+  .cover img{width:100%;height:100%;object-fit:cover;display:block}
+  .cover.square{width:68px;height:68px}
+  .cover.portrait{width:52px;height:78px}
+  
+  /* Info card */
+  .info{flex:1;display:flex;flex-direction:column;justify-content:center;padding:6px 10px;gap:2px;background:rgba(28,28,30,.6);border-left:1px solid rgba(255,255,255,.06)}
+  .info-en{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .info-cn{font-size:10px;color:rgba(255,255,255,.45);margin-top:0}
+  .info-meta{font-size:11px;color:rgba(255,255,255,.45);margin-top:0}
+  .type-badge{font-size:9px;font-weight:600;color:#fff;padding:2px 8px;border-radius:4px;align-self:flex-start;margin-top:3px}
+  .type-badge.movie{background:#0a84ff}
+  .type-badge.series{background:#ff9f0a}
+  
+  /* Dimension labels */
+  .dim{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;font-weight:700;color:rgba(255,255,255,.7);background:rgba(0,0,0,.6);padding:2px 6px;border-radius:4px;pointer-events:none;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<!-- Version A: Current (68×68 square) -->
+<div class="phone">
+  <div class="phone-label">当前版本</div>
+  <div class="phone-header">
+    <div class="phone-title">影视收藏</div>
+    <div class="badge current">68×68 正方形</div>
+  </div>
+  <div class="content" id="versionA"></div>
+</div>
+
+<!-- Version B: 2:3 portrait -->
+<div class="phone">
+  <div class="phone-label">建议版本</div>
+  <div class="phone-header">
+    <div class="phone-title">影视收藏</div>
+    <div class="badge new">52×78 竖版</div>
+  </div>
+  <div class="content" id="versionB"></div>
+</div>
+
+<script>
+const movies = [
+  {
+    en: 'Interstellar',
+    cn: '星际穿越',
+    meta: '美国/英国 · 2014',
+    type: 'movie',
+    poster: 'https://image.tmdb.org/t/p/w92/nrSaxf3cGdfx8XqGpBGe3dFfmVM.jpg'
+  },
+  {
+    en: 'The Shawshank Redemption',
+    cn: '肖申克的救赎',
+    meta: '美国 · 1994',
+    type: 'movie',
+    poster: 'https://image.tmdb.org/t/p/w92/9cjIGRiQlMdMCJmHRPregFMOJLt.jpg'
+  },
+  {
+    en: 'Reply 1988',
+    cn: '请回答1988',
+    meta: '韩国 · 2015',
+    type: 'series',
+    poster: 'https://image.tmdb.org/t/p/w92/wJ5F8K3r5Y9dW9GfZQl3pP7dQFZ.jpg'
+  },
+  {
+    en: 'Inception',
+    cn: '盗梦空间',
+    meta: '美国/英国 · 2010',
+    type: 'movie',
+    poster: 'https://image.tmdb.org/t/p/w92/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg'
+  },
+  {
+    en: 'Blade Runner 2049',
+    cn: '银翼杀手2049',
+    meta: '美国/英国/加拿大 · 2017',
+    type: 'movie',
+    poster: 'https://image.tmdb.org/t/p/w92/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg'
+  },
+  {
+    en: 'Stranger Things',
+    cn: '怪奇物语',
+    meta: '美国 · 2016',
+    type: 'series',
+    poster: 'https://image.tmdb.org/t/p/w92/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg'
+  },
+  {
+    en: 'In the Mood for Love',
+    cn: '花样年华',
+    meta: '中国香港 · 2000',
+    type: 'movie',
+    poster: 'https://image.tmdb.org/t/p/w92/iYypPT4bhqXfq1b6EnmxvRhKzOj.jpg'
+  },
+  {
+    en: 'Chernobyl',
+    cn: '切尔诺贝利',
+    meta: '美国/英国 · 2019',
+    type: 'series',
+    poster: 'https://image.tmdb.org/t/p/w92/hlLXt2tOPT6RRnjiUmoxyG1LTFi.jpg'
+  }
+];
+
+function renderItem(m, coverClass) {
+  return `
+    <div class="item">
+      <div class="cover ${coverClass}">
+        <img src="${m.poster}" alt="${m.en}" loading="lazy"
+             onerror="this.parentElement.style.background='#2c3e50';this.style.display='none'">
+      </div>
+      <div class="info">
+        <div class="info-en">${m.en}</div>
+        <div class="info-cn">${m.cn}</div>
+        <div class="info-meta">${m.meta}</div>
+        <div class="type-badge ${m.type}">${m.type === 'movie' ? '电影' : '剧集'}</div>
+      </div>
+    </div>`;
+}
+
+document.getElementById('versionA').innerHTML = movies.map(m => renderItem(m, 'square')).join('');
+document.getElementById('versionB').innerHTML = movies.map(m => renderItem(m, 'portrait')).join('');
+</script>
+</body>
+</html>

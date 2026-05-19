@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaVault 深度分析报告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.7;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 60px 50px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        
+        .header .meta {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            font-size: 0.95em;
+            opacity: 0.8;
+        }
+        
+        .header .meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .content {
+            padding: 50px;
+        }
+        
+        h2 {
+            color: #1a1a2e;
+            font-size: 1.8em;
+            margin: 50px 0 25px 0;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        h2:first-child {
+            margin-top: 0;
+        }
+        
+        h3 {
+            color: #2d3748;
+            font-size: 1.4em;
+            margin: 35px 0 15px 0;
+            padding-left: 15px;
+            border-left: 4px solid #764ba2;
+        }
+        
+        h4 {
+            color: #4a5568;
+            font-size: 1.15em;
+            margin: 25px 0 12px 0;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0 30px 0;
+            font-size: 0.95em;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        th {
+            padding: 15px 18px;
+            text-align: left;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 14px 18px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        tbody tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+        
+        tbody tr:hover {
+            background-color: #edf2f7;
+            transition: background-color 0.2s ease;
+        }
+        
+        code {
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: #e53e3e;
+        }
+        
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        
+        blockquote {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid #0ea5e9;
+            padding: 20px 25px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            color: #0c4a6e;
+        }
+        
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 20px 25px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .priority-box {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-left: 4px solid #22c55e;
+            padding: 20px 25px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .section-icon {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .badge-high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .badge-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .badge-low {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .checklist li::before {
+            content: "□";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .toc {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin: 30px 0;
+        }
+        
+        .toc h4 {
+            margin-top: 0;
+            color: #1a1a2e;
+        }
+        
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .toc li {
+            padding: 6px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        
+        .toc li:last-child {
+            border-bottom: none;
+        }
+        
+        .toc a {
+            color: #4a5568;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .toc a:hover {
+            color: #667eea;
+        }
+        
+        .footer {
+            background: #f8fafc;
+            padding: 30px 50px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9em;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header {
+                background: #1a1a2e !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 30px;
+            }
+            
+            .header {
+                padding: 40px 30px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header .meta {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 MediaVault 深度分析报告</h1>
+            <p class="subtitle">黑胶唱片 & 影视收藏管理 App — 上线前全面评估</p>
+            <div class="meta">
+                <span>📅 分析日期：2026年5月19日</span>
+                <span>👤 分析人：资深产品经理 + iOS 开发者</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="toc">
+                <h4>📋 目录</h4>
+                <ul>
+                    <li><a href="#section1">一、竞品对比与优化建议</a></li>
+            <li><a href="#section2">二、上线前流程清单</a></li>
+            <li><a href="#section3">三、优先级总结</a></li>
+                </ul>
+            </div>
+            
+            <h2 id="section1"><span class="section-icon">🔍</span>一、竞品对比与优化建议</h2>
+            
+            <h3>1. UI/UX 优化建议</h3>
+            
+            <h4>1.1 视觉设计</h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>维度</th>
+                        <th>竞品做法</th>
+                        <th>MediaVault 现状</th>
+                        <th>建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>封面墙/海报墙</strong></td>
+                        <td>Letterboxd 首页展示用户最近观看的海报网格，视觉冲击力强</td>
+                        <td>有封面但列表形式为主</td>
+                        <td>增加 <strong>封面墙模式</strong> 切换（网格/列表），利用屏幕空间展示更多封面</td>
+                    </tr>
+                    <tr>
+                        <td><strong>渐变色提取</strong></td>
+                        <td>Spotify 从专辑封面提取主色调作为背景渐变</td>
+                        <td>纯黑色/白色背景</td>
+                        <td>从封面/海报提取 <strong>主题色渐变</strong>，增强沉浸感</td>
+                    </tr>
+                    <tr>
+                        <td><strong>详情页动效</strong></td>
+                        <td>Discogs 详情页有封面缩放、标签云渐入</td>
+                        <td>无过渡动画</td>
+                        <td>添加 <code>react-native-reanimated</code> 实现 <strong>共享元素转场</strong>（Shared Element Transition）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>评分可视化</strong></td>
+                        <td>Letterboxd 用星星，豆瓣用五角星+半星</td>
+                        <td>简单数字评分</td>
+                        <td>改为 <strong>可交互星星评分</strong>，支持滑动评分</td>
+                    </tr>
+                    <tr>
+                        <td><strong>空状态设计</strong></td>
+                        <td>豆瓣电影有精美的空状态插画</td>
+                        <td>默认空白</td>
+                        <td>设计 <strong>品牌插画空状态</strong>，引导用户添加第一条记录</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>1.2 交互模式</h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>竞品亮点</th>
+                        <th>可借鉴点</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Letterboxd 年度回顾</strong></td>
+                        <td>每年12月自动生成 <strong>"你的年度收藏报告"</strong>，包含统计动画、最喜爱艺术家/导演、花费汇总等</td>
+                    </tr>
+                    <tr>
+                        <td><strong>豆瓣 "想看/在看/看过"</strong></td>
+                        <td>影视已有 <code>status</code> 字段但 UI 未充分利用，建议增加 <strong>状态筛选器</strong>（想看 → 在看 → 已看）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Discogs 市场价格</strong></td>
+                        <td>黑胶详情页显示 <strong>当前市场价 vs 入手价</strong>，支持查看历史价格走势</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Rate Your Music 列表</strong></td>
+                        <td>支持创建自定义 <strong>片单/唱片单</strong>（如"2025年度最佳"、"日本独立摇滚"）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Letterboxd 日历视图</strong></td>
+                        <td>提供 <strong>日历模式</strong> 查看每月每天的观看/购买记录</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>1.3 导航与信息架构</h4>
+            
+            <div class="highlight">
+                <p><strong>当前问题：</strong></p>
+                <ul>
+                    <li>底部 Tab 只有 4 个入口（首页、音乐、影视、统计）</li>
+                    <li>缺少全局搜索入口</li>
+                    <li>没有"发现"或"推荐"入口</li>
+                </ul>
+            </div>
+            
+            <p><strong>建议：</strong></p>
+            <pre><code>底部 Tab 重新设计为 5 个：
+┌─────────┬─────────┬─────────┬─────────┬─────────┐
+│  🏠 首页 │  🎵 音乐 │  🎬 影视 │  📊 统计 │  👤 我的 │
+└─────────┴─────────┴─────────┴─────────┴─────────┘
+
+"我的"页面包含：设置、数据管理、导入导出、关于
+
+增加 **全局搜索**（顶部搜索栏或长按 Tab 弹出）：可以同时搜索黑胶和影视。</code></pre>
+            
+            <h3>2. 功能缺失分析</h3>
+            
+            <h4>2.1 核心缺失功能（P0）<span class="badge badge-high">高优先级</span></h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>功能</th>
+                        <th>参考竞品</th>
+                        <th>用户价值</th>
+                        <th>实现难度</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>自定义列表/片单</strong></td>
+                        <td>Letterboxd Lists、豆瓣片单</td>
+                        <td>高 — 用户可以创建主题列表，增强收藏整理能力</td>
+                        <td>中</td>
+                    </tr>
+                    <tr>
+                        <td><strong>数据导入导出</strong></td>
+                        <td>Discogs (CSV)、Letterboxd (CSV)</td>
+                        <td>高 — 数据可迁移是收藏 App 的核心信任基础</td>
+                        <td>低</td>
+                    </tr>
+                    <tr>
+                        <td><strong>状态管理优化</strong></td>
+                        <td>豆瓣（想看/在看/看过）、Trakt (watchlist)</td>
+                        <td>中高 — <code>status</code> 字段已有但 UI 未暴露</td>
+                        <td>低</td>
+                    </tr>
+                    <tr>
+                        <td><strong>搜索/筛选增强</strong></td>
+                        <td>几乎所有竞品</td>
+                        <td>高 — 按艺术家/导演、年份、流派、评分筛选</td>
+                        <td>中</td>
+                    </tr>
+                    <tr>
+                        <td><strong>批量操作</strong></td>
+                        <td>Discogs 批量编辑</td>
+                        <td>中 — 大量收藏后批量操作需求明显</td>
+                        <td>中</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>2.2 体验增强功能（P1）<span class="badge badge-medium">中优先级</span></h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>功能</th>
+                        <th>参考竞品</th>
+                        <th>用户价值</th>
+                        <th>实现难度</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>年度回顾</strong></td>
+                        <td>Letterboxd Year in Review</td>
+                        <td>高 — 社交传播性强，提升用户粘性</td>
+                        <td>中高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>价格追踪</strong></td>
+                        <td>Discogs Marketplace</td>
+                        <td>中 — 唱片收藏者关心资产价值</td>
+                        <td>中（需接入 Discogs Marketplace API）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>流媒体平台信息</strong></td>
+                        <td>TMDB Watch Providers API</td>
+                        <td>中 — 电影用户想知道在哪能看</td>
+                        <td>低</td>
+                    </tr>
+                    <tr>
+                        <td><strong>剧集进度追踪</strong></td>
+                        <td>Trakt</td>
+                        <td>中高 — 剧集用户的核心需求</td>
+                        <td>中</td>
+                    </tr>
+                    <tr>
+                        <td><strong>笔记/短评</strong></td>
+                        <td>豆瓣短评、Letterboxd Reviews</td>
+                        <td>中 — 增加个人化内容</td>
+                        <td>低（notes 字段已有）</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>2.3 差异化功能（P2）<span class="badge badge-low">低优先级</span></h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>功能</th>
+                        <th>参考竞品</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>推荐引擎</strong></td>
+                        <td>Spotify Discover Weekly</td>
+                        <td>基于收藏数据推荐相似艺术家/导演的作品</td>
+                    </tr>
+                    <tr>
+                        <td><strong>社区功能</strong></td>
+                        <td>豆瓣小组、Letterboxd</td>
+                        <td>评论、关注、动态（初期不建议，运营成本高）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>多语言</strong></td>
+                        <td>几乎所有竞品</td>
+                        <td>当前中文硬编码，应支持 i18n</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Widget</strong></td>
+                        <td>iOS 16+ WidgetKit</td>
+                        <td>桌面小组件展示最近添加/随机推荐</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>3. 数据维度拓展</h3>
+            
+            <h4>3.1 Discogs API 可获取的未利用数据</h4>
+            
+            <pre><code>// 当前已用：title, artist, year, genre, style, country, cover, barcode, formats
+// 建议新增利用：
+
+interface DiscogsEnhanced {
+  // 市场数据
+  lowest_price?: number;      // Discogs Marketplace 最低价
+  num_for_sale?: number;      // 在售数量
+  
+  // 社区数据  
+  community_have?: number;    // 拥有此版本的人数
+  community_want?: number;    // 想要此版本的人数
+  
+  // 详细信息
+  tracklist?: Track[];         // 曲目列表
+  extraartists?: Artist[];    // 额外艺人（制作人、词曲作者）
+  estimated_weight?: number;  // 重量（收藏者关心）
+}</code></pre>
+            
+            <h4>3.2 TMDB API 可获取的未利用数据</h4>
+            
+            <pre><code>// 当前已用：title, poster, director, genre, runtime, rating, seasons
+// 建议新增利用：
+
+interface TMDBEnhanced {
+  // 流媒体平台（TMDB Watch Providers API）
+  watch_providers?: {         // 在哪能看
+    flatrate?: Provider[];   // 订阅平台（Netflix, Disney+...）
+    rent?: Provider[];       // 租赁平台
+    buy?: Provider[];        // 购买平台
+  };
+  
+  // 关联内容
+  recommendations?: Movie[];  // 推荐相似作品
+  similar?: Movie[];          // 类似作品
+  keywords?: Keyword[];       // 关键词标签
+  
+  // 外部链接
+  homepage?: string;          // 官网
+  external_ids?: {
+    imdb_id?: string;
+    tvdb_id?: number;
+    facebook_id?: string;
+    instagram_id?: string;
+    twitter_id?: string;
+  };
+}</code></pre>
+            
+            <h4>3.3 数据库 Schema 扩展建议</h4>
+            
+            <pre><code>-- 列表/片单功能
+CREATE TABLE lists (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT,
+  type TEXT NOT NULL, -- 'vinyl' | 'movie' | 'mixed'
+  cover_url TEXT,
+  is_public INTEGER DEFAULT 0,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE list_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  list_id INTEGER NOT NULL,
+  item_type TEXT NOT NULL, -- 'vinyl' | 'movie'
+  item_id INTEGER NOT NULL,
+  sort_order INTEGER DEFAULT 0,
+  note TEXT,
+  FOREIGN KEY (list_id) REFERENCES lists(id)
+);
+
+-- 价格追踪
+CREATE TABLE price_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  vinyl_id INTEGER NOT NULL,
+  marketplace TEXT, -- 'discogs', 'ebay'
+  price REAL,
+  currency TEXT DEFAULT 'USD',
+  recorded_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 流媒体平台信息
+CREATE TABLE watch_providers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  movie_id INTEGER NOT NULL,
+  country_code TEXT NOT NULL,
+  provider_name TEXT,
+  provider_type TEXT, -- 'flatrate', 'rent', 'buy'
+  logo_path TEXT,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);</code></pre>
+            
+            <h3>4. 社交元素评估</h3>
+            
+            <div class="highlight">
+                <p><strong>结论：初期不建议加入完整社交功能，但可设计"轻社交"元素。</strong></p>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>阶段</th>
+                        <th>社交策略</th>
+                        <th>理由</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>V1.0</strong></td>
+                        <td>无社交，纯个人工具</td>
+                        <td>专注核心体验打磨，降低复杂度</td>
+                    </tr>
+                    <tr>
+                        <td><strong>V1.5</strong></td>
+                        <td>分享功能（生成海报卡片）</td>
+                        <td>用户可以分享到社交媒体，低成本获客</td>
+                    </tr>
+                    <tr>
+                        <td><strong>V2.0</strong></td>
+                        <td>关注 + 动态</td>
+                        <td>有用户基础后考虑</td>
+                    </tr>
+                    <tr>
+                        <td><strong>V3.0</strong></td>
+                        <td>社区 + 小组</td>
+                        <td>需要运营投入</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p><strong>V1.5 推荐的轻社交方案：</strong></p>
+            <ul>
+                <li><strong>分享卡片生成</strong>：自动生成精美的封面+评分+一句话推荐的图片，可分享到朋友圈/微博</li>
+                <li><strong>年度回顾分享</strong>：参考 Spotify Wrapped，生成可分享的年度统计卡片</li>
+                <li><strong>导入导出</strong>：支持导出为 Letterboxd/Discogs 兼容格式，方便与其他平台用户交流</li>
+            </ul>
+            
+            <h3>5. 商业化路径</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>模式</th>
+                        <th>方案</th>
+                        <th>适用阶段</th>
+                        <th>预期收入</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Freemium</strong></td>
+                        <td>免费版（100条记录上限）→ Pro 版解锁无限</td>
+                        <td>V1.0+</td>
+                        <td>⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>订阅制</strong></td>
+                        <td>¥6/月或 ¥48/年，解锁高级统计、云同步、导出</td>
+                        <td>V1.5+</td>
+                        <td>⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>一次性买断</strong></td>
+                        <td>¥28-38 买断 Pro</td>
+                        <td>V1.0+</td>
+                        <td>⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>iCloud 同步</strong></td>
+                        <td>Pro 功能，替代 Notion 同步</td>
+                        <td>V1.5+</td>
+                        <td>⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>API 中转</strong></td>
+                        <td>代理 Discogs/TMDB 请求（用户无需申请 API Key）</td>
+                        <td>V1.0+</td>
+                        <td>间接提升体验</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="priority-box">
+                <p><strong>推荐策略：</strong></p>
+                <ul>
+                    <li><strong>V1.0</strong>：免费 + 内购解锁（¥28 买断），验证 PMF</li>
+                    <li><strong>V2.0</strong>：转订阅制，老用户保留买断权益</li>
+                    <li><strong>避免</strong>：广告模式（破坏收藏管理 App 的品质感）</li>
+                </ul>
+            </div>
+            
+            <h2 id="section2"><span class="section-icon">🚀</span>二、上线前流程清单</h2>
+            
+            <h3>1. iOS App Store 上线准备</h3>
+            
+            <h4>1.1 Apple Developer 账号与证书</h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>项目</th>
+                        <th>说明</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Apple Developer Program</strong></td>
+                        <td>$99/年，[developer.apple.com](https://developer.apple.com) 注册</td>
+                        <td>需确认</td>
+                    </tr>
+                    <tr>
+                        <td><strong>App ID</strong></td>
+                        <td>Bundle ID: `com.ziweili.mediavault`（已配置）</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td><strong>分发证书</strong></td>
+                        <td>Apple Distribution Certificate（生产签名）</td>
+                        <td>需创建</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Provisioning Profile</strong></td>
+                        <td>App Store Distribution Profile</td>
+                        <td>需创建</td>
+                    </tr>
+                    <tr>
+                        <td><strong>App Store Connect</strong></td>
+                        <td>创建 App 记录，填写元数据</td>
+                        <td>需操作</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>1.2 App Store 元数据</h4>
+            
+            <pre><code>必须准备：
+├── App 名称：MediaVault
+├── 副标题：黑胶唱片 & 影视收藏管理（30字符内）
+├── 关键词：100字符，含中英文关键词
+│   推荐：vinyl,record,唱片,黑胶,movie,film,电影,收藏,discogs,tmdb,管理
+├── 描述：
+│   - 简短描述（170字符内）
+│   - 完整描述（4000字符内）
+├── 截图：每种尺寸至少 3 张
+│   - 6.7" (iPhone 15 Pro Max): 1290 x 2796
+│   - 6.5" (iPhone 15 Plus): 1284 x 2778
+│   - 5.5" (iPhone 8 Plus): 1242 x 2208
+├── App 图标：1024 x 1024 PNG（无透明度，无圆角）
+├── 隐私政策 URL（必须）
+├── 支持 URL
+├── 营销 URL（可选）
+└── App 审核信息：
+    ├── 测试账号（如需登录）
+    ├── 审核备注（说明 API 用途）
+    └── 年龄分级问卷</code></pre>
+            
+            <h4>1.3 隐私与合规</h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>项目</th>
+                        <th>要求</th>
+                        <th>建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>隐私政策</strong></td>
+                        <td>必须提供 URL</td>
+                        <td>创建一个简单页面，说明数据存储在本地、API 调用去向</td>
+                    </tr>
+                    <tr>
+                        <td><strong>App Privacy</strong></td>
+                        <td>App Store Connect 填写数据收集声明</td>
+                        <td>声明：不收集用户数据，本地 SQLite 存储</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ATT（App Tracking Transparency）</strong></td>
+                        <td>如使用 IDFA 需弹窗</td>
+                        <td>本 App 不需要，可跳过</td>
+                    </tr>
+                    <tr>
+                        <td><strong>中国区 ICP 备案</strong></td>
+                        <td>2024年起新上架需要</td>
+                        <td>如上中国区需准备</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>2. EAS Build 配置</h3>
+            
+            <p>项目当前没有 <code>eas.json</code>，需要创建：</p>
+            
+            <pre><code>// eas.json
+{
+  "cli": {
+    "version": ">= 12.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false,
+        "resourceClass": "m-medium"
+      }
+    },
+    "production": {
+      "ios": {
+        "resourceClass": "m-medium",
+        "buildConfiguration": "Release",
+        "scheme": "MediaVault"
+      },
+      "env": {
+        "EXPO_PUBLIC_DISCOGS_TOKEN": "@DISCOGS_TOKEN",
+        "EXPO_PUBLIC_TMDB_API_KEY": "@TMDB_API_KEY",
+        "EXPO_PUBLIC_NOTION_API_KEY": "@NOTION_API_KEY"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "your-apple-id@email.com",
+        "ascAppId": "1234567890",
+        "appleTeamId": "XXXXXXXXXX"
+      }
+    }
+  }
+}</code></pre>
+            
+            <p><strong>构建步骤：</strong></p>
+            
+            <pre><code># 1. 安装 EAS CLI
+npm install -g eas-cli
+
+# 2. 登录
+eas login
+
+# 3. 配置项目
+eas build:configure
+
+# 4. 设置环境变量（EAS Secrets）
+eas secret:create --name DISCOGS_TOKEN --value "your_token"
+eas secret:create --name TMDB_API_KEY --value "your_key"
+eas secret:create --name NOTION_API_KEY --value "your_key"
+
+# 5. 构建
+eas build --platform ios --profile production
+
+# 6. 提交到 App Store
+eas submit --platform ios</code></pre>
+            
+            <p><strong>app.json 补充配置：</strong></p>
+            
+            <pre><code>{
+  "expo": {
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ziweili.mediavault",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "用于扫描唱片条形码",
+        "NSPhotoLibraryUsageDescription": "用于保存分享卡片"
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    }
+  }
+}</code></pre>
+            
+            <h3>3. 数据安全与隐私合规</h3>
+            
+            <h4>3.1 API Key 暴露风险</h4>
+            
+            <p><strong>当前风险评估：</strong></p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>API Key</th>
+                        <th>存储方式</th>
+                        <th>风险等级</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>DISCOGS_TOKEN</code></td>
+                        <td>环境变量 → Expo Constants</td>
+                        <td>⚠️ 中</td>
+                        <td>编译后嵌入 JS Bundle，可被反编译提取</td>
+                    </tr>
+                   tr>
+                        <td><code>TMDB_API_KEY</code></td>
+                        <td>环境变量 → Expo Constants</td>
+                        <td>⚠️ 中</td>
+                        <td>同上</td>
+                    </tr>
+                    <tr>
+                        <td><code>NOTION_API_KEY</code></td>
+                        <td>环境变量 → Expo Constants</td>
+                        <td>🔴 高</td>
+                        <td>写权限，风险更大</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p><strong>缓解方案：</strong></p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>方案</th>
+                        <th>说明</th>
+                        <th>推荐度</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>后端代理</strong></td>
+                        <td>创建轻量后端（Cloudflare Workers / Vercel Edge），App 请求后端，后端调用 API</td>
+                        <td>⭐⭐⭐ 最佳</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Key 限制</strong></td>
+                        <td>Discogs: 设置 Rate Limit；TMDB: API Read Access Token（有限权限）</td>
+                        <td>⭐⭐ 必做</td>
+                    </tr>
+                    <tr>
+                        <td><strong>定期轮换</strong></td>
+                        <td>设置提醒定期更换 API Key</td>
+                        <td>⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Notion 分离</strong></td>
+                        <td>Notion API Key 单独管理，不打包进 App，用户自行配置</td>
+                        <td>⭐⭐⭐ 推荐</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="priority-box">
+                <p><strong>建议优先级：</strong></p>
+                <ol>
+                    <li><strong>短期（V1.0）</strong>：使用 TMDB Read Access Token（而非 API Key），Discogs Token 设置 IP 白名单</li>
+                    <li><strong>中期（V1.5）</strong>：搭建 Cloudflare Workers 代理，App 不再直接暴露 Key</li>
+                    <li><strong>Notion</strong>：改为用户自行配置，提供设置页面输入 API Key</li>
+                </ol>
+            </div>
+            
+            <h4>3.2 本地数据安全</h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险</th>
+                        <th>现状</th>
+                        <th>建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>SQLite 明文存储</strong></td>
+                        <td>✅ 符合个人收藏 App 预期</td>
+                        <td>可考虑 <code>expo-sqlite</code> 的 SQLCipher 支持（加密数据库）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>备份风险</strong></td>
+                        <td>iOS 自动备份到 iCloud</td>
+                        <td>确保 <code>expo-file-system</code> 的备份排除配置</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Notion 同步</strong></td>
+                        <td>数据传输到第三方</td>
+                        <td>隐私政策中说明</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>4. 性能优化清单</h3>
+            
+            <h4>4.1 启动性能</h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>项目</th>
+                        <th>当前状态</th>
+                        <th>优化建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Splash Screen</strong></td>
+                        <td>有配置</td>
+                        <td>确保 <code>expo-splash-screen</code> 正确控制隐藏时机</td>
+                    </tr>
+                    <tr>
+                        <td><strong>数据库初始化</strong></td>
+                        <td>同步执行所有建表语句</td>
+                        <td>已有 try-catch，可接受</td>
+                    </tr>
+                    <tr>
+                        <td><strong>首屏数据加载</strong></td>
+                        <td><code>useEffect</code> + <code>Promise.all</code></td>
+                        <td>✅ 已并行加载</td>
+                    </tr>
+                    <tr>
+                        <td><strong>图片加载</strong></td>
+                        <td>无缓存策略</td>
+                        <td>添加 <code>react-native-fast-image</code> 或 <code>expo-image</code>（自带缓存）</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>4.2 列表性能</h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>问题</th>
+                        <th>建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>ScrollView</code> 渲染长列表</td>
+                        <td>改用 <code>FlatList</code> / <code>FlashList</code>（Shopify 的高性能列表）</td>
+                    </tr>
+                    <tr>
+                        <td>封面图无懒加载</td>
+                        <td><code>FlatList</code> 自带 <code>getItemLayout</code> + <code>initialNumToRender</code></td>
+                    </tr>
+                    <tr>
+                        <td>统计数据全量计算</td>
+                        <td>考虑 SQL 层面聚合，而非 JS 内存计算</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>4.3 包体积优化</h4>
+            
+            <pre><code>当前依赖分析：
+- expo ~54.0.0：较大的基础包
+- axios：可用 fetch 替代，减少 ~15KB
+- 未使用的 expo 模块：检查是否有冗余
+
+优化建议：
+1. 使用 expo-custom-assets 排除未用资源
+2. 启用 Hermes 引擎（Android）和 JSC 优化
+3. 图标使用 @expo/vector-icons 的 tree-shaking</code></pre>
+            
+            <h3>5. 测试清单</h3>
+            
+            <h4>5.1 功能测试</h4>
+            
+            <ul class="checklist">
+                <li>黑胶模块</li>
+                <li>搜索添加（正常 / 无结果 / 网络错误）</li>
+                <li>扫码添加（正常条形码 / 无效条形码 / 相机权限拒绝）</li>
+                <li>详情页查看（完整数据 / 部分数据 / 空字段）</li>
+                <li>编辑信息（修改评分 / 修改备注 / 修改价格）</li>
+                <li>删除记录（单条删除 / 确认弹窗）</li>
+                <li>Notion 同步（新增 / 修改 / 删除同步）</li>
+                <li>影视模块</li>
+                <li>搜索添加（电影 / 剧集 / 无结果）</li>
+                <li>剧集按季添加（选择季 / 确认季信息）</li>
+                <li>详情页查看（演职人员 / 海报 / 评分）</li>
+                <li>编辑与删除</li>
+                <li>统计模块</li>
+                <li>年份筛选</li>
+                <li>月度趋势图渲染</li>
+                <li>TOP 排行榜准确性</li>
+                <li>空数据状态</li>
+                <li>数据持久化</li>
+                <li>App 重启后数据完整</li>
+                <li>数据库迁移（版本升级）</li>
+            </ul>
+            
+            <h4>5.2 兼容性测试</h4>
+            
+            <ul class="checklist">
+                <li>iOS 版本：15.0 / 16.0 / 17.0 / 18.0</li>
+                <li>设备尺寸：iPhone SE / iPhone 15 / iPhone 15 Pro Max / iPad</li>
+                <li>深色模式 / 浅色模式切换</li>
+                <li>横屏（iPad）</li>
+                <li>系统字体大小变化</li>
+                <li>低电量模式</li>
+            </ul>
+            
+            <h4>5.3 边界情况</h4>
+            
+            <ul class="checklist">
+                <li>网络：无网络 / 弱网 / 切换网络</li>
+                <li>数据量：1000+ 条记录的加载性能</li>
+                <li>特殊字符：emoji、长标题、特殊语言</li>
+                <li>API 限流：Discogs 60次/分钟，TMDB 40次/10秒</li>
+                <li>存储空间不足</li>
+                <li>并发操作：快速连续添加</li>
+            </ul>
+            
+            <h4>5.4 推荐测试工具</h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>工具</th>
+                        <th>用途</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Maestro</strong></td>
+                        <td>E2E UI 测试，YAML 定义流程</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Flashlight</strong></td>
+                        <td>React Native 性能基准测试</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Charles Proxy</strong></td>
+                        <td>抓包检查 API 请求</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Xcode Instruments</strong></td>
+                        <td>内存泄漏、CPU 分析</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>6. 用户反馈收集方式</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>阶段</th>
+                        <th>方式</th>
+                        <th>工具</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>内测期</strong></td>
+                        <td>TestFlight 反馈</td>
+                        <td>Apple TestFlight 内置反馈</td>
+                    </tr>
+                    <tr>
+                        <td><strong>公测期</strong></td>
+                        <td>应用内反馈入口</td>
+                        <td>自建反馈表单 + 飞书/Notion 收集</td>
+                    </tr>
+                    <tr>
+                        <td><strong>正式版</strong></td>
+                        <td>App Store 评价引导</td>
+                        <td><code>StoreKit</code> 的 <code>requestReview()</code> API</td>
+                    </tr>
+                    <tr>
+                        <td><strong>持续</strong></td>
+                        <td>崩溃与性能监控</td>
+                        <td>Sentry / Bugsnag / Expo 内置</td>
+                    </tr>
+                    <tr>
+                        <td><strong>持续</strong></td>
+                        <td>用户行为分析</td>
+                        <td>PostHog / Mixpanel（注意隐私合规）</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p><strong>应用内反馈入口建议：</strong></p>
+            <ul>
+                <li>设置页 → "意见反馈"（发送邮件或跳转表单）</li>
+                <li>崩溃后自动弹出 "发生了什么问题？" 反馈框</li>
+                <li>关于页面 → GitHub Issues 链接（如果是开源项目）</li>
+            </ul>
+            
+            <h3>7. 版本更新策略</h3>
+            
+            <h4>7.1 版本号规范</h4>
+            
+            <pre><code>语义化版本：Major.Minor.Patch
+- Major (1.x.x)：重大架构变更、不兼容更新
+- Minor (x.1.x)：新功能、向后兼容
+- Patch (x.x.1)：Bug 修复
+
+示例路线：
+V1.0.0 → 首版上线（核心功能）
+V1.1.0 → 搜索增强 + 导入导出
+V1.2.0 → 列表/片单功能
+V1.3.0 → 年度回顾
+V2.0.0 → 社交功能 + 云同步重构</code></pre>
+            
+            <h4>7.2 更新节奏</h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>类型</th>
+                        <th>频率</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>热修复</strong></td>
+                        <td>随时</td>
+                        <td>严重 Bug，走 EAS Update（OTA）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>小版本</strong></td>
+                        <td>2-4 周</td>
+                        <td>Bug 修复 + 小改进</td>
+                    </tr>
+                    <tr>
+                        <td><strong>大版本</strong></td>
+                        <td>2-3 月</td>
+                        <td>新功能迭代</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>7.3 App Store 审核应对</h4>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>常见拒绝原因</th>
+                        <th>预防措施</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Guideline 2.1 - Performance</strong></td>
+                        <td>确保无崩溃，提供完整测试账号</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Guideline 5.1.1 - Privacy</strong></td>
+                        <td>隐私政策完整，数据收集声明准确</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Guideline 4.2 - Minimum Functionality</strong></td>
+                        <td>确保功能足够丰富，不是简单 WebView</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Guideline 2.3.7 - Accurate Metadata</strong></td>
+                        <td>截图与实际功能一致</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h2 id="section3"><span class="section-icon">📊</span>三、优先级总结</h2>
+            
+            <h3>立即执行（上线前必做）</h3>
+            
+            <div class="priority-box">
+                <ol>
+                    <li>✅ 创建 <code>eas.json</code> 配置文件</li>
+                    <li>✅ 准备 App Store 截图和描述</li>
+                    <li>✅ 编写隐私政策页面</li>
+                    <li>✅ API Key 安全处理（至少用 Read Access Token）</li>
+                    <li>✅ 添加相机权限描述 (<code>NSCameraUsageDescription</code>)</li>
+                    <li>✅ 基础功能和边界测试</li>
+                </ol>
+            </div>
+            
+            <h3>V1.1 规划（上线后 1 个月内）</h3>
+            
+            <ol>
+                <li>导入导出功能（CSV / JSON）</li>
+                <li>搜索和筛选增强</li>
+                <li>状态管理 UI（想看/在看/看过）</li>
+                <li>性能优化（FlatList、图片缓存）</li>
+            </ol>
+            
+            <h3>V1.5 规划（上线后 3 个月内）</h3>
+            
+            <ol>
+                <li>自定义列表/片单</li>
+                <li>年度回顾功能</li>
+                <li>分享卡片生成</li>
+                <li>TMDB 流媒体平台信息</li>
+                <li>iCloud 同步（替代 Notion）</li>
+            </ol>
+            
+            <div class="highlight">
+                <p><strong>总结：</strong> MediaVault 作为一个黑胶+影视双品类收藏 App，差异化定位清晰，技术栈成熟。核心挑战在于 <strong>功能丰富度不及 Letterboxd/豆瓣，但又比单一品类 App 复杂</strong>。建议 V1.0 聚焦核心体验打磨，V1.5 通过列表和年度回顾建立差异化竞争力。</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>MediaVault 深度分析报告 • 生成于 2026年5月19日</p>
+            <p>资深产品经理 + iOS 开发者</p>
+        </div>
+    </div>
+</body>
+</html>

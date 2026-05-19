@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View, Text, Modal, TouchableOpacity, StyleSheet, TextInput,
+  Alert, ActivityIndicator, KeyboardAvoidingView, Platform,
+  Image, ScrollView,
+} from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { insertVinyl } from '../../database/database';
+import { insertVinyl, updateVinyl } from '../../database/database';
 import { searchDiscogsByBarcode, searchDiscogsByQuery, getDiscogsRelease } from '../../services/api';
 import { createNotionPage, formatVinylForNotion } from '../../services/api';
+import { useTheme } from '../../theme';
 
 interface Props {
   visible: boolean;
@@ -12,6 +17,7 @@ interface Props {
 }
 
 export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
+  const { isDark, colors } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
   const [step, setStep] = useState<'welcome' | 'scan' | 'search' | 'confirm'>('welcome');
   const [scanning, setScanning] = useState(false);
@@ -20,300 +26,385 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
   const [selectedRelease, setSelectedRelease] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // 表单数据
   const [purchaseDate, setPurchaseDate] = useState('');
   const [price, setPrice] = useState('');
-  const [personalRating, setPersonalRating] = useState('');
+  const [personalRating, setPersonalRating] = useState<number>(0);
 
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
     setScanning(false);
     setLoading(true);
-
     try {
       const release = await searchDiscogsByBarcode(data);
-      if (release) {
-        setSelectedRelease(release);
-        setStep('confirm');
-      } else {
-        Alert.alert('未找到', '该条形码未找到对应专辑，请手动搜索');
-        setStep('search');
-      }
+      if (release) { setSelectedRelease(release); setStep('confirm'); }
+      else { Alert.alert('未找到', '该条形码未找到对应专辑，请手动搜索'); setStep('search'); }
     } catch (error) {
       Alert.alert('扫描失败', '请重试或手动搜索');
       setStep('search');
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
-
     setLoading(true);
     try {
       const results = await searchDiscogsByQuery(searchQuery);
       setSearchResults(results);
-    } catch (error) {
-      Alert.alert('搜索失败', '请重试');
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { Alert.alert('搜索失败', '请重试'); }
+    finally { setLoading(false); }
   };
 
   const handleSelectResult = async (result: any) => {
     setLoading(true);
     try {
       const release = await getDiscogsRelease(result.id);
-      if (release) {
-        setSelectedRelease(release);
-        setStep('confirm');
-      }
-    } catch (error) {
-      Alert.alert('获取详情失败', '请重试');
-    } finally {
-      setLoading(false);
-    }
+      if (release) { setSelectedRelease(release); setStep('confirm'); }
+    } catch (error) { Alert.alert('获取详情失败', '请重试'); }
+    finally { setLoading(false); }
   };
 
   const handleSave = async () => {
     if (!selectedRelease) return;
-
     setLoading(true);
     try {
+      const barcodeFromIdentifiers = selectedRelease.identifiers
+        ?.filter((i: any) => i.type === 'Barcode')
+        ?.map((i: any) => i.value)
+        ?.join(', ') || '';
+
+      // 格式化日期：YYYYMMDD → YYYY-MM-DD
+      const normalizeDate = (d: string | undefined): string | undefined => {
+        if (!d) return undefined;
+        const cleaned = d.replace(/[^0-9]/g, '');
+        if (cleaned.length === 8) return `${cleaned.slice(0,4)}-${cleaned.slice(4,6)}-${cleaned.slice(6,8)}`;
+        if (cleaned.length === 6) return `${cleaned.slice(0,4)}-${cleaned.slice(4,6)}-01`;
+        if (cleaned.length === 4) return `${cleaned}-01-01`;
+        return d; // 已经是 YYYY-MM-DD 或其他格式
+      };
+
+      // 遍历所有 formats 提取版本信息（含颜色等 text 字段）
+      const versionParts: string[] = [];
+      if (selectedRelease.formats) {
+        for (const fmt of selectedRelease.formats) {
+          if (fmt.descriptions) versionParts.push(...fmt.descriptions);
+          if (fmt.text) versionParts.push(fmt.text);
+        }
+      }
+      // 去重
+      const uniqueVersionParts = [...new Set(versionParts)];
+
+      console.log('📀 Discogs release data:', {
+        released: selectedRelease.released,
+        year: selectedRelease.year,
+        formats_count: selectedRelease.formats?.length,
+        format_texts: selectedRelease.formats?.map((f: any) => f.text).filter(Boolean),
+      });
+
       const vinylData = {
         album_name: selectedRelease.title.split(' - ')[1] || selectedRelease.title,
         artist: selectedRelease.artists?.[0]?.name || 'Unknown',
-        version: selectedRelease.formats?.[0]?.descriptions?.join(', ') || '',
-        cover_url: selectedRelease.images?.[0]?.uri || '',
+        version: uniqueVersionParts.join(', ') || '',
+        cover_url: selectedRelease.images?.find((i: any) => i.type === 'primary')?.uri
+          || selectedRelease.images?.[0]?.uri || '',
         release_id: selectedRelease.id,
-        barcode: selectedRelease.barcode?.[0] || '',
-        purchase_date: purchaseDate || undefined,
+        barcode: barcodeFromIdentifiers || selectedRelease.barcode?.[0] || '',
+        purchase_date: normalizeDate(purchaseDate),
         price: price ? parseFloat(price) : undefined,
-        personal_rating: personalRating ? parseInt(personalRating) : undefined,
+        personal_rating: personalRating > 0 ? personalRating : undefined,
         genre: selectedRelease.genres?.join(', ') || '',
+        year: selectedRelease.year || undefined,
+        release_date: selectedRelease.released || undefined,
+        country: selectedRelease.country || undefined,
+        label: selectedRelease.labels?.[0]?.name || undefined,
+        style: selectedRelease.styles?.join(', ') || undefined,
       };
 
       const vinylId = await insertVinyl(vinylData);
-
       try {
-        const notionProperties = formatVinylForNotion(vinylData);
         const pageId = await createNotionPage(
-          process.env.NOTION_VINYLS_DB_ID || '',
-          notionProperties,
-          vinylData.cover_url
+          process.env.EXPO_PUBLIC_NOTION_VINYLS_DB_ID || '',
+          formatVinylForNotion(vinylData), vinylData.cover_url
         );
-
-        if (pageId) {
-          const { updateVinyl } = require('../../database/database');
-          await updateVinyl(vinylId, { notion_page_id: pageId });
-        }
-      } catch (error) {
-        console.log('Notion sync skipped:', error);
-      }
+        if (pageId) await updateVinyl(vinylId, { notion_page_id: pageId });
+      } catch (e) { console.log('Notion sync skipped:', e); }
 
       Alert.alert('成功', '黑胶已添加');
       resetForm();
       onSuccess();
-    } catch (error) {
-      Alert.alert('保存失败', '请重试');
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { Alert.alert('保存失败', '请重试'); }
+    finally { setLoading(false); }
   };
 
   const resetForm = () => {
-    setStep('welcome');
-    setSearchQuery('');
-    setSearchResults([]);
-    setSelectedRelease(null);
-    setPurchaseDate('');
-    setPrice('');
-    setPersonalRating('');
+    setStep('welcome'); setSearchQuery(''); setSearchResults([]);
+    setSelectedRelease(null); setPurchaseDate(''); setPrice(''); setPersonalRating(0);
   };
+
+  // 搜索结果渲染 — 条状布局
+  const renderSearchResult = ({ item, index }: { item: any; index: number }) => {
+    const titleParts = item.title?.split(' - ') || [];
+    const artist = titleParts[0] || '';
+    const album = titleParts.slice(1).join(' - ') || item.title || '';
+    const year = item.year || '';
+    const country = item.country || '';
+    // 版本 tags — 遍历所有 formats
+    const versionTags: string[] = [];
+    if (item.formats) {
+      for (const fmt of item.formats) {
+        if (fmt.descriptions) versionTags.push(...fmt.descriptions);
+        if (fmt.text) versionTags.push(fmt.text);
+      }
+    }
+    const uniqueVersionTags = [...new Set(versionTags)];
+    // 缩略图：优先 thumb（小图加载快），回退 cover_image
+    const thumbUrl = item.thumb || item.cover_image || '';
+
+    return (
+      <TouchableOpacity
+        key={index}
+        style={[styles.resultBar, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}
+        onPress={() => handleSelectResult(item)}
+        activeOpacity={0.7}
+      >
+        {/* 缩略图 */}
+        <View style={styles.resultThumbWrap}>
+          {thumbUrl ? (
+            <Image
+              source={{ uri: thumbUrl, headers: { 'User-Agent': 'MediaVault/1.0' } }}
+              style={styles.resultThumb}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={[styles.resultThumb, { backgroundColor: colors.inputBg, justifyContent: 'center', alignItems: 'center' }]}>
+              <Text style={{ fontSize: 20, opacity: 0.4 }}>♫</Text>
+            </View>
+          )}
+        </View>
+
+        {/* 信息 */}
+        <View style={styles.resultInfo}>
+          <Text style={[styles.resultAlbum, { color: colors.text }]} numberOfLines={1}>{album}</Text>
+          <Text style={[styles.resultArtist, { color: colors.textSecondary }]} numberOfLines={1}>{artist}</Text>
+          <View style={styles.resultMeta}>
+            {year ? <Text style={[styles.resultMetaText, { color: colors.textSecondary }]}>{year}</Text> : null}
+            {country ? <Text style={[styles.resultMetaText, { color: colors.textSecondary }]}>· {country}</Text> : null}
+          </View>
+          {/* 版本 tags */}
+          {uniqueVersionTags.length > 0 && (
+            <View style={styles.tagRow}>
+              {uniqueVersionTags.map((tag, i) => (
+                <View key={i} style={[styles.tag, { backgroundColor: 'rgba(249,115,22,0.12)' }]}>
+                  <Text style={[styles.tagText, { color: '#f97316' }]}>{tag}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+
+        <Text style={[styles.resultArrow, { color: colors.textSecondary }]}>›</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  // 确认页中的版本 tags — 遍历所有 formats
+  const confirmVersionTags: string[] = [];
+  if (selectedRelease?.formats) {
+    for (const fmt of selectedRelease.formats) {
+      if (fmt.descriptions) confirmVersionTags.push(...fmt.descriptions);
+      if (fmt.text) confirmVersionTags.push(fmt.text);
+    }
+  }
+  const uniqueConfirmVersionTags = [...new Set(confirmVersionTags)];
+
+  const ts = StyleSheet.create({
+    overlay: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
+    modal: { backgroundColor: colors.card, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 22, paddingBottom: 34, height: '92%' },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 },
+    title: { fontSize: 20, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
+    closeBtn: { color: colors.accent, fontSize: 17, fontWeight: '600' },
+    welcome: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 20 },
+    welcomeTitle: { fontSize: 22, fontWeight: '700', color: colors.text },
+    welcomeSub: { fontSize: 15, color: colors.textSecondary, textAlign: 'center', lineHeight: 22 },
+    welcomeBtn: { width: '100%', borderRadius: 12, padding: 16, alignItems: 'center' },
+    welcomeBtnText: { color: '#fff', fontSize: 17, fontWeight: '600' },
+    welcomeBtnOutline: { width: '100%', borderRadius: 12, padding: 16, alignItems: 'center', borderWidth: 1.5, borderColor: colors.cardBorder },
+    welcomeBtnOutlineText: { fontSize: 17, fontWeight: '600', color: colors.text },
+    cameraWrap: { flex: 1, borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' },
+    camera: { flex: 1 },
+    scanOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
+    scanFrame: { width: 260, height: 160, borderWidth: 2, borderColor: '#fff', borderRadius: 12 },
+    scanHint: { position: 'absolute', bottom: 40, color: '#fff', fontSize: 14, fontWeight: '500', backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
+    searchInput: { width: '100%', borderRadius: 10, padding: 13, fontSize: 16, marginBottom: 14, backgroundColor: colors.inputBg, color: colors.text },
+    searchCount: { fontSize: 13, color: colors.textSecondary, marginBottom: 8, marginLeft: 2 },
+    confirmSection: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: colors.cardBorder },
+    confirmLabel: { fontSize: 15, fontWeight: '500', color: colors.textSecondary },
+    confirmValue: { fontSize: 15, fontWeight: '600', color: colors.text, letterSpacing: -0.2, maxWidth: '60%', textAlign: 'right' },
+    confirmTagWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'flex-end', flex: 1, maxWidth: '65%' },
+    confirmTag: { backgroundColor: 'rgba(249,115,22,0.12)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+    confirmTagText: { color: '#f97316', fontSize: 12, fontWeight: '600' },
+    starRow: { flexDirection: 'row', gap: 6 },
+    star: { fontSize: 26 },
+    saveBtn: { backgroundColor: colors.accent, borderRadius: 10, padding: 15, marginTop: 16 },
+    saveBtnText: { color: '#fff', fontSize: 17, fontWeight: '600', textAlign: 'center' },
+    saveBtnDisabled: { opacity: 0.6 },
+  });
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={styles.overlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.header}>
-              <Text style={styles.modalTitle}>添加黑胶</Text>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={ts.overlay}>
+          <View style={ts.modal}>
+            <View style={ts.header}>
+              <Text style={ts.title}>添加黑胶</Text>
               <TouchableOpacity onPress={() => { resetForm(); onClose(); }}>
-                <Text style={styles.closeButton}>取消</Text>
+                <Text style={ts.closeBtn}>取消</Text>
               </TouchableOpacity>
             </View>
 
-            {(step === 'welcome') && (
-              <View style={styles.welcomeContainer}>
-                <Text style={styles.welcomeTitle}>添加黑胶唱片</Text>
-                <Text style={styles.welcomeSub}>选择添加方式</Text>
-
-                <TouchableOpacity
-                  style={styles.welcomeOption}
-                  onPress={() => setStep('search')}
-                  activeOpacity={0.8}
-                >
-                  <View style={[styles.welcomeOptionIcon, { backgroundColor: '#0a84ff20' }]}>
-                    <Text style={styles.welcomeOptionEmoji}>🔍</Text>
-                  </View>
-                  <View style={styles.welcomeOptionText}>
-                    <Text style={styles.welcomeOptionTitle}>搜索添加</Text>
-                    <Text style={styles.welcomeOptionSub}>按专辑名或艺术家搜索</Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.welcomeOption}
-                  onPress={() => { setStep('scan'); setScanning(false); }}
-                  activeOpacity={0.8}
-                >
-                  <View style={[styles.welcomeOptionIcon, { backgroundColor: '#30d15820' }]}>
-                    <Text style={styles.welcomeOptionEmoji}>📷</Text>
-                  </View>
-                  <View style={styles.welcomeOptionText}>
-                    <Text style={styles.welcomeOptionTitle}>扫码添加</Text>
-                    <Text style={styles.welcomeOptionSub}>扫描黑胶条形码</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {(step === 'search') && (
-              <View style={styles.searchContainer}>
-                <View style={styles.searchHeadArea}>
-                  <TouchableOpacity onPress={() => { setStep('welcome'); setSearchQuery(''); setSearchResults([]); }} style={styles.backRow}>
-                    <Text style={styles.backBtn}>← 返回</Text>
-                  </TouchableOpacity>
-                  <TextInput
-                    style={styles.searchInput}
-                    placeholder="搜索专辑名或艺术家..."
-                    placeholderTextColor="rgba(255,255,255,0.3)"
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    onSubmitEditing={handleSearch}
-                    autoFocus
-                  />
-                </View>
-                <View style={styles.searchResultsArea}>
-                  {loading && <ActivityIndicator color="#0a84ff" />}
-                  <Text style={styles.searchCount}>{searchResults.length > 0 ? `找到 ${searchResults.length} 个结果` : ''}</Text>
-                  {searchResults.map((result, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={styles.searchResult}
-                      onPress={() => handleSelectResult(result)}
-                    >
-                      <View style={styles.resultThumb} />
-                      <View style={styles.resultInfo}>
-                        <Text style={styles.resultTitle}>{result.title}</Text>
-                        <Text style={styles.resultSubtitle}>
-                          {result.year} • {result.genres?.join(', ')}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            )}
-
-            {(step === 'scan') && (
-              <View style={styles.scanFullScreen}>
-                <View style={styles.scanHeader}>
-                  <Text style={styles.scanHeaderTitle}>扫描条形码</Text>
-                  <TouchableOpacity onPress={() => setStep('welcome')}>
-                    <Text style={styles.scanCancelBtn}>返回</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.scanAreaBig} onTouchStart={async () => {
-                  if (!permission?.granted) {
-                    const result = await requestPermission();
-                    if (!result.granted) {
-                      Alert.alert('需要相机权限', '请在设置中允许访问相机以扫描条形码');
-                      return;
+            {step === 'welcome' && (
+              <View style={ts.welcome}>
+                <Text style={ts.welcomeTitle}>添加新黑胶</Text>
+                <Text style={ts.welcomeSub}>扫描条形码自动识别，{'\n'}或手动搜索专辑名称</Text>
+                <TouchableOpacity style={[ts.welcomeBtn, { backgroundColor: colors.accent }]}
+                  onPress={async () => {
+                    if (!permission?.granted) {
+                      const r = await requestPermission();
+                      if (!r.granted) { Alert.alert('需要相机权限', '请在设置中允许访问相机'); return; }
                     }
-                  }
-                  setScanning(true);
-                }}>
-                  {scanning ? (
-                    <CameraView
-                      style={StyleSheet.absoluteFillObject}
-                      facing="back"
-                      onBarcodeScanned={handleBarCodeScanned}
-                      barcodeScannerSettings={{
-                        barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93'],
-                      }}
-                    />
-                  ) : (
-                    <>
-                      <Text style={styles.scanIcon}>📷</Text>
-                      <Text style={styles.scanText}>点击扫描条形码</Text>
-                    </>
-                  )}
-                </View>
+                    setStep('scan'); setScanning(true);
+                  }}>
+                  <Text style={ts.welcomeBtnText}>📷 扫描条形码</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={ts.welcomeBtnOutline} onPress={() => setStep('search')}>
+                  <Text style={ts.welcomeBtnOutlineText}>🔍 手动搜索</Text>
+                </TouchableOpacity>
               </View>
             )}
 
-            {(step === 'confirm') && selectedRelease && (
-              <>
-                <View style={styles.confirmSection}>
-                  <Text style={styles.confirmLabel}>专辑名</Text>
-                  <Text style={styles.confirmValue}>
-                    {selectedRelease.title.split(' - ')[1] || selectedRelease.title}
-                  </Text>
-                </View>
-                <View style={styles.confirmSection}>
-                  <Text style={styles.confirmLabel}>艺术家</Text>
-                  <Text style={styles.confirmValue}>
-                    {selectedRelease.artists?.[0]?.name}
-                  </Text>
-                </View>
-                <View style={styles.confirmSection}>
-                  <Text style={styles.confirmLabel}>购买日期</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor="rgba(255,255,255,0.3)"
-                    value={purchaseDate}
-                    onChangeText={setPurchaseDate}
-                  />
-                </View>
-                <View style={styles.confirmSection}>
-                  <Text style={styles.confirmLabel}>价格</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="0.00"
-                    placeholderTextColor="rgba(255,255,255,0.3)"
-                    value={price}
-                    onChangeText={setPrice}
-                    keyboardType="numeric"
-                  />
-                </View>
-                <View style={styles.confirmSection}>
-                  <Text style={styles.confirmLabel}>个人评分 (1-5)</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="0"
-                    placeholderTextColor="rgba(255,255,255,0.3)"
-                    value={personalRating}
-                    onChangeText={setPersonalRating}
-                    keyboardType="numeric"
-                  />
-                </View>
-              </>
+            {step === 'scan' && (
+              <View style={ts.cameraWrap}>
+                {scanning ? (
+                  <>
+                    <CameraView style={ts.camera} facing="back" onBarcodeScanned={handleBarCodeScanned}
+                      barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e'] }} />
+                    <View style={ts.scanOverlay}>
+                      <View style={ts.scanFrame} />
+                      <Text style={ts.scanHint}>将条形码对准框内</Text>
+                    </View>
+                  </>
+                ) : (
+                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color={colors.accent} />
+                    <Text style={{ color: colors.textSecondary, marginTop: 12 }}>识别中...</Text>
+                  </View>
+                )}
+              </View>
             )}
 
-            {(step === 'confirm') && selectedRelease && (
-              <TouchableOpacity
-                style={[styles.saveButton, loading && styles.saveButtonDisabled]}
-                onPress={handleSave}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.saveButtonText}>保存</Text>
+            {step === 'search' && (
+              <ScrollView keyboardShouldPersistTaps="always" automaticallyAdjustKeyboardInsets={true}>
+                <TextInput style={ts.searchInput} placeholder="搜索专辑名称或艺术家..."
+                  placeholderTextColor={colors.textSecondary} value={searchQuery}
+                  onChangeText={setSearchQuery} onSubmitEditing={handleSearch} autoFocus />
+                {loading && <ActivityIndicator color={colors.accent} style={{ marginTop: 12 }} />}
+                {searchResults.length > 0 && (
+                  <Text style={ts.searchCount}>找到 {searchResults.length} 个结果</Text>
                 )}
-              </TouchableOpacity>
+                {searchResults.map((item, index) => renderSearchResult({ item, index }))}
+              </ScrollView>
+            )}
+
+            {step === 'confirm' && selectedRelease && (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {selectedRelease.images?.[0]?.uri ? (
+                  <Image source={{ uri: selectedRelease.images[0].uri, headers: { 'User-Agent': 'MediaVault/1.0' } }}
+                    style={{ width: 180, height: 180, borderRadius: 10, alignSelf: 'center', marginBottom: 20 }} resizeMode="cover" />
+                ) : null}
+
+                <View style={ts.confirmSection}>
+                  <Text style={ts.confirmLabel}>专辑名</Text>
+                  <Text style={ts.confirmValue}>{selectedRelease.title.split(' - ')[1] || selectedRelease.title}</Text>
+                </View>
+                <View style={ts.confirmSection}>
+                  <Text style={ts.confirmLabel}>艺术家</Text>
+                  <Text style={ts.confirmValue}>{selectedRelease.artists?.[0]?.name || '-'}</Text>
+                </View>
+                <View style={ts.confirmSection}>
+                  <Text style={ts.confirmLabel}>发行日期</Text>
+                  <Text style={ts.confirmValue}>{selectedRelease.released || selectedRelease.year || '-'}</Text>
+                </View>
+                {/* 版本 — tag 样式 */}
+                {uniqueConfirmVersionTags.length > 0 && (
+                  <View style={ts.confirmSection}>
+                    <Text style={ts.confirmLabel}>版本</Text>
+                    <View style={ts.confirmTagWrap}>
+                      {uniqueConfirmVersionTags.map((tag, i) => (
+                        <View key={i} style={ts.confirmTag}>
+                          <Text style={ts.confirmTagText}>{tag}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                )}
+                {selectedRelease.country && (
+                  <View style={ts.confirmSection}>
+                    <Text style={ts.confirmLabel}>国家/地区</Text>
+                    <Text style={ts.confirmValue}>{selectedRelease.country}</Text>
+                  </View>
+                )}
+                {selectedRelease.labels?.[0]?.name && (
+                  <View style={ts.confirmSection}>
+                    <Text style={ts.confirmLabel}>厂牌</Text>
+                    <Text style={ts.confirmValue}>{selectedRelease.labels[0].name}</Text>
+                  </View>
+                )}
+                <View style={ts.confirmSection}>
+                  <Text style={ts.confirmLabel}>流派</Text>
+                  <Text style={ts.confirmValue}>{selectedRelease.genres?.join(', ') || '-'}</Text>
+                </View>
+                {selectedRelease.styles?.length > 0 && (
+                  <View style={ts.confirmSection}>
+                    <Text style={ts.confirmLabel}>风格</Text>
+                    <Text style={ts.confirmValue}>{selectedRelease.styles.join(', ')}</Text>
+                  </View>
+                )}
+                {/* Barcode */}
+                {(() => {
+                  const bc = selectedRelease.identifiers?.filter((i: any) => i.type === 'Barcode')?.map((i: any) => i.value)?.join(', ') || '';
+                  return bc ? (
+                    <View style={ts.confirmSection}>
+                      <Text style={ts.confirmLabel}>条形码</Text>
+                      <Text style={[ts.confirmValue, { fontSize: 13 }]}>{bc}</Text>
+                    </View>
+                  ) : null;
+                })()}
+
+                <View style={ts.confirmSection}>
+                  <Text style={ts.confirmLabel}>购买日期</Text>
+                  <TextInput style={{ flex: 1, fontSize: 15, fontWeight: '600', color: colors.text, textAlign: 'right' }}
+                    placeholder="YYYY-MM-DD" placeholderTextColor={colors.textSecondary}
+                    value={purchaseDate} onChangeText={setPurchaseDate} />
+                </View>
+                <View style={ts.confirmSection}>
+                  <Text style={ts.confirmLabel}>价格</Text>
+                  <TextInput style={{ flex: 1, fontSize: 15, fontWeight: '600', color: colors.text, textAlign: 'right' }}
+                    placeholder="0.00" placeholderTextColor={colors.textSecondary}
+                    value={price} onChangeText={setPrice} keyboardType="numeric" />
+                </View>
+                <View style={ts.confirmSection}>
+                  <Text style={ts.confirmLabel}>个人评分</Text>
+                  <View style={ts.starRow}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <TouchableOpacity key={star} onPress={() => setPersonalRating(star === personalRating ? 0 : star)}>
+                        <Text style={ts.star}>{star <= personalRating ? '⭐' : '☆'}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                <TouchableOpacity style={[ts.saveBtn, loading && ts.saveBtnDisabled]} onPress={handleSave} disabled={loading}>
+                  {loading ? <ActivityIndicator color="#fff" /> : <Text style={ts.saveBtnText}>保存</Text>}
+                </TouchableOpacity>
+              </ScrollView>
             )}
           </View>
         </View>
@@ -323,262 +414,65 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#1c1c1e',
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
-    padding: 22,
-    paddingBottom: 34,
-    height: '92%',
-  },
-  header: {
+  // 搜索结果条
+  resultBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 22,
+    padding: 10,
+    marginBottom: 8,
+    borderRadius: 12,
+    borderWidth: 1,
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#fff',
-    letterSpacing: -0.3,
-  },
-  closeButton: {
-    color: '#0a84ff',
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  scanArea: {
-    backgroundColor: '#1c1c1e',
-    borderRadius: 16,
-    padding: 50,
-    alignItems: 'center',
-    marginBottom: 18,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.1)',
-    borderStyle: 'dashed',
-  },
-  scanIcon: {
-    fontSize: 44,
-    marginBottom: 12,
-  },
-  scanText: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.55)',
-    fontWeight: '500',
-  },
-  divider: {
-    textAlign: 'center',
-    color: 'rgba(255,255,255,0.3)',
-    fontSize: 14,
-    marginVertical: 16,
-    fontWeight: '500',
-  },
-  searchInput: {
-    width: '100%',
-    backgroundColor: '#2c2c2e',
-    borderRadius: 10,
-    padding: 13,
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 14,
-  },
-  searchResult: {
-    padding: 14,
-    borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
-    flexDirection: 'row',
-    gap: 12,
+  resultThumbWrap: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    overflow: 'hidden',
+    flexShrink: 0,
+    marginRight: 12,
   },
   resultThumb: {
-    width: 46,
-    height: 46,
-    borderRadius: 6,
-    backgroundColor: '#2c2c2e',
+    width: '100%',
+    height: '100%',
   },
   resultInfo: {
     flex: 1,
+    justifyContent: 'center',
   },
-  resultTitle: {
+  resultAlbum: {
     fontSize: 15,
-    fontWeight: '600',
-    color: '#fff',
+    fontWeight: '700',
     marginBottom: 2,
   },
-  resultSubtitle: {
+  resultArtist: {
     fontSize: 13,
-    color: 'rgba(255,255,255,0.55)',
-    lineHeight: 18,
-  },
-  confirmSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
-  },
-  confirmLabel: {
-    color: 'rgba(255,255,255,0.55)',
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  confirmValue: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#fff',
-    letterSpacing: -0.2,
-    flex: 1,
-    textAlign: 'right',
-  },
-  input: {
-    flex: 1,
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'right',
-  },
-  saveButton: {
-    backgroundColor: '#0a84ff',
-    borderRadius: 10,
-    padding: 15,
-    marginTop: 16,
-  },
-  saveButtonDisabled: {
-    opacity: 0.6,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 17,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  searchButton: {
-    backgroundColor: '#2c2c2e',
-    borderRadius: 10,
-    padding: 15,
-    marginTop: 10,
-  },
-  searchButtonText: {
-    color: '#0a84ff',
-    fontSize: 17,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  scanFullScreen: {
-    flex: 1,
-  },
-  scanHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-  },
-  scanHeaderTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  scanCancelBtn: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#0a84ff',
-  },
-  scanAreaBig: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 16,
-    borderRadius: 16,
-    backgroundColor: '#2c2c2e',
-    overflow: 'hidden',
-  },
-  scanButtonRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    backgroundColor: '#2c2c2e',
-    borderRadius: 12,
-  },
-  scanButtonRowIcon: {
-    fontSize: 22,
-    marginRight: 10,
-  },
-  scanButtonRowText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#0a84ff',
-  },
-  welcomeContainer: {
-    padding: 16,
-    paddingTop: 40,
-    alignItems: 'center',
-  },
-  welcomeTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: 6,
-  },
-  welcomeSub: {
-    fontSize: 15,
-    color: 'rgba(255,255,255,0.55)',
-    marginBottom: 32,
-  },
-  welcomeOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1c1c1e',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 14,
-    width: '100%',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-  },
-  welcomeOptionIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  welcomeOptionEmoji: {
-    fontSize: 26,
-  },
-  welcomeOptionText: {
-    flex: 1,
-  },
-  welcomeOptionTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#fff',
     marginBottom: 4,
   },
-  welcomeOptionSub: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.45)',
-  },
-  searchTopBar: {
+  resultMeta: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
+    gap: 4,
+    marginBottom: 4,
   },
-  backRow: {
-    marginBottom: 8,
+  resultMetaText: {
+    fontSize: 11,
   },
-  backBtn: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#0a84ff',
+  tagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
   },
-
+  tag: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  tagText: {
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  resultArrow: {
+    fontSize: 22,
+    fontWeight: '300',
+    marginLeft: 8,
+  },
 });

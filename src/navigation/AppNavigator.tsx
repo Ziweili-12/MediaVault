@@ -1,8 +1,8 @@
 import React from 'react';
-import { useColorScheme } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../theme';
 import HomeScreen from '../screens/HomeScreen';
 import MusicScreen from '../screens/MusicScreen';
 import MovieScreen from '../screens/MovieScreen';
@@ -10,47 +10,46 @@ import StatsScreen from '../screens/StatsScreen';
 
 const Tab = createBottomTabNavigator();
 
-const LightTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: '#f2f2f7',
-    card: '#ffffff',
-    text: '#000000',
-    border: 'rgba(0,0,0,0.06)',
-    primary: '#0a84ff',
-  },
-};
-
-const DarkNavTheme = {
-  ...DarkTheme,
-  colors: {
-    ...DarkTheme.colors,
-    background: '#000000',
-    card: '#1c1c1e',
-    text: '#ffffff',
-    border: 'rgba(255,255,255,0.08)',
-    primary: '#0a84ff',
-  },
-};
-
 export default function Navigation() {
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
+  const { isDark, colors } = useTheme();
+
+  const navTheme = isDark
+    ? {
+        ...DarkTheme,
+        colors: {
+          ...DarkTheme.colors,
+          background: colors.bg,
+          card: colors.card,
+          text: colors.text,
+          border: colors.cardBorder,
+          primary: colors.accent,
+        },
+      }
+    : {
+        ...DefaultTheme,
+        colors: {
+          ...DefaultTheme.colors,
+          background: colors.bg,
+          card: colors.card,
+          text: colors.text,
+          border: colors.cardBorder,
+          primary: colors.accent,
+        },
+      };
 
   return (
-    <NavigationContainer theme={isDark ? DarkNavTheme : LightTheme}>
+    <NavigationContainer theme={navTheme}>
       <Tab.Navigator
         screenOptions={{
           tabBarStyle: {
-            backgroundColor: isDark ? '#1c1c1e' : '#ffffff',
-            borderTopColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+            backgroundColor: colors.card,
+            borderTopColor: colors.cardBorder,
             height: 83,
             paddingBottom: 8,
             paddingTop: 8,
           },
-          tabBarActiveTintColor: '#0a84ff',
-          tabBarInactiveTintColor: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)',
+          tabBarActiveTintColor: colors.accent,
+          tabBarInactiveTintColor: colors.textSecondary,
           tabBarLabelStyle: {
             fontSize: 10,
             fontWeight: '500',

@@ -1,1334 +1,1369 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MediaVault - 预览</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-      background: #000;
-      color: #fff;
-      min-height: 100vh;
-      padding: 20px;
-      padding-bottom: 100px;
-    }
-    .phone-frame {
-      max-width: 430px;
-      margin: 0 auto;
-      background: #000;
-      border-radius: 47px;
-      overflow: hidden;
-      box-shadow: 0 25px 80px rgba(0,0,0,0.8);
-    }
-    .notch {
-      width: 150px;
-      height: 34px;
-      background: #000;
-      margin: 0 auto;
-      border-radius: 0 0 20px 20px;
-    }
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      padding: 12px 24px 8px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .screen {
-      height: 845px;
-      overflow-y: auto;
-      background: #000;
-    }
-    .screen::-webkit-scrollbar { display: none; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MediaVault Preview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{--bg:#000;--card:#1c1c1e;--cardBorder:rgba(255,255,255,0.08);--text:#fff;--secondary:rgba(255,255,255,0.55);--inputBg:#2c2c2e;--accent:#0a84ff;--green:#30d158;--orange:#ff9f0a;--red:#ff375f}
+  .light{--bg:#f2f2f7;--card:#fff;--cardBorder:rgba(0,0,0,0.06);--text:#000;--secondary:rgba(0,0,0,0.45);--inputBg:#e5e5ea;--green:#34c759;--orange:#ff9500;--red:#ff3b30}
+  body{font-family:'Inter',-apple-system,sans-serif;background:#111;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
+  .phone{width:390px;height:844px;background:var(--bg);border-radius:44px;overflow:hidden;position:relative;box-shadow:0 0 0 4px #333,0 20px 60px rgba(0,0,0,0.5);display:flex;flex-direction:column}
+  @media(max-width:430px){.phone{width:100%;border-radius:0;height:100vh;box-shadow:none}body{padding:0}}
 
-    /* Home Screen */
-    .home-header { padding: 20px 20px 16px; display: flex; justify-content: space-between; align-items: center; }
-    .home-header h1 { font-size: 34px; font-weight: 700; }
+  .status-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 28px 0;font-size:14px;font-weight:600;color:var(--text);flex-shrink:0}
+  .status-bar .time{font-size:15px;font-weight:700}
+  .status-icons{display:flex;gap:5px;align-items:center}
+  .status-icons svg{width:16px;height:16px;fill:var(--text)}
 
-    /* Quick Actions */
-    .quick-actions {
-      display: flex;
-      gap: 12px;
-      padding: 0 20px 20px;
-      overflow-x: auto;
-    }
-    .quick-actions::-webkit-scrollbar { display: none; }
-    .quick-action-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 18px;
-      background: rgba(28,28,30,0.8);
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.08);
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .quick-action-btn:active { transform: scale(0.95); background: rgba(40,40,45,0.9); }
-    .quick-action-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; }
-    .quick-action-btn.scan { color: #0a84ff; }
-    .quick-action-btn.add-vinyl { color: #8b5cf6; }
-    .quick-action-btn.add-movie { color: #f472b6; }
-    .quick-action-btn span { font-size: 14px; font-weight: 500; }
+  /* 主题按钮 — 左下角，不和添加按钮重合 */
+  .theme-btn{position:absolute;bottom:96px;left:16px;z-index:50;background:var(--inputBg);color:var(--text);border:1px solid var(--cardBorder);border-radius:18px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;opacity:0.85}
 
-    /* Recommendations Section */
-    .recommend-section {
-      margin: 0 20px 24px;
-      background: linear-gradient(145deg, rgba(35,35,45,0.6) 0%, rgba(25,25,35,0.6) 100%);
-      border-radius: 20px;
-      padding: 16px;
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .recommend-section-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .recommend-section-title svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
-    .recommend-section-title.music { color: #8b5cf6; }
-    .recommend-section-title.movie { color: #f472b6; }
+  .tab-content{display:none;flex:1;padding:0 16px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:90px}
+  .tab-content.active{display:block}
+  .tab-content::-webkit-scrollbar{display:none}
 
-    .recommend-category {
-      margin-bottom: 16px;
-    }
-    .recommend-category:last-child { margin-bottom: 0; }
-    .recommend-category-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .recommend-category-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.9);
-    }
-    .recommend-category-subtitle {
-      font-size: 12px;
-      color: rgba(255,255,255,0.4);
-    }
+  .tab-bar{flex-shrink:0;background:var(--card);border-top:1px solid var(--cardBorder);display:flex;padding:8px 0 24px}
+  .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:all .2s}
+  .tab-item svg{width:24px;height:24px;fill:var(--secondary);transition:fill .2s}
+  .tab-item span{font-size:10px;font-weight:500;color:var(--secondary);transition:color .2s}
+  .tab-item.active svg{fill:var(--accent)}
+  .tab-item.active span{color:var(--accent)}
 
-    .recommend-items { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
-    .recommend-items::-webkit-scrollbar { display: none; }
-    .recommend-item {
-      flex-shrink: 0;
-      cursor: pointer;
-      transition: transform 0.2s;
-      background: rgba(0,0,0,0.25);
-      border-radius: 12px;
-      padding: 10px;
-      min-width: 100px;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-    .recommend-item:active { transform: scale(0.95); }
-    .recommend-cover {
-      width: 80px;
-      aspect-ratio: 1;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 8px;
-      color: rgba(255,255,255,0.3);
-      position: relative;
-      overflow: hidden;
-    }
-    .recommend-cover.movie { aspect-ratio: 2/3; }
-    .recommend-cover::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
-    }
-    .recommend-name { font-size: 12px; font-weight: 500; max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .recommend-artist { font-size: 11px; color: rgba(255,255,255,0.5); max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .recommend-meta {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 6px;
-    }
-    .recommend-tag {
-      font-size: 9px;
-      padding: 2px 6px;
-      border-radius: 8px;
-      font-weight: 500;
-    }
-    .recommend-tag.genre {
-      color: #8b5cf6;
-      background: rgba(139,92,246,0.15);
-    }
-    .recommend-tag.era {
-      color: #f472b6;
-      background: rgba(244,114,182,0.15);
-    }
-    .recommend-tag.similar {
-      color: #0a84ff;
-      background: rgba(10,132,255,0.15);
-    }
-    .recommend-score {
-      font-size: 10px;
-      color: #fbbf24;
-      font-weight: 600;
-    }
+  .greeting{margin:12px 0 24px}
+  .greeting-icon{font-size:28px;margin-bottom:4px}
+  .greeting-text{font-size:32px;font-weight:700;color:var(--text);letter-spacing:-.5px}
+  .greeting-sub{font-size:15px;color:var(--secondary);margin-top:2px}
 
-    /* Module Cards */
-    .module-card {
-      margin: 0 20px 24px;
-      background: linear-gradient(145deg, rgba(42,42,74,0.6) 0%, rgba(26,26,58,0.6) 100%);
-      border-radius: 20px;
-      padding: 16px;
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .module-title { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-    .module-more { font-size: 13px; color: rgba(255,255,255,0.5); cursor: pointer; }
-    .module-items { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
-    .module-items::-webkit-scrollbar { display: none; }
-    .module-item { flex-shrink: 0; cursor: pointer; transition: transform 0.2s; }
-    .module-item:active { transform: scale(0.95); }
-    .module-cover {
-      width: 100px;
-      aspect-ratio: 1;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 8px;
-      color: rgba(255,255,255,0.25);
-    }
-    .module-cover.movie { aspect-ratio: 2/3; }
-    .module-name { font-size: 13px; font-weight: 500; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .module-artist { font-size: 11px; color: rgba(255,255,255,0.5); max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .preview-notice { text-align: center; padding: 30px 20px; color: rgba(255,255,255,0.4); font-size: 13px; }
+  .media-card{height:200px;border-radius:16px;margin-bottom:14px;border:1px solid var(--cardBorder);overflow:hidden;position:relative;cursor:pointer}
+  .card-cover-wall{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;opacity:.25}
+  .card-overlay{position:absolute;inset:0}
+  .card-content{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:flex-end;padding:20px}
+  .card-left{flex:1}
+  .icon-circle{width:38px;height:38px;border-radius:19px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+  .icon-circle.music{background:rgba(10,132,255,.12)}
+  .icon-circle.movie{background:rgba(48,209,88,.12)}
+  .card-title{font-size:24px;font-weight:700;color:var(--text);letter-spacing:-.3px;margin-bottom:4px}
+  .card-subtitle{font-size:14px;color:var(--secondary)}
+  .card-right{text-align:right}
+  .card-count{font-size:44px;font-weight:800;letter-spacing:-1.5px;line-height:48px}
+  .card-count.blue{color:var(--accent)}
+  .card-count.green{color:var(--green)}
+  .card-label{font-size:12px;color:var(--secondary);font-weight:500}
 
-    /* Music Screen */
-    .screen-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
-    .screen-header h1 { font-size: 34px; font-weight: 700; }
-    .header-btn {
-      height: 36px;
-      padding: 0 16px;
-      background: linear-gradient(135deg, #0a84ff 0%, #0066dd 100%);
-      border-radius: 18px;
-      display: flex; align-items: center; gap: 6px;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      color: #fff;
-      font-size: 14px;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(10,132,255,0.3);
-    }
-    .header-btn:active { transform: scale(0.95); }
-    .search-bar {
-      margin: 0 20px 16px;
-      background: #1c1c1e;
-      border-radius: 12px;
-      padding: 14px 16px;
-      display: flex; align-items: center; gap: 12px;
-      cursor: pointer;
-      color: rgba(255,255,255,0.5);
-    }
-    .vinyl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 20px; }
-    .vinyl-item {
-      background: #1c1c1e;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .vinyl-item:active { transform: scale(0.98); }
-    .vinyl-cover {
-      aspect-ratio: 1;
-      background: linear-gradient(145deg, #2a2a4a 0%, #1a1a3a 100%);
-      display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,0.2);
-    }
-    .vinyl-cover svg { width: 48px; height: 48px; }
-    .vinyl-info { padding: 12px; }
-    .vinyl-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .vinyl-artist { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+  .stats-entry{border-radius:14px;padding:16px;border:1px solid var(--cardBorder);background:var(--card);display:flex;align-items:center;gap:12px;cursor:pointer}
+  .stats-entry .icon-circle{background:rgba(255,159,10,.12);margin-bottom:0}
+  .stats-entry-title{font-size:16px;font-weight:600;color:var(--text)}
+  .stats-entry-sub{font-size:13px;color:var(--secondary);margin-top:2px}
 
-    /* Movie Screen */
-    .movie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 20px; }
-    .movie-item {
-      background: #1c1c1e;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .movie-item:active { transform: scale(0.98); }
-    .movie-poster {
-      aspect-ratio: 2/3;
-      background: linear-gradient(145deg, #3a2a4a 0%, #2a1a3a 100%);
-      display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,0.2);
-    }
-    .movie-poster svg { width: 56px; height: 56px; }
-    .movie-info { padding: 12px; }
-    .movie-title { font-size: 14px; font-weight: 600; }
-    .movie-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px; }
-    .rating { color: #ffd700; font-weight: 600; }
+  .header{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
+  .header-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+  .add-btn{width:40px;height:40px;background:var(--accent);border-radius:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+  .add-btn svg{width:24px;height:24px;fill:#fff}
 
-    /* Stats Screen */
-    .filter-section { padding: 0 20px; margin-bottom: 16px; }
-    .filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
-    .filter-label { font-size: 13px; color: rgba(255,255,255,0.5); display: flex; align-items: center; min-width: 50px; }
-    .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-    .filter-chip {
-      padding: 6px 14px;
-      background: rgba(44,44,46,0.8);
-      border-radius: 16px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: 1px solid transparent;
-    }
-    .filter-chip:active { transform: scale(0.95); }
-    .filter-chip.active { background: rgba(10,132,255,0.2); border-color: #0a84ff; color: #0a84ff; }
+  .search-bar{display:flex;align-items:center;background:var(--inputBg);border-radius:10px;padding:10px 12px;margin-bottom:14px;gap:8px}
+  .search-bar svg{width:16px;height:16px;fill:var(--secondary);flex-shrink:0}
+  .search-bar input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:15px;font-family:inherit}
+  .search-bar input::placeholder{color:var(--secondary)}
 
-    .stats-hero {
-      background: linear-gradient(135deg, rgba(102,126,234,0.4) 0%, rgba(118,75,162,0.4) 100%);
-      margin: 0 20px 20px;
-      border-radius: 20px;
-      padding: 24px;
-      text-align: center;
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .stats-hero .number { font-size: 48px; font-weight: 700; background: linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .stats-hero .label { font-size: 15px; opacity: 0.8; margin-top: 4px; }
-    .stats-hero .subtitle { font-size: 12px; opacity: 0.6; margin-top: 8px; }
+  .segment{display:flex;background:var(--inputBg);border-radius:8px;padding:2px;margin-bottom:16px}
+  .seg-item{flex:1;padding:8px;text-align:center;border-radius:6px;font-size:13px;font-weight:600;color:var(--secondary);cursor:pointer;transition:all .2s}
+  .seg-item.active{background:var(--accent);color:#fff}
 
-    .stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 20px; margin-bottom: 16px; }
-    .stat-card {
-      background: rgba(28,28,30,0.6);
-      backdrop-filter: blur(20px);
-      border-radius: 16px;
-      padding: 16px;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .stat-card .label { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
-    .stat-card .value { font-size: 28px; font-weight: 700; }
-    .stat-card .sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
-    .stat-card.music { border-left: 3px solid #8b5cf6; }
-    .stat-card.movie { border-left: 3px solid #f472b6; }
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .grid-item{border-radius:10px;overflow:hidden;border:1px solid var(--cardBorder);background:var(--card);cursor:pointer;transition:transform .12s ease,opacity .12s ease;position:relative;box-shadow:inset 3px 0 0 transparent}
+  .grid-item.has-accent{box-shadow:inset 3px 0 0 var(--accent-color)}
+  .grid-item:active{transform:scale(0.95);opacity:.8}
+  .grid-cover{width:100%;aspect-ratio:1;position:relative;overflow:hidden}
+  .grid-cover .vinyl-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px}
 
-    .chart-area {
-      margin: 0 20px;
-      background: rgba(28,28,30,0.6);
-      backdrop-filter: blur(20px);
-      border-radius: 16px;
-      padding: 20px;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .chart-title { font-size: 17px; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-    .chart-legend { display: flex; gap: 16px; font-size: 12px; }
-    .legend-item { display: flex; align-items: center; gap: 6px; }
-    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .chart-bars {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-around;
-      height: 140px;
-      padding: 0 8px;
-      position: relative;
-    }
-    .chart-bar-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: 1;
-      max-width: 50px;
-    }
-    .chart-bar-stack {
-      display: flex;
-      flex-direction: column-reverse;
-      align-items: center;
-      width: 36px;
-    }
-    .chart-bar {
-      width: 100%;
-      border-radius: 4px 4px 0 0;
-      position: relative;
-      cursor: pointer;
-      transition: opacity 0.2s;
-      min-height: 4px;
-    }
-    .chart-bar:active { opacity: 0.7; }
-    .chart-bar.music { background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%); }
-    .chart-bar.movie { background: linear-gradient(180deg, #f472b6 0%, #db2777 100%); }
-    .chart-bar.all { background: linear-gradient(180deg, #0a84ff 0%, #0066dd 100%); }
-    .chart-bar .count {
-      position: absolute;
-      top: -18px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 10px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .chart-month {
-      font-size: 11px;
-      color: rgba(255,255,255,0.5);
-      margin-top: 10px;
-      text-align: center;
-      width: 100%;
-    }
+  /* Cover overlay info - grid view only */
+  .grid-overlay-info{position:absolute;bottom:0;left:0;right:0;padding:20px 8px 6px;background:linear-gradient(transparent,rgba(0,0,0,.7));display:flex;flex-direction:column;gap:1px}
+  .oi-title{color:#fff;font-size:11px;font-weight:700;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .oi-sub{color:rgba(255,255,255,.7);font-size:9px;margin-top:1px}
+  .oi-tag{color:rgba(255,255,255,.85);font-size:8px;margin-top:2px;background:rgba(255,255,255,.18);padding:1px 5px;border-radius:3px;display:inline-block;align-self:flex-start}
 
-    /* Tab Bar */
-    .tab-bar {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(28,28,30,0.95);
-      backdrop-filter: blur(20px);
-      border-top: 0.5px solid rgba(255,255,255,0.1);
-      padding: 6px 0;
-      padding-bottom: 34px;
-      z-index: 100;
-    }
-    .tab-bar-inner { max-width: 430px; margin: 0 auto; display: flex; justify-content: space-around; align-items: center; }
-    .tab-item {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      color: rgba(255,255,255,0.35);
-      text-decoration: none;
-      padding: 8px 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-      border-radius: 12px;
-      min-width: 70px;
-    }
-    .tab-item:active { transform: scale(0.92); }
-    .tab-item.active { color: #0a84ff; }
-    .tab-item svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .tab-item span { font-size: 12px; font-weight: 500; white-space: nowrap; }
+  /* Remove old grid-info in grid view */
+  .grid-info{display:none}
+  .grid-cover .type-tag{display:none}
+  .movie-cover{aspect-ratio:2/3}
 
-    /* Screen Selector */
-    .screen-selector {
-      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 25px;
-      padding: 4px;
-      display: flex; gap: 4px;
-      z-index: 100;
-    }
-    .screen-selector button {
-      padding: 8px 16px;
-      border: none;
-      background: transparent;
-      color: rgba(255,255,255,0.6);
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .screen-selector button.active { background: #0a84ff; color: #fff; }
+  /* List view overrides - show info beside cover */
+  .list-view .grid-info{display:flex;flex-direction:column;justify-content:center;flex:1;padding:6px 10px;gap:1px}
+  .list-view .grid-overlay-info{display:none}
+  .list-view .vinyl-bg{display:none}
+  .list-view .grid-title{display:block;font-size:13px;font-weight:600;color:var(--text)}
+  .list-view .grid-subtitle-cn{display:block;font-size:10px;color:var(--secondary);margin-top:0}
+  .list-view .grid-artist{display:block;font-size:11px;color:var(--secondary);margin-top:0}
+  .list-view .grid-format{display:block;font-size:10px;color:var(--accent);margin-top:0;font-weight:600}
+  .list-view .type-tag-inline{display:inline-block}
+  .list-view .type-tag{display:none}
+  .type-tag{position:absolute;top:8px;right:8px;font-size:10px;font-weight:700;color:#fff;padding:4px 8px;border-radius:6px;z-index:2;letter-spacing:.5px;backdrop-filter:blur(4px)}
+  .type-tag.tag-movie{background:rgba(10,132,255,.85)}
+  .type-tag.tag-series{background:rgba(255,159,10,.85)}
+  .type-tag-inline{display:none;font-size:10px;font-weight:600;color:#fff;padding:2px 8px;border-radius:4px;align-self:flex-start;margin-top:4px}
+  .type-tag-inline.tag-movie{background:var(--accent)}
+  .type-tag-inline.tag-series{background:var(--orange)}
+  .movie-meta{font-size:11px;color:var(--secondary);margin-top:2px}
 
-    /* Modal */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
-      display: flex; align-items: flex-end; justify-content: center;
-      z-index: 1000;
-      opacity: 0; visibility: hidden;
-      transition: opacity 0.3s, visibility 0.3s;
-    }
-    .modal-overlay.show { opacity: 1; visibility: visible; }
-    .modal {
-      background: #1c1c1e;
-      border-radius: 20px 20px 0 0;
-      width: 100%; max-width: 430px;
-      padding: 20px; padding-bottom: 50px;
-      transform: translateY(100%);
-      transition: transform 0.3s ease-out;
-    }
-    .modal-overlay.show .modal { transform: translateY(0); }
-    .modal-handle { width: 40px; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; margin: 0 auto 20px; }
-    .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; text-align: center; }
+  /* View segmented toggle */
+  .header-left{display:flex;align-items:center;gap:8px}
+  .view-segment{display:flex;background:var(--inputBg);border:1px solid var(--cardBorder);border-radius:8px;padding:2px;flex-shrink:0}
+  .view-option{padding:4px 10px;font-size:11px;font-weight:600;color:var(--secondary);cursor:pointer;border-radius:6px;transition:all .2s;white-space:nowrap;user-select:none}
+  .view-option.active{background:var(--accent);color:#fff}
 
-    .action-item {
-      display: flex; align-items: center; gap: 16px;
-      padding: 16px;
-      background: #2c2c2e;
-      border-radius: 12px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .action-item:active { background: #3c3c3e; }
-    .action-item .icon-wrap {
-      width: 48px; height: 48px;
-      background: rgba(10,132,255,0.15);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      color: #0a84ff;
-    }
-    .action-item .icon-wrap svg { width: 24px; height: 24px; fill: currentColor; }
-    .action-item .text { font-size: 17px; font-weight: 500; }
-    .action-item .desc { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+  /* Eye toggle for amounts */
+  .eye-toggle{background:none;border:none;cursor:pointer;padding:2px 4px;margin-left:6px;vertical-align:middle;opacity:.6;transition:opacity .2s}
+  .eye-toggle:hover{opacity:1}
+  .eye-toggle svg{width:16px;height:16px;fill:var(--secondary)}
+  .metric-value-wrap{display:flex;align-items:center}
+  .amount-hidden{letter-spacing:3px;font-size:24px}
 
-    .form-group { margin-bottom: 16px; }
-    .form-label { display: block; font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
-    .form-input { width: 100%; padding: 14px 16px; background: #2c2c2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 16px; box-sizing: border-box; }
-    .form-input:focus { outline: none; border-color: #0a84ff; }
-    .form-row { display: flex; gap: 12px; }
-    .form-row .form-group { flex: 1; }
-    .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #0a84ff 0%, #0066dd 100%); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
-    .submit-btn:active { opacity: 0.9; transform: scale(0.98); }
+  /* List view */
+  .list-view .grid-item{display:flex;flex-direction:row;border-radius:10px;overflow:hidden;background:transparent;border:none}
+  .list-view .grid-cover{width:68px;height:68px;aspect-ratio:auto;flex-shrink:0;border-radius:10px;overflow:hidden}
+  .list-view .grid-title{font-size:13px}
+  .list-view .grid-artist{font-size:11px}
+  .list-view .grid-format{font-size:10px}
+  .list-view .movie-cover{width:68px;height:68px;aspect-ratio:auto}
 
-    .detail-header { display: flex; gap: 16px; margin-bottom: 20px; }
-    .detail-cover {
-      width: 120px; height: 120px;
-      background: linear-gradient(145deg, #2a2a4a 0%, #1a1a3a 100%);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,0.2);
-    }
-    .detail-cover svg { width: 56px; height: 56px; }
-    .detail-info { flex: 1; }
-    .detail-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-    .detail-artist { font-size: 16px; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
-    .detail-meta { display: flex; gap: 8px; flex-wrap: wrap; }
-    .detail-tag { background: #2c2c2e; padding: 6px 12px; border-radius: 12px; font-size: 12px; color: rgba(255,255,255,0.7); }
-    .detail-meta-row { background: #2c2c2e; padding: 14px; border-radius: 12px; margin-bottom: 16px; }
-    .detail-meta-row .row { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
-    .detail-meta-row .row:last-child { margin-bottom: 0; }
-    .detail-meta-row .label { color: rgba(255,255,255,0.5); font-size: 13px; }
+  /* Stats clickable metric */
+  .metric-card.clickable{cursor:pointer;transition:transform .12s,opacity .12s}
+  .metric-card.clickable:active{transform:scale(0.95);opacity:.7}
 
-    /* Barcode */
-    .barcode-value {
-      font-family: 'SF Mono', monospace;
-      font-size: 13px;
-      color: #0a84ff;
-      background: rgba(10,132,255,0.1);
-      padding: 4px 10px;
-      border-radius: 8px;
-      letter-spacing: 0.5px;
-    }
+  /* Stats overlay */
+  .stats-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;justify-content:center;align-items:flex-end}
+  .stats-overlay.show{display:flex}
+  .stats-panel{width:100%;max-height:85%;background:var(--card);border-radius:22px 22px 0 0;padding:22px;padding-bottom:34px;overflow-y:auto;display:flex;flex-direction:column;animation:slideUp .3s ease}
+  .stats-list{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+  .stats-list-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:var(--inputBg)}
+  .stats-list-thumb{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .stats-list-info{flex:1}
+  .stats-list-title{font-size:14px;font-weight:600;color:var(--text)}
+  .stats-list-sub{font-size:11px;color:var(--secondary);margin-top:1px}
+  .artist-card{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--inputBg);cursor:pointer;transition:transform .12s}
+  .artist-card:active{transform:scale(0.97)}
+  .artist-avatar{width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0}
+  .artist-info{flex:1}
+  .artist-name{font-size:15px;font-weight:600;color:var(--text)}
+  .artist-count{font-size:12px;color:var(--secondary);margin-top:1px}
 
-    /* Version Info */
-    .version-source {
-      font-size: 12px;
-      color: rgba(255,255,255,0.4);
-    }
-    .version-detail {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-    .version-tags {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
-    }
-    .v-tag {
-      font-size: 11px;
-      padding: 4px 10px;
-      background: rgba(139,92,246,0.15);
-      color: #8b5cf6;
-      border-radius: 10px;
-      font-weight: 500;
-    }
-    .version-desc {
-      font-size: 12px;
-      color: rgba(255,255,255,0.6);
-      line-height: 1.5;
-    }
+  /* Horizontal bar chart */
+  .h-bar-chart{display:flex;flex-direction:column;gap:10px}
+  .h-bar-row{display:flex;align-items:center;gap:10px}
+  .h-bar-label{font-size:12px;color:var(--text);font-weight:500;width:64px;text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative}
+  .h-bar-label:hover::after{content:attr(data-full);position:absolute;right:0;top:-28px;background:var(--card);border:1px solid var(--cardBorder);border-radius:6px;padding:4px 8px;font-size:10px;white-space:nowrap;z-index:10;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+  .h-bar-track{flex:1;height:24px;background:var(--inputBg);border-radius:6px;overflow:hidden}
+  .h-bar-fill{height:100%;border-radius:6px;transition:width .5s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:8px}
+  .h-bar-fill span{font-size:11px;font-weight:700;color:#fff}
 
-    /* Ratings */
-    .rating-row { align-items: flex-start !important; }
-    .my-rating {
-      color: #fbbf24;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .my-rating .rating-num {
-      color: #fff;
-      font-weight: 600;
-      font-size: 15px;
-    }
-    .external-ratings {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .ext-rating {
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 10px;
-      font-weight: 500;
-    }
-    .ext-rating.imdb {
-      background: rgba(245,197,24,0.15);
-      color: #f5c518;
-    }
-    .ext-rating.douban {
-      background: rgba(0,128,0,0.15);
-      color: #00b51d;
-    }
-    .ext-rating strong {
-      margin-left: 4px;
-      font-size: 12px;
-    }
-    .detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-    .detail-btn {
-      padding: 14px;
-      border-radius: 12px;
-      text-align: center;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .detail-btn:active { opacity: 0.8; }
-    .detail-btn.secondary { background: #2c2c2e; color: #fff; }
-    .detail-btn.danger { background: rgba(255,69,58,0.15); color: #ff453a; }
+  /* TOP ranked list chart */
+  .top-list{display:flex;flex-direction:column;gap:10px}
+  .top-row{display:flex;align-items:center;gap:10px}
+  .top-rank{width:24px;height:24px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+  .top-rank.r1{background:#ffd60a;color:#000}
+  .top-rank.r2{background:#a0a0a0}
+  .top-rank.r3{background:#cd7f32}
+  .top-rank.r4{background:var(--inputBg);color:var(--secondary)}
+  .top-name{flex:1;font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .top-name:hover{overflow:visible;position:relative;z-index:5;background:var(--card);padding:2px 6px;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+  .top-bar-track{width:80px;height:12px;background:var(--inputBg);border-radius:6px;overflow:hidden;flex-shrink:0}
+  .top-bar-fill{height:100%;border-radius:6px}
+  .top-count{font-size:13px;font-weight:700;color:var(--text);width:20px;text-align:right;flex-shrink:0}
 
-    .version-section { margin-top: 16px; }
-    .version-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: rgba(255,255,255,0.8); }
-    .version-list { background: #2c2c2e; border-radius: 12px; overflow: hidden; }
-    .version-item {
-      padding: 12px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .version-item:last-child { border-bottom: none; }
-    .version-item.active { background: rgba(10,132,255,0.1); }
-    .version-info .name { font-size: 14px; font-weight: 500; }
-    .version-info .format { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
-    .version-check { color: #0a84ff; font-size: 16px; }
+  .empty-state{text-align:center;padding:60px 20px}
+  .empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+  .empty-text{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px}
+  .empty-sub{font-size:13px;color:var(--secondary)}
 
-    /* Toast */
-    .toast {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
-      background: rgba(0,0,0,0.85);
-      color: #fff;
-      padding: 14px 24px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 500;
-      z-index: 2000;
-      opacity: 0; visibility: hidden;
-      transition: all 0.25s;
-    }
-    .toast.show { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+  .stars{display:flex;gap:4px}
+  .star{font-size:24px;cursor:pointer;transition:transform .15s;user-select:none}
+  .star:active{transform:scale(1.3)}
 
-    @media (min-width: 768px) { body { padding-top: 80px; } }
-  </style>
+  .stats-tabs{display:flex;gap:8px;margin-bottom:16px}
+  .stats-tab{padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--cardBorder);color:var(--secondary);background:var(--card);transition:all .2s}
+  .stats-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .metric-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+  .metric-card{background:var(--card);border:1px solid var(--cardBorder);border-radius:12px;padding:16px}
+  .metric-value{font-size:28px;font-weight:800;color:var(--text)}
+  .metric-label{font-size:12px;color:var(--secondary);margin-top:2px}
+  .chart-card{background:var(--card);border:1px solid var(--cardBorder);border-radius:12px;padding:16px}
+  .chart-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:14px}
+  .bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px;position:relative;cursor:pointer}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;transition:height .5s ease}
+  .bar.music{background:var(--accent)}
+  .bar-label{font-size:9px;color:var(--secondary)}
+  .chart-tooltip{position:absolute;background:var(--card);border:1px solid var(--cardBorder);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--text);pointer-events:none;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.3);display:none;white-space:nowrap}
+  .chart-tooltip .tt-month{font-weight:700;margin-bottom:4px;font-size:13px}
+  .chart-tooltip .tt-qty{color:var(--accent);font-weight:600}
+  .chart-tooltip .tt-amount{color:var(--orange);font-weight:600}
+  .combo-line{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+  .year-filter{display:flex;gap:8px;margin-bottom:16px}
+  .year-btn{padding:6px 14px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--cardBorder);color:var(--secondary);background:var(--card);transition:all .2s}
+  .year-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* Movie chart tabs */
+  .chart-tab{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;color:var(--secondary);background:var(--inputBg);transition:all .2s;user-select:none}
+  .chart-tab.active{background:var(--accent);color:#fff}
+  .bar-click-num{position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--cardBorder);border-radius:6px;padding:2px 6px;font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;pointer-events:none;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.3);animation:fadeNum .3s ease}
+  @keyframes fadeNum{from{opacity:0;transform:translateX(-50%) translateY(4px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+  .cover-wall{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;opacity:.2}
+
+  /* 本月速览 */
+  .month-summary{background:var(--card);border:1px solid var(--cardBorder);border-radius:14px;padding:16px;margin-bottom:20px}
+  .month-summary-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px}
+  .month-summary-row{display:flex;align-items:center;justify-content:space-around}
+  .month-stat{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .month-stat-num{font-size:20px;font-weight:800;color:var(--text)}
+  .month-stat-label{font-size:11px;color:var(--secondary)}
+  .month-divider{width:1px;height:28px;background:var(--cardBorder)}
+  .metric-value-wrap{display:flex;align-items:center}
+
+  /* 最近添加横滑 */
+  .recent-section{margin-bottom:22px}
+  .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .section-title{font-size:16px;font-weight:700;color:var(--text)}
+  .section-more{font-size:13px;color:var(--accent);font-weight:600;cursor:pointer}
+  .recent-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+  .recent-scroll::-webkit-scrollbar{display:none}
+  .recent-card{flex-shrink:0;width:120px;border-radius:10px;overflow:hidden;border:1px solid var(--cardBorder);background:var(--card);cursor:pointer;transition:transform .12s}
+  .recent-card:active{transform:scale(.95)}
+  .recent-card-cover{width:120px;height:120px;display:flex;align-items:center;justify-content:center;font-size:36px}
+  .recent-card-cover.portrait{height:170px;aspect-ratio:auto}
+  .recent-card-info{padding:8px}
+  .recent-card-title{font-size:12px;font-weight:600;color:var(--text);line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .recent-card-sub{font-size:10px;color:var(--secondary);margin-top:2px}
+  .recent-card-tag{font-size:9px;color:var(--accent);font-weight:600;margin-top:3px}
+  .cover-wall-cell{aspect-ratio:1;border-radius:2px;overflow:hidden}
+
+  /* ====== 详情弹窗 ====== */
+  .overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;justify-content:center;align-items:flex-end}
+  .overlay.show{display:flex}
+  .detail-panel{width:100%;max-height:85%;background:var(--card);border-radius:22px 22px 0 0;padding:22px;padding-bottom:34px;overflow-y:auto;display:flex;flex-direction:column;gap:0;animation:slideUp .3s ease}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .detail-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+  .detail-title{font-size:20px;font-weight:700;color:var(--text)}
+  .detail-close{color:var(--accent);font-size:17px;font-weight:600;cursor:pointer}
+  .detail-cover{width:160px;height:160px;border-radius:12px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:64px;overflow:hidden}
+  .detail-cover.portrait{height:240px;aspect-ratio:auto}
+  .detail-field{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--cardBorder)}
+  .detail-label{color:var(--secondary);font-size:15px;font-weight:500}
+  .detail-value{font-size:15px;font-weight:600;color:var(--text);text-align:right;max-width:60%}
+  .detail-stars{font-size:28px;display:flex;justify-content:center;gap:6px;margin:16px 0}
+  .detail-btn{border-radius:10px;padding:15px;margin-top:10px;font-size:17px;font-weight:600;text-align:center;cursor:pointer;border:none;font-family:inherit}
+  .detail-btn.primary{background:var(--accent);color:#fff}
+  .detail-btn.secondary{background:var(--inputBg);color:var(--accent)}
+  .detail-btn.danger{background:var(--inputBg);color:var(--red)}
+  .detail-actions{margin-top:20px;padding-top:16px;border-top:1px solid var(--cardBorder)}
+  .detail-actions-row{display:flex;gap:8px;margin-top:0}
+  .detail-btn.half{flex:1;margin-top:0}
+  .detail-btn.third{flex:1;margin-top:0;font-size:14px;padding:12px 6px}
+
+  /* ====== 添加弹窗 ====== */
+  .add-panel{width:100%;max-height:92%;background:var(--card);border-radius:22px 22px 0 0;padding:22px;padding-bottom:34px;overflow-y:auto;display:flex;flex-direction:column;animation:slideUp .3s ease}
+  .add-step{display:none;flex-direction:column;flex:1}
+  .add-step.active{display:flex}
+  .search-result{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--cardBorder);cursor:pointer;align-items:center}
+  .search-result:active{opacity:.7}
+  .search-thumb{width:50px;height:50px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+  .search-info{flex:1}
+  .search-title{font-size:15px;font-weight:600;color:var(--text)}
+  .search-sub{font-size:13px;color:var(--secondary);margin-top:2px}
+  .search-format{font-size:10px;color:var(--accent);font-weight:600;background:rgba(10,132,255,.1);padding:3px 7px;border-radius:4px;flex-shrink:0;align-self:center}
+  .confirm-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--cardBorder)}
+  .confirm-label{color:var(--secondary);font-size:15px;font-weight:500}
+  .confirm-value{font-size:15px;font-weight:600;color:var(--text)}
+  .star-input{font-size:32px;cursor:pointer;transition:transform .15s}
+  .star-input:active{transform:scale(1.3)}
+  .date-row{display:flex;gap:8px;align-items:center}
+  .date-input{width:60px;background:var(--inputBg);border:1px solid var(--cardBorder);border-radius:8px;padding:8px;text-align:center;color:var(--text);font-size:15px;font-family:inherit;outline:none}
+  .date-sep{color:var(--secondary);font-size:18px;font-weight:600}
+  .success-icon{font-size:72px;text-align:center;margin:40px 0 20px}
+  .success-text{font-size:20px;font-weight:700;color:var(--text);text-align:center;margin-bottom:8px}
+  .success-sub{font-size:14px;color:var(--secondary);text-align:center}
+
+  .scroll-wrap{flex:1;overflow-y:auto}
+
+  /* 添加方式卡片 */
+  .add-method{display:flex;align-items:center;gap:14px;padding:16px;background:var(--card);border:1px solid var(--cardBorder);border-radius:14px;margin-bottom:12px;cursor:pointer;transition:transform .15s}
+  .add-method:active{transform:scale(.97)}
+  .add-method-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .add-method-text{flex:1}
+  .add-method-title{font-size:16px;font-weight:700;color:var(--text)}
+  .add-method-sub{font-size:13px;color:var(--secondary);margin-top:3px}
+
+  /* 扫码器 */
+  .scanner-frame{width:100%;aspect-ratio:4/3;background:var(--inputBg);border-radius:16px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .scanner-bg{font-size:64px;opacity:.15;position:absolute}
+  .scanner-viewfinder{width:70%;height:55%;position:relative;z-index:1}
+  .scanner-corner{position:absolute;width:20px;height:20px;border-color:var(--accent);border-style:solid;border-width:0}
+  .scanner-corner.tl{top:0;left:0;border-top-width:3px;border-left-width:3px;border-top-left-radius:8px}
+  .scanner-corner.tr{top:0;right:0;border-top-width:3px;border-right-width:3px;border-top-right-radius:8px}
+  .scanner-corner.bl{bottom:0;left:0;border-bottom-width:3px;border-left-width:3px;border-bottom-left-radius:8px}
+  .scanner-corner.br{bottom:0;right:0;border-bottom-width:3px;border-right-width:3px;border-bottom-right-radius:8px}
+  .scanner-line{position:absolute;left:5%;right:5%;height:2px;background:var(--accent);box-shadow:0 0 8px var(--accent);top:0;opacity:0;transition:all .3s}
+  .scanner-line.scanning{opacity:1;animation:scanMove 1.5s ease-in-out infinite}
+  @keyframes scanMove{0%{top:10%}50%{top:85%}100%{top:10%}}
+</style>
 </head>
 <body>
+<div class="phone" id="app">
+  <button class="theme-btn" onclick="toggleTheme()">🌓 切换</button>
 
-  <div class="screen-selector">
-    <button class="active" onclick="showScreen('home')">首页</button>
-    <button onclick="showScreen('music')">音乐</button>
-    <button onclick="showScreen('movie')">影视</button>
-    <button onclick="showScreen('stats')">统计</button>
-  </div>
-
-  <div class="phone-frame">
-    <div class="notch"></div>
-    <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
-
-    <!-- HOME -->
-    <div class="screen" id="screen-home">
-      <div class="home-header"><h1>我的收藏</h1></div>
-
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <div class="quick-action-btn scan" onclick="showToast('扫描条形码')">
-          <svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2M7 12h10" stroke-linecap="round"/></svg>
-          <span>扫描添加</span>
-        </div>
-        <div class="quick-action-btn add-vinyl" onclick="showAddVinylModal()">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-          <span>添加黑胶</span>
-        </div>
-        <div class="quick-action-btn add-movie" onclick="showAddMovieModal()">
-          <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v16M2 10h6M2 14h6"/></svg>
-          <span>添加影视</span>
-        </div>
-      </div>
-
-      <!-- 智能推荐 -->
-      <div class="recommend-section">
-        <div class="recommend-section-title music">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-          音乐推荐
-          <span style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.4);margin-left:auto;">基于 Last.fm + Discogs</span>
-        </div>
-
-        <!-- 同风格推荐 -->
-        <div class="recommend-category">
-          <div class="recommend-category-header">
-            <span class="recommend-category-title">相似风格</span>
-            <span class="recommend-category-subtitle">电子 · 爵士</span>
-          </div>
-          <div class="recommend-items">
-            <div class="recommend-item" onclick="showToast('Homework - Daft Punk')">
-              <div class="recommend-cover" style="background: linear-gradient(145deg, #4a4a6a 0%, #3a3a5a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
-              </div>
-              <div class="recommend-name">Homework</div>
-              <div class="recommend-artist">Daft Punk</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag genre">电子</span>
-                <span class="recommend-score">92%</span>
-              </div>
-            </div>
-            <div class="recommend-item" onclick="showToast('Blue Train - John Coltrane')">
-              <div class="recommend-cover" style="background: linear-gradient(145deg, #3a5a6a 0%, #2a4a5a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
-              </div>
-              <div class="recommend-name">Blue Train</div>
-              <div class="recommend-artist">John Coltrane</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag genre">爵士</span>
-                <span class="recommend-score">88%</span>
-              </div>
-            </div>
-            <div class="recommend-item" onclick="showToast('Cross - Justice')">
-              <div class="recommend-cover" style="background: linear-gradient(145deg, #6a4a4a 0%, #5a3a3a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
-              </div>
-              <div class="recommend-name">Cross</div>
-              <div class="recommend-artist">Justice</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag genre">电子</span>
-                <span class="recommend-score">85%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 同艺人推荐 -->
-        <div class="recommend-category">
-          <div class="recommend-category-header">
-            <span class="recommend-category-title">同艺人作品</span>
-            <span class="recommend-category-subtitle">来自 Discogs</span>
-          </div>
-          <div class="recommend-items">
-            <div class="recommend-item" onclick="showToast('Human After All - Daft Punk')">
-              <div class="recommend-cover" style="background: linear-gradient(145deg, #5a5a4a 0%, #4a4a3a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
-              </div>
-              <div class="recommend-name">Human After All</div>
-              <div class="recommend-artist">Daft Punk</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag similar">同艺人</span>
-                <span class="recommend-score">90%</span>
-              </div>
-            </div>
-            <div class="recommend-item" onclick="showToast('Sorcerer - Miles Davis')">
-              <div class="recommend-cover" style="background: linear-gradient(145deg, #4a6a5a 0%, #3a5a4a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
-              </div>
-              <div class="recommend-name">Sorcerer</div>
-              <div class="recommend-artist">Miles Davis</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag similar">同艺人</span>
-                <span class="recommend-score">87%</span>
-              </div>
-            </div>
-            <div class="recommend-item" onclick="showToast('Let It Be - The Beatles')">
-              <div class="recommend-cover" style="background: linear-gradient(145deg, #6a5a4a 0%, #5a4a3a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
-              </div>
-              <div class="recommend-name">Let It Be</div>
-              <div class="recommend-artist">The Beatles</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag similar">同艺人</span>
-                <span class="recommend-score">89%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 影视推荐 -->
-      <div class="recommend-section">
-        <div class="recommend-section-title movie">
-          <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v16M2 10h6M2 14h6"/></svg>
-          影视推荐
-          <span style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.4);margin-left:auto;">基于 OMDB 算法</span>
-        </div>
-
-        <!-- 同类型推荐 -->
-        <div class="recommend-category">
-          <div class="recommend-category-header">
-            <span class="recommend-category-title">相似类型</span>
-            <span class="recommend-category-subtitle">剧情 · 犯罪</span>
-          </div>
-          <div class="recommend-items">
-            <div class="recommend-item" onclick="showToast('阿甘正传 - 1994')">
-              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #5a6a4a 0%, #4a5a3a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
-              </div>
-              <div class="recommend-name">阿甘正传</div>
-              <div class="recommend-artist">1994 · 剧情</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag genre">剧情</span>
-                <span class="recommend-score">94%</span>
-              </div>
-            </div>
-            <div class="recommend-item" onclick="showToast('好家伙 - 1990')">
-              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #6a4a3a 0%, #5a3a2a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
-              </div>
-              <div class="recommend-name">好家伙</div>
-              <div class="recommend-artist">1990 · 犯罪</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag genre">犯罪</span>
-                <span class="recommend-score">91%</span>
-              </div>
-            </div>
-            <div class="recommend-item" onclick="showToast('绿里奇迹 - 1999')">
-              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #4a5a6a 0%, #3a4a5a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
-              </div>
-              <div class="recommend-name">绿里奇迹</div>
-              <div class="recommend-artist">1999 · 剧情</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag genre">剧情</span>
-                <span class="recommend-score">89%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 同年代推荐 -->
-        <div class="recommend-category">
-          <div class="recommend-category-header">
-            <span class="recommend-category-title">同年代经典</span>
-            <span class="recommend-category-subtitle">90年代 · 2000年代</span>
-          </div>
-          <div class="recommend-items">
-            <div class="recommend-item" onclick="showToast('辛德勒的名单 - 1993')">
-              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #5a4a5a 0%, #4a3a4a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
-              </div>
-              <div class="recommend-name">辛德勒的名单</div>
-              <div class="recommend-artist">1993 · 历史</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag era">90年代</span>
-                <span class="recommend-score">93%</span>
-              </div>
-            </div>
-            <div class="recommend-item" onclick="showToast('盗梦空间 - 2010')">
-              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #3a4a6a 0%, #2a3a5a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
-              </div>
-              <div class="recommend-name">盗梦空间</div>
-              <div class="recommend-artist">2010 · 科幻</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag era">2010s</span>
-                <span class="recommend-score">90%</span>
-              </div>
-            </div>
-            <div class="recommend-item" onclick="showToast('搏击俱乐部 - 1999')">
-              <div class="recommend-cover movie" style="background: linear-gradient(145deg, #6a5a4a 0%, #5a4a3a 100%);">
-                <svg viewBox="0 0 512 512" width="36" height="36"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
-              </div>
-              <div class="recommend-name">搏击俱乐部</div>
-              <div class="recommend-artist">1999 · 剧情</div>
-              <div class="recommend-meta">
-                <span class="recommend-tag era">90年代</span>
-                <span class="recommend-score">88%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="module-card">
-        <div class="module-header">
-          <div class="module-title">黑胶唱片</div>
-          <span class="module-more" onclick="showScreen('music')">查看全部</span>
-        </div>
-        <div class="module-items">
-          <div class="module-item" onclick="showVinylDetail(0)">
-            <div class="module-cover" style="background: linear-gradient(145deg, #2a2a4a 0%, #1a1a3a 100%);">
-              <svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
-            </div>
-            <div class="module-name">Random Access Memories</div>
-            <div class="module-artist">Daft Punk</div>
-          </div>
-          <div class="module-item" onclick="showVinylDetail(1)">
-            <div class="module-cover" style="background: linear-gradient(145deg, #2a4a3a 0%, #1a3a2a 100%);">
-              <svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
-            </div>
-            <div class="module-name">Kind of Blue</div>
-            <div class="module-artist">Miles Davis</div>
-          </div>
-          <div class="module-item" onclick="showVinylDetail(2)">
-            <div class="module-cover" style="background: linear-gradient(145deg, #4a3a2a 0%, #3a2a1a 100%);">
-              <svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg>
-            </div>
-            <div class="module-name">Abbey Road</div>
-            <div class="module-artist">The Beatles</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="module-card">
-        <div class="module-header">
-          <div class="module-title">影视收藏</div>
-          <span class="module-more" onclick="showScreen('movie')">查看全部</span>
-        </div>
-        <div class="module-items">
-          <div class="module-item" onclick="showMovieDetail(0)">
-            <div class="module-cover movie" style="background: linear-gradient(145deg, #4a3a5a 0%, #3a2a4a 100%);">
-              <svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
-            </div>
-            <div class="module-name">肖申克的救赎</div>
-            <div class="module-artist">1994</div>
-          </div>
-          <div class="module-item" onclick="showMovieDetail(1)">
-            <div class="module-cover movie" style="background: linear-gradient(145deg, #3a4a3a 0%, #2a3a2a 100%);">
-              <svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
-            </div>
-            <div class="module-name">教父</div>
-            <div class="module-artist">1972</div>
-          </div>
-          <div class="module-item" onclick="showMovieDetail(2)">
-            <div class="module-cover movie" style="background: linear-gradient(145deg, #4a2a3a 0%, #3a1a2a 100%);">
-              <svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg>
-            </div>
-            <div class="module-name">绝命毒师</div>
-            <div class="module-artist">S1-S5</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="preview-notice">点击卡片查看详情</div>
-    </div>
-
-    <!-- MUSIC -->
-    <div class="screen" id="screen-music" style="display:none;">
-      <div class="screen-header"><h1>我的黑胶</h1><div class="header-btn" onclick="showAddVinylModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> 添加</div></div>
-      <div class="search-bar" onclick="showToast('搜索功能')"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>搜索唱片...</span></div>
-      <div class="vinyl-grid">
-        <div class="vinyl-item" onclick="showVinylDetail(0)"><div class="vinyl-cover"><svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg></div><div class="vinyl-info"><div class="vinyl-title">Random Access Memories</div><div class="vinyl-artist">Daft Punk</div></div></div>
-        <div class="vinyl-item" onclick="showVinylDetail(1)"><div class="vinyl-cover" style="background: linear-gradient(145deg, #2a4a3a 0%, #1a3a2a 100%);"><svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg></div><div class="vinyl-info"><div class="vinyl-title">Kind of Blue</div><div class="vinyl-artist">Miles Davis</div></div></div>
-        <div class="vinyl-item" onclick="showVinylDetail(2)"><div class="vinyl-cover" style="background: linear-gradient(145deg, #4a3a2a 0%, #3a2a1a 100%);"><svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg></div><div class="vinyl-info"><div class="vinyl-title">Abbey Road</div><div class="vinyl-artist">The Beatles</div></div></div>
-        <div class="vinyl-item" onclick="showVinylDetail(3)"><div class="vinyl-cover" style="background: linear-gradient(145deg, #3a3a4a 0%, #2a2a3a 100%);"><svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg></div><div class="vinyl-info"><div class="vinyl-title">The Dark Side</div><div class="vinyl-artist">Pink Floyd</div></div></div>
-      </div>
-      <div style="height: 200px;"></div>
-    </div>
-
-    <!-- MOVIE -->
-    <div class="screen" id="screen-movie" style="display:none;">
-      <div class="screen-header"><h1>影视</h1><div class="header-btn" onclick="showAddMovieModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> 添加</div></div>
-      <div class="search-bar" onclick="showToast('搜索功能')"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>搜索电影或剧集...</span></div>
-      <div class="movie-grid">
-        <div class="movie-item" onclick="showMovieDetail(0)"><div class="movie-poster"><svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg></div><div class="movie-info"><div class="movie-title">肖申克的救赎</div><div class="movie-meta"><span>1994</span><span class="rating">9.7</span></div></div></div>
-        <div class="movie-item" onclick="showMovieDetail(1)"><div class="movie-poster" style="background: linear-gradient(145deg, #3a2a4a 0%, #2a1a3a 100%);"><svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg></div><div class="movie-info"><div class="movie-title">教父</div><div class="movie-meta"><span>1972</span><span class="rating">9.2</span></div></div></div>
-        <div class="movie-item" onclick="showMovieDetail(2)"><div class="movie-poster" style="background: linear-gradient(145deg, #4a2a3a 0%, #3a1a2a 100%);"><svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg></div><div class="movie-info"><div class="movie-title">绝命毒师</div><div class="movie-meta"><span>S1-S5</span><span class="rating">9.5</span></div></div></div>
-        <div class="movie-item" onclick="showMovieDetail(3)"><div class="movie-poster" style="background: linear-gradient(145deg, #2a3a4a 0%, #1a2a3a 100%);"><svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg></div><div class="movie-info"><div class="movie-title">蝙蝠侠：黑暗骑士</div><div class="movie-meta"><span>2008</span><span class="rating">9.0</span></div></div></div>
-      </div>
-      <div style="height: 200px;"></div>
-    </div>
-
-    <!-- STATS -->
-    <div class="screen" id="screen-stats" style="display:none;">
-      <div class="screen-header"><h1>统计</h1></div>
-
-      <div class="filter-section">
-        <div class="filter-row">
-          <span class="filter-label">类型</span>
-          <div class="filter-chips">
-            <span class="filter-chip active" onclick="toggleFilter(this, 'type', 'all')">全部</span>
-            <span class="filter-chip" onclick="toggleFilter(this, 'type', 'music')">黑胶</span>
-            <span class="filter-chip" onclick="toggleFilter(this, 'type', 'movie')">影视</span>
-          </div>
-        </div>
-        <div class="filter-row">
-          <span class="filter-label">时间</span>
-          <div class="filter-chips">
-            <span class="filter-chip" onclick="toggleFilter(this, 'time', 'week')">本周</span>
-            <span class="filter-chip active" onclick="toggleFilter(this, 'time', 'month')">本月</span>
-            <span class="filter-chip" onclick="toggleFilter(this, 'time', 'year')">今年</span>
-            <span class="filter-chip" onclick="toggleFilter(this, 'time', 'all')">全部</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="stats-hero">
-        <div class="number" id="totalCount">42</div>
-        <div class="label" id="totalLabel">今年新增收藏</div>
-        <div class="subtitle" id="totalSub">较去年增长 23%</div>
-      </div>
-
-      <div class="stats-row">
-        <div class="stat-card music" id="statMusic">
-          <div class="label">黑胶唱片</div>
-          <div class="value" id="musicCount">28</div>
-          <div class="sub" id="musicSub">本月 +5</div>
-        </div>
-        <div class="stat-card movie" id="statMovie">
-          <div class="label">影视</div>
-          <div class="value" id="movieCount">14</div>
-          <div class="sub" id="movieSub">本月 +2</div>
-        </div>
-      </div>
-
-      <div class="chart-area">
-        <div class="chart-title">
-          <span>月度趋势</span>
-          <div class="chart-legend" id="chartLegend">
-            <div class="legend-item"><div class="legend-dot" style="background: #8b5cf6;"></div><span>黑胶</span></div>
-            <div class="legend-item"><div class="legend-dot" style="background: #f472b6;"></div><span>影视</span></div>
-          </div>
-        </div>
-        <div class="chart-bars" id="chartBars">
-          <div class="chart-bar-wrapper">
-            <div class="chart-bar-stack">
-              <div class="chart-bar music" style="height: 30px;"><span class="count">3</span></div>
-              <div class="chart-bar movie" style="height: 15px;"><span class="count">2</span></div>
-            </div>
-            <div class="chart-month">1月</div>
-          </div>
-          <div class="chart-bar-wrapper">
-            <div class="chart-bar-stack">
-              <div class="chart-bar music" style="height: 45px;"><span class="count">5</span></div>
-              <div class="chart-bar movie" style="height: 20px;"><span class="count">2</span></div>
-            </div>
-            <div class="chart-month">2月</div>
-          </div>
-          <div class="chart-bar-wrapper">
-            <div class="chart-bar-stack">
-              <div class="chart-bar music" style="height: 20px;"><span class="count">2</span></div>
-              <div class="chart-bar movie" style="height: 10px;"><span class="count">1</span></div>
-            </div>
-            <div class="chart-month">3月</div>
-          </div>
-          <div class="chart-bar-wrapper">
-            <div class="chart-bar-stack">
-              <div class="chart-bar music" style="height: 55px;"><span class="count">6</span></div>
-              <div class="chart-bar movie" style="height: 30px;"><span class="count">3</span></div>
-            </div>
-            <div class="chart-month">4月</div>
-          </div>
-          <div class="chart-bar-wrapper">
-            <div class="chart-bar-stack">
-              <div class="chart-bar music" style="height: 35px;"><span class="count">4</span></div>
-              <div class="chart-bar movie" style="height: 20px;"><span class="count">2</span></div>
-            </div>
-            <div class="chart-month">5月</div>
-          </div>
-          <div class="chart-bar-wrapper">
-            <div class="chart-bar-stack">
-              <div class="chart-bar music" style="height: 50px;"><span class="count">5</span></div>
-              <div class="chart-bar movie" style="height: 25px;"><span class="count">3</span></div>
-            </div>
-            <div class="chart-month">6月</div>
-          </div>
-          <div class="chart-bar-wrapper">
-            <div class="chart-bar-stack">
-              <div class="chart-bar music" style="height: 25px;"><span class="count">3</span></div>
-              <div class="chart-bar movie" style="height: 15px;"><span class="count">1</span></div>
-            </div>
-            <div class="chart-month">7月</div>
-          </div>
-        </div>
-      </div>
-      <div style="height: 100px;"></div>
+  <div class="status-bar">
+    <span class="time" id="statusTime">9:41</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
     </div>
   </div>
 
-  <!-- Tab Bar -->
+  <!-- ======== 首页 ======== -->
+  <div class="tab-content active" id="tab-home">
+    <div class="greeting">
+      <div class="greeting-icon">☀️</div>
+      <div class="greeting-text">下午好</div>
+      <div class="greeting-sub">欢迎回来</div>
+    </div>
+    <!-- 本月速览 -->
+    <div class="month-summary">
+      <div class="month-summary-title">📅 本月速览</div>
+      <div class="month-summary-row">
+        <div class="month-stat"><span class="month-stat-num">3</span><span class="month-stat-label">新唱片</span></div>
+        <div class="month-divider"></div>
+        <div class="month-stat"><span class="month-stat-num">2</span><span class="month-stat-label">新影视</span></div>
+        <div class="month-divider"></div>
+        <div class="month-stat">
+          <div class="metric-value-wrap" style="align-items:center">
+            <span class="month-stat-num" id="monthSpent">¥1,040</span>
+            <button class="eye-toggle" onclick="toggleHomeAmount(this)" aria-label="显示/隐藏金额">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </button>
+          </div>
+          <span class="month-stat-label">本月花费</span>
+        </div>
+      </div>
+    </div>
+    <div class="media-card" onclick="switchTab(1)">
+      <div class="cover-wall" id="musicWall"></div>
+      <div class="card-overlay" style="background:linear-gradient(135deg,rgba(0,0,0,0.5),rgba(10,132,255,0.15))"></div>
+      <div class="card-content">
+        <div class="card-left">
+          <div class="icon-circle music"><svg viewBox="0 0 24 24" fill="#0a84ff" width="20" height="20"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
+          <div class="card-title">音乐</div>
+          <div class="card-subtitle">我的黑胶收藏</div>
+        </div>
+        <div class="card-right"><div class="card-count blue">12</div><div class="card-label">张专辑</div></div>
+      </div>
+    </div>
+    <div class="media-card" onclick="switchTab(2)">
+      <div class="cover-wall" id="movieWall"></div>
+      <div class="card-overlay" style="background:linear-gradient(135deg,rgba(0,0,0,0.5),rgba(48,209,88,0.15))"></div>
+      <div class="card-content">
+        <div class="card-left">
+          <div class="icon-circle movie"><svg viewBox="0 0 24 24" fill="#30d158" width="20" height="20"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg></div>
+          <div class="card-title">影视</div>
+          <div class="card-subtitle">电影与剧集</div>
+        </div>
+        <div class="card-right"><div class="card-count green">8</div><div class="card-label">部作品</div></div>
+      </div>
+    </div>
+    <!-- 最近添加 - 黑胶 -->
+    <div class="recent-section">
+      <div class="section-header">
+        <span class="section-title">💿 最近添加</span>
+        <span class="section-more" onclick="switchTab(1)">查看全部</span>
+      </div>
+      <div class="recent-scroll" id="recentVinyls"></div>
+    </div>
+
+    <!-- 最近添加 - 影视 -->
+    <div class="recent-section">
+      <div class="section-header">
+        <span class="section-title">🎬 最近观看</span>
+        <span class="section-more" onclick="switchTab(2)">查看全部</span>
+      </div>
+      <div class="recent-scroll" id="recentMovies"></div>
+    </div>
+  </div>
+
+  <!-- ======== 音乐 ======== -->
+  <div class="tab-content" id="tab-music">
+    <div class="header">
+      <div class="header-left"><div class="header-title">我的黑胶</div><div class="view-segment" id="musicViewSeg"><span class="view-option active" onclick="toggleView('music','grid')">网格</span><span class="view-option" onclick="toggleView('music','list')">列表</span></div></div>
+      <button class="add-btn" onclick="openAddVinyl()"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
+    </div>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" placeholder="搜索专辑或艺术家..." id="vinylSearch" oninput="filterVinyls()">
+    </div>
+    <div class="grid" id="vinylGrid"></div>
+  </div>
+
+  <!-- ======== 影视 ======== -->
+  <div class="tab-content" id="tab-movie">
+    <div class="header">
+      <div class="header-left"><div class="header-title">影视收藏</div><div class="view-segment" id="movieViewSeg"><span class="view-option active" onclick="toggleView('movie','grid')">网格</span><span class="view-option" onclick="toggleView('movie','list')">列表</span></div></div>
+      <button class="add-btn" onclick="openAddMovie()"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
+    </div>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" placeholder="搜索电影或剧集..." id="movieSearch" oninput="filterMovies()">
+    </div>
+    <div class="segment">
+      <div class="seg-item active" onclick="filterType(this,'all')">全部</div>
+      <div class="seg-item" onclick="filterType(this,'movie')">电影</div>
+      <div class="seg-item" onclick="filterType(this,'series')">剧集</div>
+    </div>
+    <div class="grid" id="movieGrid"></div>
+  </div>
+
+  <!-- ======== 统计 ======== -->
+  <div class="tab-content" id="tab-stats">
+    <div class="header"><div class="header-title">数据统计</div></div>
+    <div class="stats-tabs">
+      <div class="stats-tab active" onclick="switchStatsTab(this,'music')">🎵 音乐</div>
+      <div class="stats-tab" onclick="switchStatsTab(this,'movie')">🎬 影视</div>
+    </div>
+    <div id="stats-music">
+      <div class="year-filter"><div class="year-btn active" onclick="clickYearBtn(this)">全部</div><div class="year-btn" onclick="clickYearBtn(this)">2026</div><div class="year-btn" onclick="clickYearBtn(this)">2025</div></div>
+      <div class="metric-cards">
+        <div class="metric-card clickable" onclick="openAlbumList()"><div class="metric-value">12</div><div class="metric-label">总收藏 ▸</div></div>
+        <div class="metric-card"><div class="metric-value-wrap"><span class="metric-value" data-amount="true">¥3,840</span><button class="eye-toggle" onclick="toggleAmount(this)"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button></div><div class="metric-label">总花费</div></div>
+        <div class="metric-card clickable" onclick="openArtistDetail()"><div class="metric-value">9</div><div class="metric-label">艺术家数 ▸</div></div>
+        <div class="metric-card"><div class="metric-value">5</div><div class="metric-label">流派数</div></div>
+      </div>
+      <div class="chart-card" style="position:relative"><div class="chart-title">月度购买趋势</div><div class="bar-chart" id="musicChart"><svg class="combo-line" id="musicComboLine" viewBox="0 0 100 100" preserveAspectRatio="none"></svg></div><div class="chart-tooltip" id="chartTooltip"></div></div>
+      <div class="chart-card" style="margin-top:12px"><div class="chart-title">发行年份 TOP</div><div class="h-bar-chart" id="yearChart"></div></div>
+      <div class="chart-card" style="margin-top:12px"><div class="chart-title">艺术家 TOP</div><div class="h-bar-chart" id="artistChart"></div></div>
+    </div>
+    <div id="stats-movie" style="display:none">
+      <div class="year-filter"><div class="year-btn active" onclick="clickYearBtn(this)">全部</div><div class="year-btn" onclick="clickYearBtn(this)">2026</div><div class="year-btn" onclick="clickYearBtn(this)">2025</div></div>
+      <div class="metric-cards">
+        <div class="metric-card"><div class="metric-value">8</div><div class="metric-label">总观影</div></div>
+        <div class="metric-card"><div class="metric-value">5</div><div class="metric-label">电影</div></div>
+        <div class="metric-card"><div class="metric-value">3</div><div class="metric-label">剧集</div></div>
+        <div class="metric-card"><div class="metric-value">8.2</div><div class="metric-label">均分</div></div>
+      </div>
+      <div class="chart-card"><div class="chart-title">月度观影趋势</div>
+        <div class="movie-chart-tabs" style="display:flex;gap:4px;margin-bottom:12px">
+          <div class="chart-tab active" onclick="switchMovieChartTab(this,'all')">全部</div>
+          <div class="chart-tab" onclick="switchMovieChartTab(this,'movie')">电影</div>
+          <div class="chart-tab" onclick="switchMovieChartTab(this,'series')">剧集</div>
+        </div>
+        <div class="bar-chart" id="movieMonthlyChart" style="position:relative"></div>
+        <div class="chart-legend" id="movieChartLegend" style="display:flex;gap:16px;justify-content:center;margin-top:10px">
+          <span style="font-size:11px;color:var(--secondary)"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--accent);margin-right:4px"></span>电影</span>
+          <span style="font-size:11px;color:var(--secondary)"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--orange);margin-right:4px"></span>剧集</span>
+        </div>
+      </div>
+      <div class="chart-card" style="margin-top:12px"><div class="chart-title">发行年份 TOP</div><div class="h-bar-chart" id="movieYearChart"></div></div>
+      <div class="chart-card" style="margin-top:12px"><div class="chart-title">导演 TOP</div><div class="h-bar-chart" id="directorChart"></div></div>
+    </div>
+  </div>
+
+  <!-- ======== 底部Tab ======== -->
   <div class="tab-bar">
-    <div class="tab-bar-inner">
-      <a href="#" class="tab-item active" onclick="showScreen('home'); return false;">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="currentColor" stroke-width="2" fill="none"/><path d="M9 22V12h6v10" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-        <span>首页</span>
-      </a>
-      <a href="#" class="tab-item" onclick="showScreen('music'); return false;">
-        <svg viewBox="0 0 24 24"><circle cx="7" cy="17" r="3" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="17" cy="15" r="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M10 7v8l8-4-8-4z" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-        <span>音乐</span>
-      </a>
-      <a href="#" class="tab-item" onclick="showScreen('movie'); return false;">
-        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M2 8h20M10 4v4" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-        <span>影视</span>
-      </a>
-      <a href="#" class="tab-item" onclick="showScreen('stats'); return false;">
-        <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-        <span>统计</span>
-      </a>
-    </div>
+    <div class="tab-item active" onclick="switchTab(0)"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>首页</span></div>
+    <div class="tab-item" onclick="switchTab(1)"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg><span>音乐</span></div>
+    <div class="tab-item" onclick="switchTab(2)"><svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg><span>影视</span></div>
+    <div class="tab-item" onclick="switchTab(3)"><svg viewBox="0 0 24 24"><path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/></svg><span>统计</span></div>
   </div>
 
-  <!-- ADD VINYL MODAL -->
-  <div class="modal-overlay" id="addVinylModal">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="modal-handle"></div>
-      <div class="modal-title">添加黑胶唱片</div>
-      <div class="action-item" onclick="showToast('扫描条形码')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><div><div class="text">扫描条形码</div><div class="desc">从 Discogs 自动获取信息</div></div></div>
-      <div class="action-item" onclick="showToast('搜索唱片')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35"/></svg></div><div><div class="text">搜索唱片</div><div class="desc">输入专辑或艺术家名称</div></div></div>
-      <div class="action-item" onclick="hideModal('addVinylModal'); showModal('vinylFormModal')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加唱片信息</div></div></div>
-    </div>
+  <!-- ======== 详情弹窗 ======== -->
+  <div class="overlay" id="detailOverlay" onclick="closeOverlay(event)">
+    <div class="detail-panel" id="detailPanel" onclick="event.stopPropagation()"></div>
   </div>
 
-  <!-- ADD MOVIE MODAL -->
-  <div class="modal-overlay" id="addMovieModal">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="modal-handle"></div>
-      <div class="modal-title">添加影视</div>
-      <div class="action-item" onclick="showToast('搜索 OMDB')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35"/></svg></div><div><div class="text">搜索电影/剧集</div><div class="desc">从 OMDB 自动获取信息</div></div></div>
-      <div class="action-item" onclick="hideModal('addMovieModal'); showModal('movieFormModal')"><div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="text">手动输入</div><div class="desc">手动添加影视信息</div></div></div>
-    </div>
+  <!-- ======== 添加弹窗 ======== -->
+  <div class="overlay" id="addOverlay" onclick="closeAddOverlay(event)">
+    <div class="add-panel" id="addPanel" onclick="event.stopPropagation()"></div>
   </div>
 
-  <!-- VINYL FORM MODAL -->
-  <div class="modal-overlay" id="vinylFormModal">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="modal-handle"></div>
-      <div class="modal-title">添加黑胶唱片</div>
-      <form id="vinylForm" onsubmit="event.preventDefault(); showToast('保存成功'); hideModal('vinylFormModal');">
-        <div class="form-group">
-          <label class="form-label">专辑名称 *</label>
-          <input type="text" class="form-input" placeholder="例如：Random Access Memories" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">艺术家 *</label>
-          <input type="text" class="form-input" placeholder="例如：Daft Punk" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">发行年份</label>
-            <input type="number" class="form-input" placeholder="例如：2013" min="1900" max="2030">
-          </div>
-          <div class="form-group">
-            <label class="form-label">购买价格 (¥)</label>
-            <input type="number" class="form-input" placeholder="例如：298" min="0">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Barcode</label>
-          <input type="text" class="form-input" placeholder="扫码自动填充">
-        </div>
-        <div class="form-group">
-          <label class="form-label">版本信息</label>
-          <input type="text" class="form-input" placeholder="例如：180g 双碟版">
-        </div>
-        <button type="submit" class="submit-btn">保存</button>
-      </form>
+  <!-- ======== 统计详情弹窗 ======== -->
+  <div class="stats-overlay" id="albumOverlay" onclick="closeStatsOverlay(event,'albumOverlay')">
+    <div class="stats-panel" onclick="event.stopPropagation()">
+      <div class="detail-header"><div class="detail-title" id="albumOverlayTitle">全部专辑</div><div class="detail-close" onclick="document.getElementById('albumOverlay').classList.remove('show')">关闭</div></div>
+      <div class="scroll-wrap"><div class="stats-list" id="albumListContent"></div></div>
     </div>
   </div>
-
-  <!-- MOVIE FORM MODAL -->
-  <div class="modal-overlay" id="movieFormModal">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="modal-handle"></div>
-      <div class="modal-title">添加影视</div>
-      <form id="movieForm" onsubmit="event.preventDefault(); showToast('保存成功'); hideModal('movieFormModal');">
-        <div class="form-group">
-          <label class="form-label">名称 *</label>
-          <input type="text" class="form-input" placeholder="例如：肖申克的救赎" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">导演</label>
-          <input type="text" class="form-input" placeholder="例如：Frank Darabont">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">类型</label>
-            <select class="form-input">
-              <option>电影</option>
-              <option>剧集</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">年份</label>
-            <input type="number" class="form-input" placeholder="例如：1994" min="1900" max="2030">
-          </div>
-        </div>
-        <button type="submit" class="submit-btn">保存</button>
-      </form>
+  <div class="stats-overlay" id="artistOverlay" onclick="closeStatsOverlay(event,'artistOverlay')">
+    <div class="stats-panel" onclick="event.stopPropagation()">
+      <div class="detail-header"><div class="detail-title" id="artistOverlayTitle">艺术家</div><div class="detail-close" onclick="document.getElementById('artistOverlay').classList.remove('show')">关闭</div></div>
+      <div class="scroll-wrap"><div class="stats-list" id="artistListContent"></div></div>
     </div>
   </div>
+</div>
 
-  <!-- VINYL DETAIL MODAL -->
-  <div class="modal-overlay" id="vinylDetailModal">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="modal-handle"></div>
-      <div class="detail-header">
-        <div class="detail-cover"><svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="200" fill="none" stroke="currentColor" stroke-width="40"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-width="20"/></svg></div>
-        <div class="detail-info"><div class="detail-title" id="vinylDetailTitle">Random Access Memories</div><div class="detail-artist" id="vinylDetailArtist">Daft Punk</div><div class="detail-meta"><span class="detail-tag">2013</span><span class="detail-tag">电子</span></div></div>
-      </div>
-      <div class="detail-meta-row">
-        <div class="row"><span class="label">购买日期</span><span>2024-03-15</span></div>
-        <div class="row"><span class="label">购买价格</span><span>¥298</span></div>
-        <div class="row"><span class="label">Barcode</span><span class="barcode-value">190296918293</span></div>
-      </div>
-      <div class="detail-meta-row">
-        <div class="row"><span class="label">版本信息</span><span class="version-source">来自 Discogs</span></div>
-        <div class="version-detail">
-          <div class="version-tags">
-            <span class="v-tag">180g</span>
-            <span class="v-tag">双碟版</span>
-            <span class="v-tag">EU Original</span>
-          </div>
-          <div class="version-desc">2013年欧洲首版，180克重磅黑胶， gatefold 包装</div>
-        </div>
-      </div>
-      <div class="detail-actions" style="margin-top: 16px;"><div class="detail-btn secondary">编辑</div><div class="detail-btn danger">删除</div></div>
-    </div>
-  </div>
+<script>
+const vinyls=[
+  {id:1,album:'Random Access Memories',artist:'Daft Punk',cover:'#e74c3c',rating:5,price:380,genre:'Electronic',date:'2026-03-15',format:'180g Black Vinyl',notes:'经典电子乐专辑'},
+  {id:2,album:'OK Computer',artist:'Radiohead',cover:'#3498db',rating:5,price:320,genre:'Alternative',date:'2026-02-20',format:'2LP Remastered Edition',notes:'另类摇滚神作'},
+  {id:3,album:'Abbey Road',artist:'The Beatles',cover:'#2ecc71',rating:5,price:280,genre:'Rock',date:'2026-01-10',format:'50th Anniversary',notes:'披头士经典'},
+  {id:4,album:'Kind of Blue',artist:'Miles Davis',cover:'#9b59b6',rating:4,price:260,genre:'Jazz',date:'2025-11-05',format:'Mono Reissue',notes:'爵士乐标杆'},
+  {id:5,album:'Dark Side of the Moon',artist:'Pink Floyd',cover:'#1abc9c',rating:5,price:350,genre:'Progressive',date:'2026-04-01',format:'Yellow Marble Vinyl',notes:'前卫摇滚里程碑'},
+  {id:6,album:'Thriller',artist:'Michael Jackson',cover:'#e67e22',rating:4,price:300,genre:'Pop',date:'2025-12-25',format:'Picture Disc',notes:'世界最畅销专辑'},
+  {id:7,album:'Rumours',artist:'Fleetwood Mac',cover:'#f39c12',rating:4,price:290,genre:'Rock',date:'2026-01-20',format:'Deluxe Edition',notes:'经典摇滚'},
+  {id:8,album:'Blue Train',artist:'John Coltrane',cover:'#2980b9',rating:5,price:340,genre:'Jazz',date:'2026-02-14',format:'Tone Poet Series',notes:'硬波普爵士'},
+  {id:9,album:'Discovery',artist:'Daft Punk',cover:'#e74c3c',rating:4,price:280,genre:'Electronic',date:'2025-10-10',format:'180g Red Vinyl',notes:'法式电子'},
+  {id:10,album:'In Rainbows',artist:'Radiohead',cover:'#e74c3c',rating:5,price:360,genre:'Alternative',date:'2026-03-08',format:'180g Deluxe Box',notes:'数字时代杰作'},
+  {id:11,album:'Wish You Were Here',artist:'Pink Floyd',cover:'#1abc9c',rating:5,price:310,genre:'Progressive',date:'2026-04-10',format:'Blue Vinyl Limited',notes:'致敬Syd Barrett'},
+  {id:12,album:'A Love Supreme',artist:'John Coltrane',cover:'#8e44ad',rating:5,price:400,genre:'Jazz',date:'2026-05-01',format:'Acoustic Sounds Series',notes:'精神爵士经典'},
+];
+const movies=[
+  {id:1,title:'星际穿越',original_title:'Interstellar',year:2014,type:'movie',poster:'#2c3e50',rating:5,director:'Christopher Nolan',country:'美国/英国',genre:'科幻/冒险',runtime:169,date:'2026-03-20'},
+  {id:2,title:'肖申克的救赎',original_title:'The Shawshank Redemption',year:1994,type:'movie',poster:'#c0392b',rating:5,director:'Frank Darabont',country:'美国',genre:'剧情',runtime:142,date:'2026-02-10'},
+  {id:3,title:'请回答1988',original_title:'Reply 1988',year:2015,type:'series',poster:'#e67e22',rating:5,director:'申元浩',country:'韩国',genre:'剧情/喜剧',season:2,episode:20,date:'2026-01-05'},
+  {id:4,title:'盗梦空间',original_title:'Inception',year:2010,type:'movie',poster:'#2980b9',rating:4,director:'Christopher Nolan',country:'美国/英国',genre:'科幻/动作',runtime:148,date:'2025-12-15'},
+  {id:5,title:'银翼杀手2049',original_title:'Blade Runner 2049',year:2017,type:'movie',poster:'#1abc9c',rating:4,director:'Denis Villeneuve',country:'美国/英国/加拿大',genre:'科幻/黑色',runtime:164,date:'2026-04-05'},
+  {id:6,title:'怪奇物语',original_title:'Stranger Things',year:2016,type:'series',poster:'#8e44ad',rating:4,director:'Duffer Brothers',country:'美国',genre:'科幻/恐怖',season:4,episode:34,date:'2025-11-20'},
+  {id:7,title:'花样年华',original_title:'In the Mood for Love',year:2000,type:'movie',poster:'#e74c3c',rating:5,director:'王家卫',country:'中国香港',genre:'剧情/爱情',runtime:98,date:'2026-02-14'},
+  {id:8,title:'切尔诺贝利',original_title:'Chernobyl',year:2019,type:'series',poster:'#34495e',rating:5,director:'Johan Renck',country:'美国/英国',genre:'剧情/历史',season:1,episode:5,date:'2026-03-01'},
+];
 
-  <!-- MOVIE DETAIL MODAL -->
-  <div class="modal-overlay" id="movieDetailModal">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="modal-handle"></div>
-      <div class="detail-header">
-        <div class="detail-cover" style="aspect-ratio: 2/3;"><svg viewBox="0 0 512 512"><rect x="96" y="128" width="320" height="256" rx="16" fill="none" stroke="currentColor" stroke-width="24"/></svg></div>
-        <div class="detail-info"><div class="detail-title" id="movieDetailTitle">肖申克的救赎</div><div class="detail-artist" id="movieDetailDirector">Frank Darabont</div><div class="detail-meta"><span class="detail-tag">1994</span><span class="detail-tag">剧情</span><span class="rating">9.7</span></div></div>
-      </div>
-      <div class="detail-meta-row">
-        <div class="row"><span class="label">类型</span><span>电影</span></div>
-        <div class="row"><span class="label">观影日期</span><span>2024-06-15</span></div>
-      </div>
-      <div class="detail-meta-row">
-        <div class="row rating-row">
-          <span class="label">我的评分</span>
-          <span class="my-rating">★★★★★ <span class="rating-num">9.5</span></span>
-        </div>
-        <div class="row rating-row">
-          <span class="label">综合评分</span>
-          <div class="external-ratings">
-            <span class="ext-rating imdb">IMDb <strong>9.3</strong></span>
-            <span class="ext-rating douban">豆瓣 <strong>9.7</strong></span>
-          </div>
+function renderStars(r){let h='';for(let i=1;i<=5;i++)h+=`<span class="star">${i<=r?'⭐':'☆'}</span>`;return h}
+function renderVinyls(list){const g=document.getElementById('vinylGrid');if(!list.length){g.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">💿</div><div class="empty-text">还没有黑胶唱片</div><div class="empty-sub">扫码或搜索添加你的第一张黑胶</div><button class="detail-btn primary" style="margin-top:20px;max-width:200px;margin-left:auto;margin-right:auto" onclick="openAddVinyl()">💿 添加黑胶</button></div>';return}
+g.innerHTML=list.map(v=>`<div class="grid-item" data-color="${v.cover}" onclick="openDetail('vinyl',${v.id})"><div class="grid-cover" style="background:${v.cover}"><div class="vinyl-bg">💿</div><div class="grid-overlay-info"><div class="oi-title">${v.album}</div><div class="oi-sub">${v.artist}</div><div class="oi-tag">${v.format}</div></div></div><div class="grid-info"><div class="grid-title">${v.album}</div><div class="grid-artist">${v.artist}</div><div class="grid-format">${v.format}</div></div></div>`).join('');applyAccentColors()}
+
+function renderMovies(list){const g=document.getElementById('movieGrid');if(!list.length){g.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🎬</div><div class="empty-text">暂无影视</div><div class="empty-sub">搜索添加你看过的电影或剧集</div><button class="detail-btn primary" style="margin-top:20px;max-width:200px;margin-left:auto;margin-right:auto" onclick="openAddMovie()">🎬 添加影视</button></div>';return}
+g.innerHTML=list.map(m=>`<div class="grid-item" data-color="${m.poster}" onclick="openDetail('movie',${m.id})"><div class="grid-cover movie-cover" style="background:${m.poster}"><div class="vinyl-bg">🎬</div><div class="grid-overlay-info"><div class="oi-title">${m.original_title||m.title}</div><div class="oi-sub">${m.title} · ${m.year}</div><div class="oi-tag" style="background:${m.type==='movie'?'var(--accent)':'var(--orange)'}">${m.type==='movie'?'电影':'剧集'}</div></div></div><div class="grid-info"><div class="grid-title">${m.original_title||m.title}</div><div class="grid-subtitle-cn">${m.title}</div><div class="grid-artist">${m.country||''} · ${m.year}</div><span class="type-tag-inline ${m.type==='movie'?'tag-movie':'tag-series'}">${m.type==='movie'?'电影':'剧集'}</span></div></div>`).join('');applyAccentColors()}
+
+function renderCoverWall(id,items,k){document.getElementById(id).innerHTML=items.slice(0,6).map(i=>`<div class="cover-wall-cell" style="background:${i[k]||i.cover||i.poster}"></div>`).join('')}
+// Combo chart data (qty + amount per month)
+const monthlyAmounts=[620,380,940,0,680,320,0,890,340,640,0,310];
+function renderChart(){
+  const d=[2,1,3,0,2,1,0,3,1,2,0,1],
+    mx=Math.max(...d,1),
+    amtMax=Math.max(...monthlyAmounts,1);
+  const chartEl=document.getElementById('musicChart');
+  chartEl.innerHTML=d.map((v,i)=>`<div class="bar-col" data-idx="${i}"><div class="bar music" style="height:${(v/mx)*100}%"></div></div>`).join('');
+  // Add SVG line overlay
+  drawComboLine(d,mx,amtMax);
+  // Add tooltip click handler
+  chartEl.onclick=function(e){
+    const col=e.target.closest('.bar-col');
+    if(!col)return;
+    const i=parseInt(col.dataset.idx);
+    const months=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    const tt=document.getElementById('chartTooltip');
+    tt.innerHTML=`<div class="tt-month">${months[i]}</div><div class="tt-qty">数量: ${d[i]} 件</div><div class="tt-amount">金额: ¥${monthlyAmounts[i].toLocaleString()}</div>`;
+    tt.style.display='block';
+    const rect=chartEl.getBoundingClientRect();
+    const colRect=col.getBoundingClientRect();
+    tt.style.left=(colRect.left-rect.left+colRect.width/2-tt.offsetWidth/2)+'px';
+    tt.style.top='-60px';
+    clearTimeout(tt._hideTimer);
+    tt._hideTimer=setTimeout(()=>{tt.style.display='none'},2500);
+  };
+}
+function drawComboLine(d,mx,amtMax){
+  const svg=document.getElementById('musicComboLine');
+  if(!svg)return;
+  const n=d.length;
+  const pts=d.map((v,i)=>{
+    const x=((i+0.5)/n)*100;
+    const y=100-(monthlyAmounts[i]/amtMax)*85-5;
+    return `${x},${y}`;
+  });
+  svg.innerHTML=`<polyline points="${pts.join(' ')}" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`+
+    d.map((v,i)=>{
+      const x=((i+0.5)/n)*100;
+      const y=100-(monthlyAmounts[i]/amtMax)*85-5;
+      return `<circle cx="${x}" cy="${y}" r="2.5" fill="var(--orange)"/>`;
+    }).join('');
+}
+
+function switchTab(i){document.querySelectorAll('.tab-content').forEach((e,j)=>e.classList.toggle('active',j===i));document.querySelectorAll('.tab-item').forEach((e,j)=>e.classList.toggle('active',j===i))}
+function toggleTheme(){document.getElementById('app').classList.toggle('light')}
+function filterVinyls(){const q=document.getElementById('vinylSearch').value.toLowerCase();renderVinyls(vinyls.filter(v=>v.album.toLowerCase().includes(q)||v.artist.toLowerCase().includes(q)))}
+function filterMovies(){const q=document.getElementById('movieSearch').value.toLowerCase();renderMovies(movies.filter(m=>m.title.toLowerCase().includes(q)||m.director.toLowerCase().includes(q)))}
+function filterType(e,t){document.querySelectorAll('.seg-item').forEach(x=>x.classList.remove('active'));e.classList.add('active');t==='all'?renderMovies(movies):renderMovies(movies.filter(m=>m.type===t))}
+function switchStatsTab(e,t){document.querySelectorAll('.stats-tab').forEach(x=>x.classList.remove('active'));e.classList.add('active');document.getElementById('stats-music').style.display=t==='music'?'block':'none';document.getElementById('stats-movie').style.display=t==='movie'?'block':'none'}
+function updateTime(){const n=new Date();document.getElementById('statusTime').textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')}
+
+// ===== 详情页 =====
+function openDetail(type,id){
+  const ov=document.getElementById('detailOverlay'),pn=document.getElementById('detailPanel');
+  let item;
+  if(type==='vinyl'){
+    item=vinyls.find(v=>v.id===id);if(!item)return;
+    pn.innerHTML=`
+      <div class="detail-header"><div class="detail-title">专辑详情</div><div class="detail-close" onclick="closeDetail()">完成</div></div>
+      <div class="scroll-wrap">
+      <div class="detail-cover" style="background:${item.cover}">💿</div>
+      <div class="detail-stars">${renderStars(item.rating)}</div>
+      <div class="detail-field"><span class="detail-label">专辑</span><span class="detail-value">${item.album}</span></div>
+      <div class="detail-field"><span class="detail-label">艺术家</span><span class="detail-value">${item.artist}</span></div>
+      <div class="detail-field"><span class="detail-label">版本</span><span class="detail-value" style="color:var(--accent)">${item.format}</span></div>
+      <div class="detail-field"><span class="detail-label">流派</span><span class="detail-value">${item.genre}</span></div>
+      <div class="detail-field"><span class="detail-label">购买日期</span><span class="detail-value">${item.date}</span></div>
+      <div class="detail-field"><span class="detail-label">价格</span><span class="detail-value">¥${item.price}</span></div>
+      <div class="detail-field"><span class="detail-label">备注</span><span class="detail-value">${item.notes||'-'}</span></div>
+      <div class="detail-actions">
+        <div class="detail-actions-row">
+          <button class="detail-btn primary third" onclick="alert('编辑功能 - 可修改各字段')">✏️ 编辑</button>
+          <button class="detail-btn secondary third" onclick="alert('同步到 Notion')">📝 同步</button>
+          <button class="detail-btn danger third" onclick="closeDetail()">🗑️ 删除</button>
         </div>
       </div>
-      <div class="detail-actions"><div class="detail-btn secondary">编辑</div><div class="detail-btn danger">删除</div></div>
-    </div>
-  </div>
+      </div>`;
+  } else {
+    item=movies.find(m=>m.id===id);if(!item)return;
+    const extra=item.type==='series'?`<div class="detail-field"><span class="detail-label">当前季/集</span><span class="detail-value">第${item.season}季 第${item.episode}集</span></div>`:`<div class="detail-field"><span class="detail-label">时长</span><span class="detail-value">${item.runtime} 分钟</span></div>`;
+    pn.innerHTML=`
+      <div class="detail-header"><div class="detail-title">影视详情</div><div class="detail-close" onclick="closeDetail()">完成</div></div>
+      <div class="scroll-wrap">
+      <div class="detail-cover portrait" style="background:${item.poster}">🎬</div>
+      <div class="detail-stars">${renderStars(item.rating)}</div>
+      <div class="detail-field"><span class="detail-label">英文</span><span class="detail-value" style="font-weight:600">${item.original_title||'-'}</span></div>
+      <div class="detail-field"><span class="detail-label">中文</span><span class="detail-value">${item.title}</span></div>
+      <div class="detail-field"><span class="detail-label">导演</span><span class="detail-value">${item.director}</span></div>
+      <div class="detail-field"><span class="detail-label">年份</span><span class="detail-value">${item.year}</span></div>
+      <div class="detail-field"><span class="detail-label">国别</span><span class="detail-value">${item.country||'-'}</span></div>
+      <div class="detail-field"><span class="detail-label">类型</span><span class="detail-value">${item.type==='movie'?'电影':'剧集'}</span></div>
+      <div class="detail-field"><span class="detail-label">分类</span><span class="detail-value">${item.genre}</span></div>
+      ${extra}
+      <div class="detail-field"><span class="detail-label">观看日期</span><span class="detail-value">${item.date}</span></div>
+      <div class="detail-actions">
+        <div class="detail-actions-row">
+          <button class="detail-btn primary third" onclick="alert('编辑功能 - 可修改各字段')">✏️ 编辑</button>
+          <button class="detail-btn secondary third" onclick="alert('同步到 Notion')">📝 同步</button>
+          <button class="detail-btn danger third" onclick="closeDetail()">🗑️ 删除</button>
+        </div>
+      </div>
+      </div>`;
+  }
+  ov.classList.add('show');
+}
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('show')}
+function closeOverlay(e){if(e.target===e.currentTarget)closeDetail()}
 
-  <!-- TOAST -->
-  <div class="toast" id="toast"></div>
+// ===== 添加流程 =====
+let addStep=0, addType='', addRating=0, addScanMode=false, scanAnimating=false;
 
-  <script>
-    const vinyls = [
-      { title: 'Random Access Memories', artist: 'Daft Punk' },
-      { title: 'Kind of Blue', artist: 'Miles Davis' },
-      { title: 'Abbey Road', artist: 'The Beatles' },
-      { title: 'The Dark Side', artist: 'Pink Floyd' },
-    ];
-    const movies = [
-      { title: '肖申克的救赎', director: 'Frank Darabont' },
-      { title: '教父', director: 'Francis Ford Coppola' },
-      { title: '绝命毒师', director: 'Vince Gilligan' },
-      { title: '蝙蝠侠：黑暗骑士', director: 'Christopher Nolan' },
-    ];
+function openAddVinyl(){addType='vinyl';addStep=0;addRating=0;addScanMode=false;renderAddStep();document.getElementById('addOverlay').classList.add('show')}
+function openAddMovie(){addType='movie';addStep=0;addRating=0;renderAddStep();document.getElementById('addOverlay').classList.add('show')}
+function closeAdd(){document.getElementById('addOverlay').classList.remove('show')}
+function closeAddOverlay(e){if(e.target===e.currentTarget)closeAdd()}
 
-    let currentType = 'all';
-    let currentTime = 'year';
+function renderAddStep(){
+  const pn=document.getElementById('addPanel');
+  const isVinyl=addType==='vinyl';
+  const title=isVinyl?'添加黑胶':'添加影视';
 
-    function showScreen(name) {
-      document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-      document.getElementById('screen-' + name).style.display = 'block';
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelector('.tab-item:nth-child(' + { home: 1, music: 2, movie: 3, stats: 4 }[name] + ')').classList.add('active');
-      document.querySelectorAll('.screen-selector button').forEach(b => b.classList.remove('active'));
-      document.querySelector('.screen-selector button:nth-child(' + { home: 1, music: 2, movie: 3, stats: 4 }[name] + ')').classList.add('active');
+  const mockResults=isVinyl?[
+    {id:101,name:'The Dark Side of the Moon',sub:'Pink Floyd · 1973 · Vinyl LP',color:'#1abc9c',emoji:'💿',format:'Yellow Marble Vinyl'},
+    {id:102,name:'Wish You Were Here',sub:'Pink Floyd · 1975 · Vinyl LP',color:'#3498db',emoji:'💿',format:'180g Remastered'},
+    {id:103,name:'The Wall',sub:'Pink Floyd · 1979 · 2x Vinyl LP',color:'#e74c3c',emoji:'💿',format:'2LP Gatefold'},
+    {id:104,name:'Animals',sub:'Pink Floyd · 1977 · Vinyl LP',color:'#f39c12',emoji:'💿',format:'Blue & Gold Vinyl'},
+  ]:[
+    {id:201,name:'奥本海默',sub:'2023 · 电影 · Christopher Nolan',color:'#2c3e50',emoji:'🎬'},
+    {id:202,name:'致命魔术',sub:'2006 · 电影 · Christopher Nolan',color:'#8e44ad',emoji:'🎬'},
+    {id:203,name:'蝙蝠侠：黑暗骑士',sub:'2008 · 电影 · Christopher Nolan',color:'#34495e',emoji:'🎬'},
+    {id:204,name:'信条',sub:'2020 · 电影 · Christopher Nolan',color:'#2980b9',emoji:'🎬'},
+  ];
+
+  let content='';
+  if(addStep===0){
+    if(isVinyl){
+      // Vinyl: 欢迎页 — 搜索 or 扫码
+      content=`
+        <div class="detail-header"><div class="detail-title">${title}</div><div class="detail-close" onclick="closeAdd()">取消</div></div>
+        <div class="scroll-wrap">
+        ${!addScanMode ? `
+        <div style="text-align:center;padding:20px 0">
+          <div style="font-size:64px;margin-bottom:16px">💿</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px">添加黑胶唱片</div>
+          <div style="font-size:14px;color:var(--secondary);margin-bottom:30px">选择添加方式</div>
+        </div>
+        <div class="add-method" onclick="addScanMode=true;renderAddStep()">
+          <div class="add-method-icon" style="background:rgba(10,132,255,.15)">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="#0a84ff"><path d="M12 4C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          </div>
+          <div class="add-method-text">
+            <div class="add-method-title">📷 扫码添加</div>
+            <div class="add-method-sub">扫描黑胶条形码，自动识别信息</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--secondary)"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+        <div class="add-method" onclick="addScanMode='search';renderAddStep()">
+          <div class="add-method-icon" style="background:rgba(48,209,88,.15)">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="#30d158"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          </div>
+          <div class="add-method-text">
+            <div class="add-method-title">🔍 搜索添加</div>
+            <div class="add-method-sub">搜索专辑名称或艺术家</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--secondary)"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+        ` : addScanMode === true ? `
+        <div style="text-align:center;padding:10px 0">
+          <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:16px">扫描条形码</div>
+          <div class="scanner-frame">
+            <div class="scanner-viewfinder">
+              <div class="scanner-corner tl"></div>
+              <div class="scanner-corner tr"></div>
+              <div class="scanner-corner bl"></div>
+              <div class="scanner-corner br"></div>
+              <div class="scanner-line" id="scanLine"></div>
+            </div>
+            <div class="scanner-bg">📷</div>
+          </div>
+          <div style="color:var(--secondary);font-size:13px;margin-top:16px">将黑胶唱片背面的条形码对准框内</div>
+          <div id="barcodeResult" style="display:none">
+            <div style="background:var(--inputBg);border-radius:10px;padding:14px;margin-top:16px;text-align:left">
+              <div style="color:var(--green);font-size:13px;font-weight:600;margin-bottom:4px">✓ 识别成功</div>
+              <div style="color:var(--text);font-size:16px;font-weight:700;font-family:monospace" id="barcodeValue">0 12345 67890</div>
+            </div>
+            <div style="color:var(--secondary);font-size:13px;margin-top:12px;margin-bottom:8px">搜索结果 · 共 ${mockResults.length} 个</div>
+            ${mockResults.map(r=>`<div class="search-result" onclick="addStep=1;renderAddStep()">
+              <div class="search-thumb" style="background:${r.color}">${r.emoji}</div>
+              <div class="search-info"><div class="search-title">${r.name}</div><div class="search-sub">${r.sub}</div></div>
+              <div class="search-format">${r.format}</div>
+            </div>`).join('')}
+          </div>
+          <div id="scanBtns" style="margin-top:20px;display:flex;gap:10px">
+            <button class="detail-btn primary" onclick="startScan()">开始扫描</button>
+            <button class="detail-btn secondary" onclick="addScanMode=false;renderAddStep()">返回</button>
+          </div>
+        </div>
+        ` : `
+        <div class="search-bar" style="margin-top:4px">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" placeholder="搜索专辑或艺术家..." id="addSearchInput" autofocus>
+        </div>
+        <div style="color:var(--secondary);font-size:13px;margin-bottom:12px">搜索结果 · 共 ${mockResults.length} 个</div>
+        ${mockResults.map(r=>`<div class="search-result" onclick="addStep=1;renderAddStep()">
+          <div class="search-thumb" style="background:${r.color}">${r.emoji}</div>
+          <div class="search-info"><div class="search-title">${r.name}</div><div class="search-sub">${r.sub}</div></div>
+          <div class="search-format">${r.format}</div>
+        </div>`).join('')}
+        <button class="detail-btn secondary" style="margin-top:12px" onclick="addScanMode=false;renderAddStep()">← 返回</button>
+        `}
+        </div>`;
+    } else {
+      // Movie: 搜索
+      content=`
+        <div class="detail-header"><div class="detail-title">${title}</div><div class="detail-close" onclick="closeAdd()">取消</div></div>
+        <div class="search-bar" style="margin-top:4px">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" placeholder="搜索电影或剧集名称..." id="addSearchInput" autofocus>
+        </div>
+        <div style="color:var(--secondary);font-size:13px;margin-bottom:12px">搜索结果 · 共 ${mockResults.length} 个</div>
+        <div class="scroll-wrap">
+          ${mockResults.map(r=>`<div class="search-result" onclick="addStep=1;renderAddStep()">
+            <div class="search-thumb" style="background:${r.color}">${r.emoji}</div>
+            <div class="search-info"><div class="search-title">${r.name}</div><div class="search-sub">${r.sub}</div></div>
+          </div>`).join('')}
+        </div>`;
     }
-
-    function showModal(id) { document.getElementById(id).classList.add('show'); }
-    function hideModal(id) { document.getElementById(id).classList.remove('show'); }
-    function showAddVinylModal() { showModal('addVinylModal'); }
-    function showAddMovieModal() { showModal('addMovieModal'); }
-    function showVinylDetail(index) { document.getElementById('vinylDetailTitle').textContent = vinyls[index].title; document.getElementById('vinylDetailArtist').textContent = vinyls[index].artist; showModal('vinylDetailModal'); }
-    function showMovieDetail(index) { document.getElementById('movieDetailTitle').textContent = movies[index].title; document.getElementById('movieDetailDirector').textContent = movies[index].director; showModal('movieDetailModal'); }
-    function showToast(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
-    document.querySelectorAll('.modal-overlay').forEach(overlay => { overlay.addEventListener('click', () => { overlay.classList.remove('show'); }); });
-
-    function toggleFilter(el, type, value) {
-      if (type === 'type') {
-        currentType = value;
-        document.querySelectorAll('.filter-row:first-child .filter-chip').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-      } else {
-        currentTime = value;
-        document.querySelectorAll('.filter-row:last-child .filter-chip').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-      }
-      updateStats();
+  } else if(addStep===1){
+    // Step 2: 确认信息
+    if(isVinyl){
+      content=`
+        <div class="detail-header"><div class="detail-title">确认添加</div><div class="detail-close" onclick="addStep=0;renderAddStep()">返回</div></div>
+        <div class="scroll-wrap">
+        <div class="detail-cover" style="background:#1abc9c;margin:0 auto 16px">💿</div>
+        <div class="confirm-row"><span class="confirm-label">专辑</span><span class="confirm-value">The Dark Side of the Moon</span></div>
+        <div class="confirm-row"><span class="confirm-label">艺术家</span><span class="confirm-value">Pink Floyd</span></div>
+        <div class="confirm-row"><span class="confirm-label">年份</span><span class="confirm-value">1973</span></div>
+        <div class="confirm-row"><span class="confirm-label">流派</span><span class="confirm-value">Progressive Rock</span></div>
+        <div class="confirm-row"><span class="confirm-label">版本</span><span class="confirm-value" style="color:var(--accent)">Yellow Marble Vinyl</span></div>
+        <div class="confirm-row" style="flex-direction:column;align-items:stretch;gap:10px">
+          <span class="confirm-label">个人评分</span>
+          <div style="display:flex;gap:6px;font-size:32px;justify-content:center">
+            ${[1,2,3,4,5].map(i=>`<span class="star-input" onclick="setRating(${i})">${i<=addRating?'⭐':'☆'}</span>`).join('')}
+          </div>
+        </div>
+        <div class="confirm-row"><span class="confirm-label">购买日期</span>
+          <div class="date-row"><input class="date-input" value="2026" maxlength="4"><span class="date-sep">-</span><input class="date-input" value="05" maxlength="2"><span class="date-sep">-</span><input class="date-input" value="16" maxlength="2"></div>
+        </div>
+        <div class="confirm-row"><span class="confirm-label">价格</span><span class="confirm-value" style="color:var(--accent)">¥ 320</span></div>
+        </div>
+        <button class="detail-btn primary" onclick="addStep=2;renderAddStep()">✅ 确认添加</button>`;
+    } else {
+      content=`
+        <div class="detail-header"><div class="detail-title">确认添加</div><div class="detail-close" onclick="addStep=0;renderAddStep()">返回</div></div>
+        <div class="scroll-wrap">
+        <div class="detail-cover portrait" style="background:#2c3e50;margin:0 auto 16px">🎬</div>
+        <div class="confirm-row"><span class="confirm-label">标题</span><span class="confirm-value">奥本海默</span></div>
+        <div class="confirm-row"><span class="confirm-label">导演</span><span class="confirm-value">Christopher Nolan</span></div>
+        <div class="confirm-row"><span class="confirm-label">年份</span><span class="confirm-value">2023</span></div>
+        <div class="confirm-row"><span class="confirm-label">类型</span><span class="confirm-value">电影</span></div>
+        <div class="confirm-row"><span class="confirm-label">时长</span><span class="confirm-value">180 分钟</span></div>
+        <div class="confirm-row" style="flex-direction:column;align-items:stretch;gap:10px">
+          <span class="confirm-label">个人评分</span>
+          <div style="display:flex;gap:6px;font-size:32px;justify-content:center">
+            ${[1,2,3,4,5].map(i=>`<span class="star-input" onclick="setRating(${i})">${i<=addRating?'⭐':'☆'}</span>`).join('')}
+          </div>
+        </div>
+        <div class="confirm-row"><span class="confirm-label">观看日期</span>
+          <div class="date-row"><input class="date-input" value="2026" maxlength="4"><span class="date-sep">-</span><input class="date-input" value="05" maxlength="2"><span class="date-sep">-</span><input class="date-input" value="16" maxlength="2"></div>
+        </div>
+        </div>
+        <button class="detail-btn primary" onclick="addStep=2;renderAddStep()">✅ 确认添加</button>`;
     }
+  } else {
+    content=`
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center">
+        <div class="success-icon">🎉</div>
+        <div class="success-text">添加成功！</div>
+        <div class="success-sub">${isVinyl?'黑胶已添加到收藏':'影视已添加到收藏'}</div>
+      </div>
+      <button class="detail-btn primary" onclick="closeAdd()">完成</button>`;
+  }
+  pn.innerHTML=content;
+}
+function startScan(){
+  const line=document.getElementById('scanLine');
+  const result=document.getElementById('barcodeResult');
+  const btns=document.getElementById('scanBtns');
+  if(line) line.classList.add('scanning');
+  if(btns) btns.innerHTML='<div style="color:var(--accent);font-size:14px;font-weight:600">📷 正在扫描...</div>';
+  setTimeout(()=>{
+    if(line) line.classList.remove('scanning');
+    if(result) result.style.display='block';
+    if(btns) btns.style.display='none';
+  },2000);
+}
+function setRating(r){addRating=r;renderAddStep()}
 
-    function updateStats() {
-      const musicData = { all: 28, week: 1, month: 5, year: 28, all_time: 28 };
-      const movieData = { all: 14, week: 0, month: 2, year: 14, all_time: 14 };
-
-      const timeLabels = { week: '本周新增', month: '本月新增', year: '今年新增', all: '全部收藏' };
-      const timeSubs = { week: '较上周持平', month: '较上月增长 20%', year: '较去年增长 23%', all: '累计收藏' };
-
-      document.getElementById('totalCount').textContent = currentType === 'movie' ? movieData[currentTime] : (currentType === 'music' ? musicData[currentTime] : musicData[currentTime] + movieData[currentTime]);
-      document.getElementById('totalLabel').textContent = timeLabels[currentTime];
-      document.getElementById('totalSub').textContent = timeSubs[currentTime];
-
-      document.getElementById('musicCount').textContent = musicData[currentTime];
-      document.getElementById('musicSub').textContent = currentTime === 'week' ? '本周 +1' : (currentTime === 'month' ? '本月 +5' : '今年 +28');
-
-      document.getElementById('movieCount').textContent = movieData[currentTime];
-      document.getElementById('movieSub').textContent = currentTime === 'week' ? '本周 +0' : (currentTime === 'month' ? '本月 +2' : '今年 +14');
-
-      const statMusic = document.getElementById('statMusic');
-      const statMovie = document.getElementById('statMovie');
-      const legend = document.getElementById('chartLegend');
-      const chartBars = document.getElementById('chartBars');
-
-      if (currentType === 'music') {
-        statMusic.style.display = 'block';
-        statMovie.style.display = 'none';
-        legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background: #8b5cf6;"></div><span>黑胶</span></div>';
-      } else if (currentType === 'movie') {
-        statMusic.style.display = 'none';
-        statMovie.style.display = 'block';
-        legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background: #f472b6;"></div><span>影视</span></div>';
-      } else {
-        statMusic.style.display = 'block';
-        statMovie.style.display = 'block';
-        legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background: #8b5cf6;"></div><span>黑胶</span></div><div class="legend-item"><div class="legend-dot" style="background: #f472b6;"></div><span>影视</span></div>';
-      }
-
-      const musicBars = [3, 5, 2, 6, 4, 5, 3];
-      const movieBars = [2, 2, 1, 3, 2, 3, 1];
-      const allBars = musicBars.map((m, i) => m + movieBars[i]);
-
-      let barsHtml = '';
-      const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月'];
-
-      months.forEach((month, i) => {
-        if (currentType === 'music') {
-          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar all" style="height: ${musicBars[i] * 8}px;"><span class="count">${musicBars[i]}</span></div></div><div class="chart-month">${month}</div></div>`;
-        } else if (currentType === 'movie') {
-          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar all" style="height: ${movieBars[i] * 15}px;"><span class="count">${movieBars[i]}</span></div></div><div class="chart-month">${month}</div></div>`;
-        } else {
-          barsHtml += `<div class="chart-bar-wrapper"><div class="chart-bar-stack"><div class="chart-bar music" style="height: ${musicBars[i] * 8}px;"><span class="count">${musicBars[i]}</span></div><div class="chart-bar movie" style="height: ${movieBars[i] * 15}px;"></div></div><div class="chart-month">${month}</div></div>`;
-        }
-      });
-      chartBars.innerHTML = barsHtml;
+// ===== 滑动关闭详情/添加弹窗 =====
+let touchStartY=0, touchCurrentY=0, swiping=false;
+function setupSwipe(panel){
+  panel.addEventListener('touchstart',e=>{touchStartY=e.touches[0].clientY;swiping=false},{passive:true});
+  panel.addEventListener('touchmove',e=>{
+    touchCurrentY=e.touches[0].clientY;
+    const dy=touchCurrentY-touchStartY;
+    if(dy>0){
+      swiping=true;
+      panel.style.transform=`translateY(${dy}px)`;
+      panel.style.transition='none';
     }
+  },{passive:true});
+  panel.addEventListener('touchend',()=>{
+    const dy=touchCurrentY-touchStartY;
+    panel.style.transition='transform .3s ease';
+    if(swiping && dy>100){
+      panel.style.transform='translateY(100%)';
+      setTimeout(()=>{
+        panel.style.transform='';
+        if(panel.id==='detailPanel') closeDetail();
+        else closeAdd();
+      },300);
+    } else {
+      panel.style.transform='';
+    }
+    swiping=false;
+  },{passive:true});
+}
+setupSwipe(document.getElementById('detailPanel'));
+setupSwipe(document.getElementById('addPanel'));
 
-    updateStats();
-  </script>
+// ===== 统计数据联动 =====
+const statsData={
+  music:{
+    '全部':{total:12,spent:3840,artists:9,avg:320,chart:[2,1,3,0,2,1,0,3,1,2,0,1]},
+    '2026':{total:8,spent:2720,artists:7,avg:340,chart:[0,0,2,0,1,1,0,2,1,1,0,1]},
+    '2025':{total:4,spent:1120,artists:5,avg:280,chart:[1,1,1,0,1,0,0,1,0,1,0,0]},
+  },
+  movie:{
+    '全部':{total:8,movies:5,series:3,avg:8.2},
+    '2026':{total:5,movies:3,series:2,avg:8.4},
+    '2025':{total:3,movies:2,series:1,avg:8.0},
+  }
+};
+
+function clickYearBtn(e){
+  const year=e.textContent;
+  e.parentElement.querySelectorAll('.year-btn').forEach(x=>x.classList.remove('active'));
+  e.classList.add('active');
+
+  // Determine which stats panel is visible
+  const musicPanel=document.getElementById('stats-music');
+  const moviePanel=document.getElementById('stats-movie');
+
+  if(musicPanel.style.display!=='none'){
+    const d=statsData.music[year]||statsData.music['全部'];
+    const cards=musicPanel.querySelectorAll('.metric-value');
+    cards[0].textContent=d.total;
+    cards[1].textContent='¥'+d.spent.toLocaleString();
+    cards[2].textContent=d.artists;
+    cards[3].textContent='¥'+d.avg;
+    // Update chart
+    const mx=Math.max(...d.chart,1);
+    const months=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    document.getElementById('musicChart').innerHTML=d.chart.map((v,i)=>`<div class="bar-col"><div class="bar music" style="height:${(v/mx)*100}%"></div><div class="bar-label">${months[i]}</div></div>`).join('');
+  } else {
+    const d=statsData.movie[year]||statsData.movie['全部'];
+    const cards=moviePanel.querySelectorAll('.metric-value');
+    cards[0].textContent=d.total;
+    cards[1].textContent=d.movies;
+    cards[2].textContent=d.series;
+    cards[3].textContent=d.avg;
+  }
+}
+
+// ===== 首页最近添加 =====
+function renderRecentVinyls(){
+  const sorted=[...vinyls].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  document.getElementById('recentVinyls').innerHTML=sorted.map(v=>`
+    <div class="recent-card" onclick="openDetail('vinyl',${v.id})">
+      <div class="recent-card-cover" style="background:${v.cover}">💿</div>
+      <div class="recent-card-info">
+        <div class="recent-card-title">${v.album}</div>
+        <div class="recent-card-sub">${v.artist}</div>
+        <div class="recent-card-tag">${v.format}</div>
+      </div>
+    </div>`).join('');
+}
+function renderRecentMovies(){
+  const sorted=[...movies].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  document.getElementById('recentMovies').innerHTML=sorted.map(m=>`
+    <div class="recent-card" onclick="openDetail('movie',${m.id})">
+      <div class="recent-card-cover portrait" style="background:${m.poster}">🎬</div>
+      <div class="recent-card-info">
+        <div class="recent-card-title">${m.original_title||m.title}</div>
+        <div class="recent-card-sub">${m.title} · ${m.country||''} · ${m.year}</div>
+        <div class="recent-card-tag" style="color:${m.type==='movie'?'var(--accent)':'var(--orange)'}">${m.type==='movie'?'电影':'剧集'}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ===== List View Toggle =====
+let viewModes={music:'grid',movie:'grid'};
+function toggleView(type,mode){
+  viewModes[type]=mode;
+  const segId=type==='music'?'musicViewSeg':'movieViewSeg';
+  document.getElementById(segId).querySelectorAll('.view-option').forEach(el=>{
+    el.classList.toggle('active',el.textContent===(mode==='grid'?'网格':'列表'));
+  });
+  const gridId=type==='music'?'vinylGrid':'movieGrid';
+  const el=document.getElementById(gridId);
+  if(viewModes[type]==='list'){
+    el.classList.add('list-view');
+    el.style.display='flex';el.style.flexDirection='column';el.style.gap='8px';
+  }else{
+    el.classList.remove('list-view');
+    el.style.display='';el.style.flexDirection='';el.style.gap='';
+  }
+  if(type==='music') renderVinyls(vinyls);
+  else renderMovies(movies);
+}
+
+// ===== Stats: Album List Overlay =====
+function openAlbumList(){
+  const ov=document.getElementById('albumOverlay');
+  const title=document.getElementById('albumOverlayTitle');
+  const content=document.getElementById('albumListContent');
+  title.textContent='全部专辑 ('+vinyls.length+')';
+  content.innerHTML=[...vinyls].sort((a,b)=>b.date.localeCompare(a.date)).map(v=>`
+    <div class="stats-list-item" style="cursor:pointer" onclick="document.getElementById('albumOverlay').classList.remove('show');openDetail('vinyl',${v.id})">
+      <div class="stats-list-thumb" style="background:${v.cover}">💿</div>
+      <div class="stats-list-info">
+        <div class="stats-list-title">${v.album}</div>
+        <div class="stats-list-sub">${v.artist} · ${v.genre} · ${v.format}</div>
+      </div>
+    </div>`).join('');
+  ov.classList.add('show');
+}
+
+// ===== Stats: Artist Detail Overlay =====
+function openArtistDetail(){
+  const ov=document.getElementById('artistOverlay');
+  const title=document.getElementById('artistOverlayTitle');
+  const content=document.getElementById('artistListContent');
+  // Group by artist
+  const artistMap={};
+  vinyls.forEach(v=>{
+    if(!artistMap[v.artist]) artistMap[v.artist]={name:v.artist,albums:[],cover:v.cover,genre:v.genre};
+    artistMap[v.artist].albums.push(v);
+  });
+  const artists=Object.values(artistMap).sort((a,b)=>b.albums.length-a.albums.length);
+  const colors=['#e74c3c','#3498db','#2ecc71','#9b59b6','#e67e22','#1abc9c','#f39c12','#2980b9','#8e44ad','#c0392b'];
+  title.textContent='艺术家 ('+artists.length+')';
+  content.innerHTML=artists.map((a,i)=>`
+    <div class="artist-card" onclick="openArtistAlbums('${a.name.replace(/'/g,"\\'")}')">
+      <div class="artist-avatar" style="background:${colors[i%colors.length]}">${a.name.charAt(0)}</div>
+      <div class="artist-info">
+        <div class="artist-name">${a.name}</div>
+        <div class="artist-count">${a.albums.length} 张专辑 · ${a.genre}</div>
+      </div>
+    </div>`).join('');
+  ov.classList.add('show');
+}
+function openArtistAlbums(artistName){
+  const ov=document.getElementById('artistOverlay');
+  const title=document.getElementById('artistOverlayTitle');
+  const content=document.getElementById('artistListContent');
+  const albums=vinyls.filter(v=>v.artist===artistName);
+  title.textContent=artistName+' ('+albums.length+')';
+  content.innerHTML=albums.map(v=>`
+    <div class="stats-list-item" style="cursor:pointer" onclick="document.getElementById('artistOverlay').classList.remove('show');openDetail('vinyl',${v.id})">
+      <div class="stats-list-thumb" style="background:${v.cover}">💿</div>
+      <div class="stats-list-info">
+        <div class="stats-list-title">${v.album}</div>
+        <div class="stats-list-sub">${v.genre} · ${v.format}</div>
+      </div>
+    </div>`).join('');
+}
+function closeStatsOverlay(e,id){if(e.target===e.currentTarget)document.getElementById(id).classList.remove('show')}
+
+// ===== Charts: Year & Artist/Director =====
+const chartColors=[
+  '#0a84ff','#30b5ff','#64d2ff',
+  '#5e5ce6','#bf9af0',
+  '#30d158','#6ee08a',
+  '#ff9f0a','#ffb340',
+  '#ff375f','#ff6b8a',
+  '#ffd60a',
+];
+function barColor(i,baseAccent){
+  if(i===0) return baseAccent;
+  const opacity=Math.max(0.35,1-i*0.12);
+  return baseAccent.replace(')',`,${opacity})`).replace('rgb','rgba');
+}
+function accentColor(i){return chartColors[i%chartColors.length]}
+
+function renderYearChart(){
+  const releaseYears={'1959':1,'1962':1,'1967':1,'1969':1,'1973':1,'1975':1,'1977':1,'1979':1,'1997':1,'2007':2,'2013':1};
+  const entries=Object.entries(releaseYears).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const mx=Math.max(...entries.map(e=>e[1]),1);
+  const colors=['#0a84ff','#5e5ce6','#30d158','#ff9f0a','#ff375f','#ffd60a','#30b5ff','#bf9af0'];
+  document.getElementById('yearChart').innerHTML=`<div class="top-list">${entries.map(([yr,cnt],i)=>{
+    const rank=i+1;const rc=rank<=3?'r'+rank:'r4';
+    return `<div class="top-row"><div class="top-rank ${rc}">${rank}</div><div class="top-name">${yr}</div><div class="top-bar-track"><div class="top-bar-fill" style="width:${(cnt/mx)*100}%;background:${colors[i%colors.length]}"></div></div><div class="top-count">${cnt}</div></div>`;
+  }).join('')}</div>`;
+}
+
+function renderArtistChart(){
+  const artistCount={};
+  vinyls.forEach(v=>{artistCount[v.artist]=(artistCount[v.artist]||0)+1});
+  const entries=Object.entries(artistCount).sort((a,b)=>b[1]-a[1]);
+  const mx=Math.max(...entries.map(e=>e[1]),1);
+  document.getElementById('artistChart').innerHTML=`<div class="top-list">${entries.map(([name,cnt],i)=>{
+    const rank=i+1;const rc=rank<=3?'r'+rank:'r4';
+    const colors=['#0a84ff','#5e5ce6','#30d158','#ff9f0a','#ff375f','#ffd60a'];
+    return `<div class="top-row"><div class="top-rank ${rc}">${rank}</div><div class="top-name" title="${name}">${name}</div><div class="top-bar-track"><div class="top-bar-fill" style="width:${(cnt/mx)*100}%;background:${colors[i%colors.length]}"></div></div><div class="top-count">${cnt}</div></div>`;
+  }).join('')}</div>`;
+}
+
+function renderMovieYearChart(){
+  const yearMap={};
+  movies.forEach(m=>{yearMap[m.year]=(yearMap[m.year]||0)+1});
+  const entries=Object.entries(yearMap).sort((a,b)=>parseInt(a[0])-parseInt(b[0]));
+  const mx=Math.max(...entries.map(e=>e[1]),1);
+  const colors=['#0a84ff','#5e5ce6','#30d158','#ff9f0a','#ff375f','#ffd60a','#30b5ff','#bf9af0'];
+  document.getElementById('movieYearChart').innerHTML=`<div class="top-list">${entries.map(([yr,cnt],i)=>{
+    const rank=i+1;const rc=rank<=3?'r'+rank:'r4';
+    return `<div class="top-row"><div class="top-rank ${rc}">${rank}</div><div class="top-name">${yr}</div><div class="top-bar-track"><div class="top-bar-fill" style="width:${(cnt/mx)*100}%;background:${colors[i%colors.length]}"></div></div><div class="top-count">${cnt}</div></div>`;
+  }).join('')}</div>`;
+}
+
+function renderDirectorChart(){
+  const dirCount={};
+  movies.forEach(m=>{dirCount[m.director]=(dirCount[m.director]||0)+1});
+  const entries=Object.entries(dirCount).sort((a,b)=>b[1]-a[1]);
+  const mx=Math.max(...entries.map(e=>e[1]),1);
+  document.getElementById('directorChart').innerHTML=`<div class="top-list">${entries.map(([name,cnt],i)=>{
+    const rank=i+1;const rc=rank<=3?'r'+rank:'r4';
+    const colors=['#30d158','#0a84ff','#ff9f0a','#ff375f','#5e5ce6'];
+    return `<div class="top-row"><div class="top-rank ${rc}">${rank}</div><div class="top-name" title="${name}">${name}</div><div class="top-bar-track"><div class="top-bar-fill" style="width:${(cnt/mx)*100}%;background:${colors[i%colors.length]}"></div></div><div class="top-count">${cnt}</div></div>`;
+  }).join('')}</div>`;
+}
+
+// ===== Color Extraction =====
+function extractAccentColor(colorStr){
+  // For hex colors used as placeholders, return the color directly
+  if(colorStr&&colorStr.startsWith('#')) return colorStr;
+  return null;
+}
+function applyAccentColors(){
+  document.querySelectorAll('.grid-item[data-color]').forEach(el=>{
+    const c=el.dataset.color;
+    if(c){el.style.setProperty('--accent-color',c);el.classList.add('has-accent')}
+  });
+}
+
+// Override renderVinyls to include accent
+const _origRenderVinyls=renderVinyls;
+
+// ===== Charts: Year & Artist/Director =====
+// Update clickYearBtn to also update new charts
+const _origClickYearBtn=clickYearBtn;
+function clickYearBtn(e){
+  const year=e.textContent;
+  e.parentElement.querySelectorAll('.year-btn').forEach(x=>x.classList.remove('active'));
+  e.classList.add('active');
+  const musicPanel=document.getElementById('stats-music');
+  const moviePanel=document.getElementById('stats-movie');
+  if(musicPanel.style.display!=='none'){
+    const d=statsData.music[year]||statsData.music['全部'];
+    const cards=musicPanel.querySelectorAll('.metric-value');
+    cards[0].textContent=d.total;
+    // Update amount preserving hidden state
+    const amountEl=cards[1];
+    if(!amountEl.dataset.hidden){amountEl.textContent='¥'+d.spent.toLocaleString()}
+    amountEl.dataset.rawValue='¥'+d.spent.toLocaleString();
+    cards[2].textContent=d.artists;
+    // Genre count - compute from filtered vinyls
+    const yearVinyls=year==='全部'?vinyls:vinyls.filter(v=>v.date.startsWith(year));
+    const genreCount=new Set(yearVinyls.map(v=>v.genre)).size;
+    cards[3].textContent=genreCount;
+    // Update combo chart
+    const mx=Math.max(...d.chart,1);
+    const chartEl=document.getElementById('musicChart');
+    const svgEl=document.getElementById('musicComboLine');
+    const ttEl=document.getElementById('chartTooltip');
+    // Compute amounts for this year filter
+    const filteredAmts=year==='全部'?monthlyAmounts:monthlyAmounts.map((a,i)=>{
+      // simple: distribute evenly
+      const totalAmt=d.spent;
+      return Math.round(totalAmt/12*(d.chart[i]/Math.max(...d.chart.filter(x=>x>0),1)));
+    });
+    const amtMax2=Math.max(...filteredAmts,1);
+    chartEl.innerHTML=d.chart.map((v,i)=>`<div class="bar-col" data-idx="${i}"><div class="bar music" style="height:${(v/mx)*100}%"></div></div>`).join('');
+    // Re-add SVG and tooltip
+    if(svgEl) chartEl.appendChild(svgEl);
+    if(ttEl) chartEl.parentElement.appendChild(ttEl);
+    // Draw line
+    const n=d.chart.length;
+    const pts=d.chart.map((v,i)=>{
+      const x=((i+0.5)/n)*100;
+      const y=100-(filteredAmts[i]/amtMax2)*85-5;
+      return `${x},${y}`;
+    });
+    if(svgEl) svgEl.innerHTML=`<polyline points="${pts.join(' ')}" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`+
+      d.chart.map((v,i)=>{
+        const x=((i+0.5)/n)*100;
+        const y=100-(filteredAmts[i]/amtMax2)*85-5;
+        return `<circle cx="${x}" cy="${y}" r="2.5" fill="var(--orange)"/>`;
+      }).join('');
+    // Re-add click handler
+    const months2=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    chartEl.onclick=function(e){
+      const col=e.target.closest('.bar-col');
+      if(!col)return;
+      const i=parseInt(col.dataset.idx);
+      const tt=document.getElementById('chartTooltip');
+      tt.innerHTML=`<div class="tt-month">${months2[i]}</div><div class="tt-qty">数量: ${d.chart[i]} 件</div><div class="tt-amount">金额: ¥${filteredAmts[i].toLocaleString()}</div>`;
+      tt.style.display='block';
+      const rect=chartEl.getBoundingClientRect();
+      const colRect=col.getBoundingClientRect();
+      tt.style.left=(colRect.left-rect.left+colRect.width/2-tt.offsetWidth/2)+'px';
+      tt.style.top='-60px';
+      clearTimeout(tt._hideTimer);
+      tt._hideTimer=setTimeout(()=>{tt.style.display='none'},2500);
+    };
+    // Update year chart for filtered data
+    renderYearChartFiltered(yearVinyls);
+    // Update artist chart for filtered data
+    renderArtistChartFiltered(yearVinyls);
+  } else {
+    const d=statsData.movie[year]||statsData.movie['全部'];
+    const cards=moviePanel.querySelectorAll('.metric-value');
+    cards[0].textContent=d.total;
+    cards[1].textContent=d.movies;
+    cards[2].textContent=d.series;
+    cards[3].textContent=d.avg;
+    const yearMovies=year==='全部'?movies:movies.filter(m=>m.date.startsWith(year));
+    renderMovieYearChartFiltered(yearMovies);
+    renderDirectorChartFiltered(yearMovies);
+    renderMovieMonthlyChart(year);
+  }
+}
+
+function renderYearChartFiltered(list){
+  const yearMap={};
+  list.forEach(v=>{
+    const yrMap={'Random Access Memories':'2013','OK Computer':'1997','Abbey Road':'1969','Kind of Blue':'1959','Dark Side of the Moon':'1973','Thriller':'1982','Rumours':'1977','Blue Train':'1958','Discovery':'2001','In Rainbows':'2007','Wish You Were Here':'1975','A Love Supreme':'1965'};
+    const yr=yrMap[v.album]||'2000';
+    yearMap[yr]=(yearMap[yr]||0)+1;
+  });
+  const entries=Object.entries(yearMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(!entries.length){document.getElementById('yearChart').innerHTML='<div style="text-align:center;padding:20px;color:var(--secondary);font-size:13px">暂无数据</div>';return}
+  const mx=Math.max(...entries.map(e=>e[1]),1);
+  const colors=['#0a84ff','#5e5ce6','#30d158','#ff9f0a','#ff375f','#ffd60a','#30b5ff','#bf9af0'];
+  document.getElementById('yearChart').innerHTML=`<div class="top-list">${entries.map(([yr,cnt],i)=>{
+    const rank=i+1;const rc=rank<=3?'r'+rank:'r4';
+    return `<div class="top-row"><div class="top-rank ${rc}">${rank}</div><div class="top-name">${yr}</div><div class="top-bar-track"><div class="top-bar-fill" style="width:${(cnt/mx)*100}%;background:${colors[i%colors.length]}"></div></div><div class="top-count">${cnt}</div></div>`;
+  }).join('')}</div>`;
+}
+function renderArtistChartFiltered(list){
+  const artistCount={};
+  list.forEach(v=>{artistCount[v.artist]=(artistCount[v.artist]||0)+1});
+  const entries=Object.entries(artistCount).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length){document.getElementById('artistChart').innerHTML='<div style="text-align:center;padding:20px;color:var(--secondary);font-size:13px">暂无数据</div>';return}
+  const mx=Math.max(...entries.map(e=>e[1]),1);
+  document.getElementById('artistChart').innerHTML=`<div class="top-list">${entries.map(([name,cnt],i)=>{
+    const rank=i+1;const rc=rank<=3?'r'+rank:'r4';
+    const colors=['#0a84ff','#5e5ce6','#30d158','#ff9f0a','#ff375f','#ffd60a'];
+    return `<div class="top-row"><div class="top-rank ${rc}">${rank}</div><div class="top-name" title="${name}">${name}</div><div class="top-bar-track"><div class="top-bar-fill" style="width:${(cnt/mx)*100}%;background:${colors[i%colors.length]}"></div></div><div class="top-count">${cnt}</div></div>`;
+  }).join('')}</div>`;
+}
+function renderMovieYearChartFiltered(list){
+  const yearMap={};
+  list.forEach(m=>{yearMap[m.year]=(yearMap[m.year]||0)+1});
+  const entries=Object.entries(yearMap).sort((a,b)=>parseInt(a[0])-parseInt(b[0]));
+  if(!entries.length){document.getElementById('movieYearChart').innerHTML='<div style="text-align:center;padding:20px;color:var(--secondary);font-size:13px">暂无数据</div>';return}
+  const mx=Math.max(...entries.map(e=>e[1]),1);
+  const colors=['#0a84ff','#5e5ce6','#30d158','#ff9f0a','#ff375f','#ffd60a','#30b5ff','#bf9af0'];
+  document.getElementById('movieYearChart').innerHTML=`<div class="top-list">${entries.map(([yr,cnt],i)=>{
+    const rank=i+1;const rc=rank<=3?'r'+rank:'r4';
+    return `<div class="top-row"><div class="top-rank ${rc}">${rank}</div><div class="top-name">${yr}</div><div class="top-bar-track"><div class="top-bar-fill" style="width:${(cnt/mx)*100}%;background:${colors[i%colors.length]}"></div></div><div class="top-count">${cnt}</div></div>`;
+  }).join('')}</div>`;
+}
+function renderDirectorChartFiltered(list){
+  const dirCount={};
+  list.forEach(m=>{dirCount[m.director]=(dirCount[m.director]||0)+1});
+  const entries=Object.entries(dirCount).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length){document.getElementById('directorChart').innerHTML='<div style="text-align:center;padding:20px;color:var(--secondary);font-size:13px">暂无数据</div>';return}
+  const mx=Math.max(...entries.map(e=>e[1]),1);
+  document.getElementById('directorChart').innerHTML=`<div class="top-list">${entries.map(([name,cnt],i)=>{
+    const rank=i+1;const rc=rank<=3?'r'+rank:'r4';
+    const colors=['#30d158','#0a84ff','#ff9f0a','#ff375f','#5e5ce6'];
+    return `<div class="top-row"><div class="top-rank ${rc}">${rank}</div><div class="top-name" title="${name}">${name}</div><div class="top-bar-track"><div class="top-bar-fill" style="width:${(cnt/mx)*100}%;background:${colors[i%colors.length]}"></div></div><div class="top-count">${cnt}</div></div>`;
+  }).join('')}</div>`;
+}
+
+// ===== Amount Eye Toggle =====
+function toggleAmount(btn){
+  const wrap=btn.parentElement;
+  const valEl=wrap.querySelector('.metric-value');
+  if(valEl.dataset.hidden){
+    valEl.textContent=valEl.dataset.rawValue||valEl.textContent;
+    delete valEl.dataset.hidden;
+    valEl.classList.remove('amount-hidden');
+    btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>';
+  }else{
+    valEl.dataset.rawValue=valEl.textContent;
+    valEl.textContent='••••';
+    valEl.dataset.hidden='1';
+    valEl.classList.add('amount-hidden');
+    btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>';
+  }
+}
+
+// ===== 月度观影趋势（电影/剧集区分）=====
+let movieChartMode='all';
+let currentMovieYear='全部';
+const movieMonthlyData={
+  '全部':{movie:[2,1,3,1,2,2,1,3,1,2,1,1],series:[1,2,1,2,1,1,2,1,2,1,1,2]},
+  '2026':{movie:[2,1,2,1,1,1,1,2,1,1,0,1],series:[1,1,1,1,1,0,1,1,1,0,1,1]},
+  '2025':{movie:[0,0,1,0,1,1,0,1,0,1,1,0],series:[0,1,0,1,0,1,1,0,1,1,0,1]},
+};
+
+function switchMovieChartTab(el,mode){
+  el.parentElement.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  movieChartMode=mode;
+  renderMovieMonthlyChart(currentMovieYear);
+}
+
+function renderMovieMonthlyChart(year){
+  currentMovieYear=year;
+  const d=movieMonthlyData[year]||movieMonthlyData['全部'];
+  const legend=document.getElementById('movieChartLegend');
+
+  // Determine max based on mode
+  let mx;
+  if(movieChartMode==='all'){
+    const combined=d.movie.map((v,i)=>v+d.series[i]);
+    mx=Math.max(...combined,1);
+  } else if(movieChartMode==='movie'){
+    mx=Math.max(...d.movie,1);
+  } else {
+    mx=Math.max(...d.series,1);
+  }
+
+  document.getElementById('movieMonthlyChart').innerHTML=d.movie.map((mVal,i)=>{
+    const sVal=d.series[i];
+    if(movieChartMode==='all'){
+      const total=mVal+sVal;
+      const mPct=mVal/mx*100;
+      const sPct=sVal/mx*100;
+      return `<div class="bar-col" style="position:relative" data-idx="${i}" data-total="${total}">
+        <div style="display:flex;flex-direction:column;width:100%;height:120px;justify-content:flex-end;gap:1px">
+          ${sVal?`<div style="width:100%;height:${sPct}%;background:var(--orange);border-radius:4px 4px 0 0;min-height:3px"></div>`:''}
+          ${mVal?`<div style="width:100%;height:${mPct}%;background:var(--accent);border-radius:${sVal?'0':'4px 4px'} 0 0;min-height:3px"></div>`:''}
+          ${!total?'<div style="width:100%;height:3px;background:var(--inputBg);border-radius:2px"></div>':''}
+        </div>
+      </div>`;
+    } else if(movieChartMode==='movie'){
+      const pct=mVal/mx*100;
+      return `<div class="bar-col" title="电影 ${mVal} 部">
+        <div style="display:flex;flex-direction:column;width:100%;height:120px;justify-content:flex-end">
+          <div style="width:100%;height:${mVal?pct:0}%;background:var(--accent);border-radius:4px 4px 0 0;min-height:${mVal?3:0}px"></div>
+        </div>
+      </div>`;
+    } else {
+      const pct=sVal/mx*100;
+      return `<div class="bar-col" title="剧集 ${sVal} 部">
+        <div style="display:flex;flex-direction:column;width:100%;height:120px;justify-content:flex-end">
+          <div style="width:100%;height:${sVal?pct:0}%;background:var(--orange);border-radius:4px 4px 0 0;min-height:${sVal?3:0}px"></div>
+        </div>
+      </div>`;
+    }
+  }).join('');
+
+  // Update legend
+  if(movieChartMode==='all'){
+    legend.innerHTML='<span style="font-size:11px;color:var(--secondary)"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--accent);margin-right:4px"></span>电影</span><span style="font-size:11px;color:var(--secondary)"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--orange);margin-right:4px"></span>剧集</span>';
+  } else if(movieChartMode==='movie'){
+    legend.innerHTML='<span style="font-size:11px;color:var(--secondary)"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--accent);margin-right:4px"></span>电影</span>';
+  } else {
+    legend.innerHTML='<span style="font-size:11px;color:var(--secondary)"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--orange);margin-right:4px"></span>剧集</span>';
+  }
+
+  // Click handler for showing numbers (only in 'all' mode)
+  const chartEl2=document.getElementById('movieMonthlyChart');
+  chartEl2.onclick=function(e){
+    if(movieChartMode!=='all') return;
+    const col=e.target.closest('.bar-col');
+    if(!col) return;
+    const total=parseInt(col.dataset.total)||0;
+    const idx=parseInt(col.dataset.idx);
+    const mVal=d.movie[idx];
+    const sVal=d.series[idx];
+    // Remove existing click-num
+    const existing=col.querySelector('.bar-click-num');
+    if(existing) existing.remove();
+    // Create number label
+    const label=document.createElement('div');
+    label.className='bar-click-num';
+    label.textContent=total?`${total} (影${mVal}+剧${sVal})`:'无';
+    col.querySelector('div').style.position='relative';
+    col.querySelector('div').appendChild(label);
+    // Auto-hide after 2s
+    setTimeout(()=>{label.remove()},2000);
+  };
+}
+
+// ===== 首页金额眼睛切换 =====
+function toggleHomeAmount(btn){
+  const el=document.getElementById('monthSpent');
+  const eyeOpen='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>';
+  const eyeClosed='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C11.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>';
+  if(el.dataset.hidden==='1'){
+    el.textContent='¥1,040';
+    el.dataset.hidden='0';
+    btn.innerHTML=eyeOpen;
+  }else{
+    el.textContent='••••';
+    el.dataset.hidden='1';
+    btn.innerHTML=eyeClosed;
+  }
+}
+
+// Init
+renderVinyls(vinyls);renderMovies(movies);
+renderCoverWall('musicWall',vinyls,'cover');renderCoverWall('movieWall',movies,'poster');
+renderRecentVinyls();renderRecentMovies();
+renderChart();renderYearChart();renderArtistChart();renderMovieYearChart();renderDirectorChart();renderMovieMonthlyChart('全部');updateTime();setInterval(updateTime,60000);
+</script>
 </body>
 </html>

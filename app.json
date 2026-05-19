@@ -13,7 +13,15 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ziweili.mediavault"
+      "bundleIdentifier": "com.ziweili.mediavault",
+      "infoPlist": {
+        "UIViewControllerBasedStatusBarAppearance": true,
+        "UIStatusBarHidden": false,
+        "UILaunchStoryboardName": "SplashScreen"
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -34,7 +42,7 @@
       "NOTION_API_KEY": "${process.env.NOTION_API_KEY}",
       "NOTION_VINYLS_DB_ID": "${process.env.NOTION_VINYLS_DB_ID}",
       "NOTION_MOVIES_DB_ID": "${process.env.NOTION_MOVIES_DB_ID}",
-      "OMDB_API_KEY": "${process.env.OMDB_API_KEY}"
+      "TMDB_API_KEY": "${process.env.TMDB_API_KEY}"
     }
   }
 }

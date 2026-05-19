@@ -15,22 +15,24 @@ export const SCHEMA_VERSION = 1;
 export const CREATE_TABLE_VINYLS = `
   CREATE TABLE IF NOT EXISTS vinyls (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    notion_page_id TEXT, -- Notion页面ID（用于双向同步）
+    notion_page_id TEXT,
     album_name TEXT NOT NULL,
     artist TEXT NOT NULL,
-    version TEXT, -- 版本信息
-    cover_url TEXT, -- Discogs封面URL
-    release_id INTEGER, -- Discogs release ID
-    barcode TEXT, -- 条形码
-    purchase_date TEXT, -- 购买日期
-    price REAL, -- 价格
-    personal_rating INTEGER, -- 个人评分 (1-5)
-    genre TEXT, -- 流派（从Discogs获取）
-    notes TEXT, -- 备注
+    version TEXT,
+    cover_url TEXT,
+    release_id INTEGER,
+    barcode TEXT,
+    purchase_date TEXT,
+    price REAL,
+    personal_rating INTEGER,
+    genre TEXT,
+    year INTEGER,
+    release_date TEXT,
+    notes TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    last_synced_at TEXT, -- 最后同步时间
-    needs_sync INTEGER DEFAULT 1 -- 是否需要同步到Notion (0/1)
+    last_synced_at TEXT,
+    needs_sync INTEGER DEFAULT 1
   );
 `;
 
@@ -38,21 +40,30 @@ export const CREATE_TABLE_VINYLS = `
 export const CREATE_TABLE_MOVIES = `
   CREATE TABLE IF NOT EXISTS movies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    notion_page_id TEXT, -- Notion页面ID
+    notion_page_id TEXT,
     title TEXT NOT NULL,
+    original_title TEXT,
     director TEXT,
     year INTEGER,
-    type TEXT NOT NULL, -- 'movie' or 'series'
-    imdb_id TEXT, -- OMDB的IMDb ID
-    poster_url TEXT, -- 海报URL
-    genre TEXT, -- 类型
-    runtime INTEGER, -- 时长（分钟）
-    imdb_rating REAL, -- IMDb评分
-    personal_rating INTEGER, -- 个人评分 (1-5)
-    watch_date TEXT, -- 观看日期
-    current_season INTEGER, -- 当前季数（剧集）
-    current_episode INTEGER, -- 当前集数（剧集）
-    status TEXT DEFAULT 'watched', -- 'want_to_watch', 'watching', 'watched'
+    release_date TEXT,
+    type TEXT NOT NULL,
+    tmdb_id INTEGER,
+    imdb_id TEXT,
+    poster_url TEXT,
+    genre TEXT,
+    country TEXT,
+    runtime INTEGER,
+    imdb_rating REAL,
+    personal_rating INTEGER,
+    watch_date TEXT,
+    current_season INTEGER,
+    current_episode INTEGER,
+    watched_seasons TEXT,
+    season_number INTEGER,
+    season_poster TEXT,
+    season_air_date TEXT,
+    parent_tv_id INTEGER,
+    status TEXT DEFAULT 'watched',
     notes TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -65,11 +76,11 @@ export const CREATE_TABLE_MOVIES = `
 export const CREATE_TABLE_SYNC_STATUS = `
   CREATE TABLE IF NOT EXISTS sync_status (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    table_name TEXT NOT NULL, -- 'vinyls' or 'movies'
-    record_id INTEGER NOT NULL, -- 对应记录的ID
-    operation TEXT NOT NULL, -- 'create', 'update', 'delete'
+    table_name TEXT NOT NULL,
+    record_id INTEGER NOT NULL,
+    operation TEXT NOT NULL,
     timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
-    synced INTEGER DEFAULT 0 -- 0=未同步, 1=已同步
+    synced INTEGER DEFAULT 0
   );
 `;
 
@@ -96,7 +107,25 @@ export const INIT_QUERIES = [
   CREATE_INDEX_SYNC_STATUS,
 ];
 
-// 类型定义（TypeScript）
+// 数据库迁移
+export const MIGRATION_QUERIES = [
+  `ALTER TABLE movies ADD COLUMN original_title TEXT`,
+  `ALTER TABLE movies ADD COLUMN tmdb_id INTEGER`,
+  `ALTER TABLE movies ADD COLUMN country TEXT`,
+  `ALTER TABLE movies ADD COLUMN release_date TEXT`,
+  `ALTER TABLE movies ADD COLUMN watched_seasons TEXT`,
+  `ALTER TABLE movies ADD COLUMN season_number INTEGER`,
+  `ALTER TABLE movies ADD COLUMN season_poster TEXT`,
+  `ALTER TABLE movies ADD COLUMN season_air_date TEXT`,
+  `ALTER TABLE movies ADD COLUMN parent_tv_id INTEGER`,
+  `ALTER TABLE vinyls ADD COLUMN year INTEGER`,
+  `ALTER TABLE vinyls ADD COLUMN release_date TEXT`,
+  `ALTER TABLE vinyls ADD COLUMN country TEXT`,
+  `ALTER TABLE vinyls ADD COLUMN label TEXT`,
+  `ALTER TABLE vinyls ADD COLUMN style TEXT`,
+];
+
+// 类型定义
 export interface Vinyl {
   id?: number;
   notion_page_id?: string;
@@ -110,6 +139,11 @@ export interface Vinyl {
   price?: number;
   personal_rating?: number;
   genre?: string;
+  year?: number;
+  release_date?: string;
+  country?: string;
+  label?: string;
+  style?: string;
   notes?: string;
   created_at?: string;
   updated_at?: string;
@@ -121,18 +155,27 @@ export interface Movie {
   id?: number;
   notion_page_id?: string;
   title: string;
+  original_title?: string;
   director?: string;
   year?: number;
+  release_date?: string;
   type: 'movie' | 'series';
+  tmdb_id?: number;
   imdb_id?: string;
   poster_url?: string;
   genre?: string;
+  country?: string;
   runtime?: number;
   imdb_rating?: number;
   personal_rating?: number;
   watch_date?: string;
   current_season?: number;
   current_episode?: number;
+  watched_seasons?: string;
+  season_number?: number;
+  season_poster?: string;
+  season_air_date?: string;
+  parent_tv_id?: number;
   status?: 'want_to_watch' | 'watching' | 'watched';
   notes?: string;
   created_at?: string;
