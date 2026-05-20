@@ -256,10 +256,10 @@ export default function HomeScreen({ navigation }: any) {
         </Animated.View>
 
         {/* 音乐媒体卡片 */}
-        <Animated.View style={{
+        <Animated.View style={[styles.sectionWrapper, {
           opacity: fadeAnim,
           transform: [{ translateY: Animated.add(slideAnim, new Animated.Value(10)) }],
-        }}>
+        }]}>
           <View style={[styles.newMediaCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
             {/* 标题区域 */}
             <TouchableOpacity 
@@ -315,10 +315,10 @@ export default function HomeScreen({ navigation }: any) {
         </Animated.View>
 
         {/* 影视媒体卡片 */}
-        <Animated.View style={{
+        <Animated.View style={[styles.sectionWrapper, {
           opacity: fadeAnim,
           transform: [{ translateY: Animated.add(slideAnim, new Animated.Value(20)) }],
-        }}>
+        }]}>
           <View style={[styles.newMediaCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
             {/* 标题区域 */}
             <TouchableOpacity 
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
   content: { padding: CARD_PADDING },
 
   // 问候
-  greetingSection: { marginBottom: 24, marginTop: 8, position: 'relative' },
+  greetingSection: { marginBottom: 20, marginTop: 8, position: 'relative' },
   greetingIcon: { fontSize: 28, marginBottom: 4 },
   greeting: { fontSize: 32, fontWeight: '700', letterSpacing: -0.5 },
   greetingSub: { fontSize: 15, marginTop: 2 },
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   monthSummaryHeader: {
     flexDirection: 'row',
@@ -643,8 +643,10 @@ const styles = StyleSheet.create({
   newMediaCard: {
     borderRadius: 16,
     borderWidth: 1,
-    marginBottom: 40,
     overflow: 'hidden',
+  },
+  sectionWrapper: {
+    marginBottom: 20,
   },
   newCardHeader: {
     flexDirection: 'row',
@@ -713,7 +715,7 @@ const styles = StyleSheet.create({
   },
 
   // Section
-  recentSection: { marginBottom: 24 },
+  recentSection: { marginBottom: 20 },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
