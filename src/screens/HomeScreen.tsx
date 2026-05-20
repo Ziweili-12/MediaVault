@@ -266,7 +266,7 @@ export default function HomeScreen({ navigation }: any) {
             activeOpacity={0.85}
           >
     {/* 动态封面墙背景 */}
-            <View style={[styles.coverWall, { opacity: 0.5 }]}>
+            <View style={[styles.coverWall, { opacity: isDark ? 0.5 : 0.85 }]}>
               {musicWallCovers.map((item, i) => (
                 <Animated.View 
                   key={i} 
@@ -297,7 +297,7 @@ export default function HomeScreen({ navigation }: any) {
               ))}
             </View>
             {/* 半透明遮罩 - 保证文字可读 */}
-            <View style={[styles.cardOverlay, { backgroundColor: 'rgba(0,0,0,0.4)' }]} />
+            <View style={[styles.cardOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.3)' }]} />
             {/* Card content */}
             <View style={styles.cardContent}>
               <View style={styles.cardLeft}>
@@ -326,7 +326,7 @@ export default function HomeScreen({ navigation }: any) {
             activeOpacity={0.85}
           >
             {/* 动态封面墙背景 */}
-            <View style={[styles.coverWall, { opacity: 0.5 }]}>
+            <View style={[styles.coverWall, { opacity: isDark ? 0.5 : 0.85 }]}>
               {movieWallCovers.slice(0, 3).map((item, i) => (
                 <Animated.View 
                   key={i} 
@@ -357,7 +357,7 @@ export default function HomeScreen({ navigation }: any) {
               ))}
             </View>
             {/* 半透明遮罩 - 保证文字可读 */}
-            <View style={[styles.cardOverlay, { backgroundColor: 'rgba(0,0,0,0.4)' }]} />
+            <View style={[styles.cardOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.3)' }]} />
             {/* Card content */}
             <View style={styles.cardContent}>
               <View style={styles.cardLeft}>

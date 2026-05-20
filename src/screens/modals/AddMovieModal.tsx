@@ -25,7 +25,6 @@ import {
   extractSeasonDirectors,
 } from '../../services/api';
 import { insertMovie } from '../../database/database';
-import { createNotionPage, formatMovieForNotion } from '../../services/api';
 
 interface Props {
   visible: boolean;
@@ -243,22 +242,6 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
           };
 
           const movieId = await insertMovie(movieData);
-
-          // Sync to Notion
-          try {
-            const notionProperties = formatMovieForNotion(movieData);
-            const pageId = await createNotionPage(
-              process.env.EXPO_PUBLIC_NOTION_MOVIES_DB_ID || '',
-              notionProperties,
-              movieData.poster_url
-            );
-            if (pageId) {
-              const { updateMovie } = require('../../database/database');
-              await updateMovie(movieId, { notion_page_id: pageId });
-            }
-          } catch (error) {
-            console.log('⚠️ Notion sync skipped:', error);
-          }
         }
       } else {
         // 电影：直接保存
@@ -282,21 +265,6 @@ export default function AddMovieModal({ visible, onClose, onSuccess }: Props) {
         };
 
         const movieId = await insertMovie(movieData);
-
-        try {
-          const notionProperties = formatMovieForNotion(movieData);
-          const pageId = await createNotionPage(
-            process.env.EXPO_PUBLIC_NOTION_MOVIES_DB_ID || '',
-            notionProperties,
-            movieData.poster_url
-          );
-          if (pageId) {
-            const { updateMovie } = require('../../database/database');
-            await updateMovie(movieId, { notion_page_id: pageId });
-          }
-        } catch (error) {
-          console.log('⚠️ Notion sync skipped:', error);
-        }
       }
 
       const selectedCount = seasons.filter((s) => s.selected).length;

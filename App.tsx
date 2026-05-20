@@ -3,7 +3,8 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './src/navigation/AppNavigator';
 import { initDatabase } from './src/database/database';
-import { ThemeProvider, useTheme } from './src/components/ThemeProvider';
+import { ThemeProvider } from './src/components/ThemeProvider';
+import { useTheme } from './src/theme';
 
 function AppContent() {
   const { isDark } = useTheme();
