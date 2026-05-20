@@ -289,7 +289,7 @@ export default function HomeScreen({ navigation }: any) {
               style={styles.newCardScroll}
               contentContainerStyle={styles.newCardScrollContent}
             >
-              {musicWallCovers.map((item, i) => (
+              {musicWallCovers.length > 0 ? musicWallCovers.map((item, i) => (
                 <TouchableOpacity
                   key={i}
                   style={styles.newCardCover}
@@ -302,20 +302,14 @@ export default function HomeScreen({ navigation }: any) {
                       style={styles.newCardCoverImg} 
                       resizeMode="cover" 
                     />
-                  ) : (
-                    <View style={[styles.newCardCoverImg, { backgroundColor: colors.inputBg, justifyContent: 'center', alignItems: 'center' }]}>
-                      <Ionicons name="disc-outline" size={24} color={colors.textSecondary} />
-                    </View>
-                  )}
+                  ) : null}
                 </TouchableOpacity>
-              ))}
-              {Array.from({ length: Math.max(0, 8 - musicWallCovers.length) }).map((_, i) => (
-                <View key={`empty-${i}`} style={styles.newCardCover}>
-                  <View style={[styles.newCardCoverImg, { backgroundColor: colors.inputBg, justifyContent: 'center', alignItems: 'center' }]}>
-                    <Ionicons name="disc-outline" size={24} color={colors.textSecondary} />
-                  </View>
+              )) : (
+                <View style={styles.emptyScrollPlaceholder}>
+                  <Ionicons name="disc-outline" size={24} color={colors.textSecondary} />
+                  <Text style={[styles.emptyScrollText, { color: colors.textSecondary }]}>暂无收藏</Text>
                 </View>
-              ))}
+              )}
             </ScrollView>
           </View>
         </Animated.View>
@@ -354,7 +348,7 @@ export default function HomeScreen({ navigation }: any) {
               style={styles.newCardScroll}
               contentContainerStyle={styles.newCardScrollContent}
             >
-              {movieWallCovers.map((item, i) => (
+              {movieWallCovers.length > 0 ? movieWallCovers.map((item, i) => (
                 <TouchableOpacity
                   key={i}
                   style={[styles.newCardCover, styles.newCardCoverMovie]}
@@ -367,20 +361,14 @@ export default function HomeScreen({ navigation }: any) {
                       style={styles.newCardCoverImg} 
                       resizeMode="cover" 
                     />
-                  ) : (
-                    <View style={[styles.newCardCoverImg, { backgroundColor: colors.inputBg, justifyContent: 'center', alignItems: 'center' }]}>
-                      <Ionicons name="film-outline" size={24} color={colors.textSecondary} />
-                    </View>
-                  )}
+                  ) : null}
                 </TouchableOpacity>
-              ))}
-              {Array.from({ length: Math.max(0, 8 - movieWallCovers.length) }).map((_, i) => (
-                <View key={`empty-${i}`} style={[styles.newCardCover, styles.newCardCoverMovie]}>
-                  <View style={[styles.newCardCoverImg, { backgroundColor: colors.inputBg, justifyContent: 'center', alignItems: 'center' }]}>
-                    <Ionicons name="film-outline" size={24} color={colors.textSecondary} />
-                  </View>
+              )) : (
+                <View style={styles.emptyScrollPlaceholder}>
+                  <Ionicons name="film-outline" size={24} color={colors.textSecondary} />
+                  <Text style={[styles.emptyScrollText, { color: colors.textSecondary }]}>暂无收藏</Text>
                 </View>
-              ))}
+              )}
             </ScrollView>
           </View>
         </Animated.View>
@@ -655,7 +643,7 @@ const styles = StyleSheet.create({
   newMediaCard: {
     borderRadius: 16,
     borderWidth: 1,
-    marginBottom: 20,
+    marginBottom: 40,
     overflow: 'hidden',
   },
   newCardHeader: {
@@ -712,6 +700,16 @@ const styles = StyleSheet.create({
   newCardCoverImg: {
     width: '100%',
     height: '100%',
+  },
+  emptyScrollPlaceholder: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+  },
+  emptyScrollText: {
+    fontSize: 13,
   },
 
   // Section

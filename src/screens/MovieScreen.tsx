@@ -183,7 +183,7 @@ export default function MovieScreen() {
               {item.season_number != null && (
                 <View style={[styles.typeTag, { backgroundColor: 'rgba(249,115,22,0.15)' }]}>
                   <Text style={[styles.typeTagText, { color: '#f97316' }]}>
-                    S{item.season_number}
+                    Season {item.season_number}
                   </Text>
                 </View>
               )}

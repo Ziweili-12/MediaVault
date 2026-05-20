@@ -146,9 +146,9 @@ export default function MovieDetailModal({ visible, movie, onClose, onDelete, on
   );
 
   const seasonLabel = movie.season_number 
-    ? `第${movie.season_number}季` 
+    ? `Season ${movie.season_number}` 
     : movie.current_season 
-      ? `第${movie.current_season}季` 
+      ? `Season ${movie.current_season}` 
       : null;
 
   return (
