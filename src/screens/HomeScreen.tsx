@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
   content: { padding: CARD_PADDING },
 
   // 问候
-  greetingSection: { marginBottom: 20, marginTop: 8, position: 'relative' },
+  greetingSection: { marginBottom: 24, marginTop: 8, position: 'relative' },
   greetingIcon: { fontSize: 28, marginBottom: 4 },
   greeting: { fontSize: 32, fontWeight: '700', letterSpacing: -0.5 },
   greetingSub: { fontSize: 15, marginTop: 2 },
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     padding: 16,
-    marginBottom: 14,
+    marginBottom: 24,
   },
   monthSummaryHeader: {
     flexDirection: 'row',
@@ -643,7 +643,7 @@ const styles = StyleSheet.create({
   newMediaCard: {
     borderRadius: 16,
     borderWidth: 1,
-    marginBottom: 40,
+    marginBottom: 24,
     overflow: 'hidden',
   },
   newCardHeader: {
@@ -713,7 +713,7 @@ const styles = StyleSheet.create({
   },
 
   // Section
-  recentSection: { marginBottom: 40 },
+  recentSection: { marginBottom: 24 },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -233,7 +233,7 @@ export default function MovieDetailModal({ visible, movie, onClose, onDelete, on
                     );
                   }
                 })()}
-                {seasonLabel && <FieldRow label="季" value={seasonLabel} />}
+                {seasonLabel && <FieldRow label="Season" value={seasonLabel} />}
                 {movie.director && <FieldRow label="导演/创作者" value={movie.director} />}
                 {(movie.release_date || movie.year) && (
                   <FieldRow label="上映日期" value={movie.release_date || String(movie.year)} />

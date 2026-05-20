@@ -68,12 +68,9 @@ export default function VinylDetailModal({ visible, vinyl, onClose, onDelete, on
 
   if (!vinyl) return null;
 
-  // 版本标签：拆分为独立 tag，并过滤通用词
+  // 版本标签：拆分为独立 tag（详情页显示全部）
   const versionTags = vinyl.version
-    ? [...new Set(vinyl.version.split(',').map((t: string) => t.trim()).filter(Boolean))].filter((t: string) => {
-        const generic = ['Vinyl', 'LP', 'Album', 'All Media', 'Reissue', 'Special Edition', 'Limited Edition', 'Deluxe Edition', 'Collector\'s Edition', 'Anniversary Edition', 'Remastered Edition', 'Edition', 'Stereo', 'Alternative Cover', 'Mono', 'Alternate Cover'];
-        return !generic.some(g => t.toLowerCase().includes(g.toLowerCase()));
-      })
+    ? [...new Set(vinyl.version.split(',').map((t: string) => t.trim()).filter(Boolean))]
     : [];
 
   const s = StyleSheet.create({
