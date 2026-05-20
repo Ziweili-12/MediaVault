@@ -7,6 +7,7 @@ import HomeScreen from '../screens/HomeScreen';
 import MusicScreen from '../screens/MusicScreen';
 import MovieScreen from '../screens/MovieScreen';
 import StatsScreen from '../screens/StatsScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -95,6 +96,16 @@ export default function Navigation() {
               <Ionicons name="stats-chart" size={size} color={color} />
             ),
             tabBarLabel: '统计',
+          }}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="settings-outline" size={size} color={color} />
+            ),
+            tabBarLabel: '设置',
           }}
         />
       </Tab.Navigator>
