@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../../theme';
 import { updateMovie } from '../../database/database';
-import { formatMovieForNotion, updateNotionPage, getTMDBImages } from '../../services/api';
+import { getTMDBImages } from '../../services/api';
 
 interface Props {
   visible: boolean;
@@ -101,25 +101,6 @@ export default function MovieDetailModal({ visible, movie, onClose, onDelete, on
       { text: '取消', style: 'cancel' },
       { text: '删除', style: 'destructive', onPress: onDelete },
     ]);
-  };
-
-  const handleSyncToNotion = async () => {
-    try {
-      if (!movie.notion_page_id) {
-        Alert.alert('提示', '此记录尚未同步到Notion');
-        return;
-      }
-      const properties = formatMovieForNotion(movie);
-      const success = await updateNotionPage(movie.notion_page_id, properties);
-      if (success) {
-        Alert.alert('成功', '已同步到Notion');
-        onUpdate();
-      } else {
-        Alert.alert('失败', '同步到Notion失败');
-      }
-    } catch (error) {
-      Alert.alert('错误', '同步失败');
-    }
   };
 
   const handleSaveEdit = async () => {
@@ -367,9 +348,6 @@ export default function MovieDetailModal({ visible, movie, onClose, onDelete, on
             <>
               <TouchableOpacity style={[styles.editButton, { backgroundColor: colors.accent }]} onPress={() => setEditing(true)}>
                 <Text style={styles.editButtonText}>编辑</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.syncButton, { backgroundColor: colors.inputBg }]} onPress={handleSyncToNotion}>
-                <Text style={[styles.syncButtonText, { color: colors.accent }]}>同步到Notion</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
                 <Text style={[styles.deleteButtonText, { color: colors.red }]}>删除</Text>

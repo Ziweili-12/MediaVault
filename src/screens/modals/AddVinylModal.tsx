@@ -7,7 +7,6 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { insertVinyl, updateVinyl } from '../../database/database';
 import { searchDiscogsByBarcode, searchDiscogsByQuery, getDiscogsRelease } from '../../services/api';
-import { createNotionPage, formatVinylForNotion } from '../../services/api';
 import { useTheme } from '../../theme';
 
 interface Props {
@@ -119,13 +118,6 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
       };
 
       const vinylId = await insertVinyl(vinylData);
-      try {
-        const pageId = await createNotionPage(
-          process.env.EXPO_PUBLIC_NOTION_VINYLS_DB_ID || '',
-          formatVinylForNotion(vinylData), vinylData.cover_url
-        );
-        if (pageId) await updateVinyl(vinylId, { notion_page_id: pageId });
-      } catch (e) { console.log('Notion sync skipped:', e); }
 
       Alert.alert('成功', '黑胶已添加');
       resetForm();

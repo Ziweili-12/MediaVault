@@ -297,7 +297,7 @@ export default function HomeScreen({ navigation }: any) {
               ))}
             </View>
             {/* 半透明遮罩 - 保证文字可读 */}
-            <View style={[styles.cardOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.3)' }]} />
+            <View style={[styles.cardOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.15)' }]} />
             {/* Card content */}
             <View style={styles.cardContent}>
               <View style={styles.cardLeft}>
@@ -357,12 +357,12 @@ export default function HomeScreen({ navigation }: any) {
               ))}
             </View>
             {/* 半透明遮罩 - 保证文字可读 */}
-            <View style={[styles.cardOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.3)' }]} />
+            <View style={[styles.cardOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.15)' }]} />
             {/* Card content */}
             <View style={styles.cardContent}>
               <View style={styles.cardLeft}>
-                <View style={[styles.iconCircle, { backgroundColor: 'rgba(10,132,255,0.15)' }]}>
-                  <Ionicons name="film" size={20} color="#0a84ff" />
+                <View style={[styles.iconCircle, { backgroundColor: 'rgba(249,115,22,0.15)' }]}>
+                  <Ionicons name="film" size={20} color="#f97316" />
                 </View>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>影视</Text>
                 <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>电影与剧集</Text>

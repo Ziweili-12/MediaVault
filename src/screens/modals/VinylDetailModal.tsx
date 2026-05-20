@@ -4,7 +4,6 @@ import {
   Alert, Image, TextInput, ActivityIndicator,
 } from 'react-native';
 import { updateVinyl } from '../../database/database';
-import { formatVinylForNotion, updateNotionPage } from '../../services/api';
 import { useTheme } from '../../theme';
 
 interface Props {
@@ -65,15 +64,6 @@ export default function VinylDetailModal({ visible, vinyl, onClose, onDelete, on
       { text: '取消', style: 'cancel' },
       { text: '删除', style: 'destructive', onPress: onDelete },
     ]);
-  };
-
-  const handleSyncToNotion = async () => {
-    try {
-      if (!vinyl.notion_page_id) { Alert.alert('提示', '此记录尚未同步到Notion'); return; }
-      const success = await updateNotionPage(vinyl.notion_page_id, formatVinylForNotion(vinyl));
-      if (success) { Alert.alert('成功', '已同步到Notion'); onUpdate(); }
-      else { Alert.alert('失败', '同步到Notion失败'); }
-    } catch (error) { Alert.alert('错误', '同步失败'); }
   };
 
   if (!vinyl) return null;
@@ -281,9 +271,6 @@ export default function VinylDetailModal({ visible, vinyl, onClose, onDelete, on
             <>
               <TouchableOpacity style={s.editBtn} onPress={() => setEditing(true)}>
                 <Text style={s.editBtnText}>编辑</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={s.syncBtn} onPress={handleSyncToNotion}>
-                <Text style={s.syncBtnText}>同步到Notion</Text>
               </TouchableOpacity>
               <TouchableOpacity style={s.deleteBtn} onPress={handleDelete}>
                 <Text style={s.deleteBtnText}>删除</Text>
