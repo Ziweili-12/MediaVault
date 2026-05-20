@@ -269,17 +269,18 @@ export default function HomeScreen({ navigation }: any) {
             >
               <View style={styles.newCardHeaderLeft}>
                 <View style={[styles.iconCircle, { backgroundColor: 'rgba(10,132,255,0.15)' }]}>
-                  <Ionicons name="musical-notes" size={20} color="#0a84ff" />
+                  <Ionicons name="musical-notes" size={18} color="#0a84ff" />
                 </View>
                 <View>
-                  <Text style={[styles.newCardTitle, { color: colors.text }]}>音乐</Text>
+                  <View style={styles.newCardTitleRow}>
+                    <Text style={[styles.newCardTitle, { color: colors.text }]}>音乐</Text>
+                    <Text style={[styles.newCardTitleDot, { color: colors.textSecondary }]}>·</Text>
+                    <Text style={[styles.newCardCount, { color: '#0a84ff' }]}>{vinylStats.total}</Text>
+                  </View>
                   <Text style={[styles.newCardSubtitle, { color: colors.textSecondary }]}>我的黑胶收藏</Text>
                 </View>
               </View>
-              <View style={styles.newCardHeaderRight}>
-                <Text style={[styles.newCardCount, { color: '#0a84ff' }]}>{vinylStats.total}</Text>
-                <Text style={[styles.newCardLabel, { color: colors.textSecondary }]}>张专辑</Text>
-              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
             </TouchableOpacity>
             
             {/* 海报滚动区域 */}
@@ -328,17 +329,18 @@ export default function HomeScreen({ navigation }: any) {
             >
               <View style={styles.newCardHeaderLeft}>
                 <View style={[styles.iconCircle, { backgroundColor: 'rgba(249,115,22,0.15)' }]}>
-                  <Ionicons name="film" size={20} color="#f97316" />
+                  <Ionicons name="film" size={18} color="#f97316" />
                 </View>
                 <View>
-                  <Text style={[styles.newCardTitle, { color: colors.text }]}>影视</Text>
+                  <View style={styles.newCardTitleRow}>
+                    <Text style={[styles.newCardTitle, { color: colors.text }]}>影视</Text>
+                    <Text style={[styles.newCardTitleDot, { color: colors.textSecondary }]}>·</Text>
+                    <Text style={[styles.newCardCount, { color: '#f97316' }]}>{movieStats.total}</Text>
+                  </View>
                   <Text style={[styles.newCardSubtitle, { color: colors.textSecondary }]}>电影与剧集</Text>
                 </View>
               </View>
-              <View style={styles.newCardHeaderRight}>
-                <Text style={[styles.newCardCount, { color: '#f97316' }]}>{movieStats.total}</Text>
-                <Text style={[styles.newCardLabel, { color: colors.textSecondary }]}>部作品</Text>
-              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
             </TouchableOpacity>
             
             {/* 海报滚动区域 */}
@@ -589,26 +591,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  newCardHeaderRight: {
-    alignItems: 'flex-end',
+  newCardTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+  },
+  newCardTitleDot: {
+    fontSize: 16,
+    fontWeight: '300',
   },
   newCardTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
     letterSpacing: -0.3,
   },
   newCardSubtitle: {
     fontSize: 12,
-    marginTop: 2,
+    marginTop: 3,
   },
   newCardCount: {
-    fontSize: 28,
-    fontWeight: '800',
-    letterSpacing: -1,
-  },
-  newCardLabel: {
-    fontSize: 11,
-    marginTop: 2,
+    fontSize: 17,
+    fontWeight: '700',
+    letterSpacing: -0.5,
   },
   newCardScroll: {
     paddingBottom: 16,
