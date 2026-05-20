@@ -643,7 +643,7 @@ const styles = StyleSheet.create({
   newMediaCard: {
     borderRadius: 16,
     borderWidth: 1,
-    marginBottom: 24,
+    marginBottom: 40,
     overflow: 'hidden',
   },
   newCardHeader: {
