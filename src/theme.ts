@@ -1,3 +1,4 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
 export interface ThemeColors {
@@ -42,8 +43,22 @@ export const lightColors: ThemeColors = {
   red: '#ff3b30',
 };
 
+interface ThemeContextType {
+  isDark: boolean;
+  colors: ThemeColors;
+  toggleTheme: () => void;
+  setDarkMode: (dark: boolean) => void;
+}
+
+const defaultThemeContext: ThemeContextType = {
+  isDark: false,
+  colors: lightColors,
+  toggleTheme: () => {},
+  setDarkMode: () => {},
+};
+
+export const ThemeContext = createContext<ThemeContextType>(defaultThemeContext);
+
 export function useTheme() {
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
-  return { isDark, colors: isDark ? darkColors : lightColors };
+  return useContext(ThemeContext);
 }

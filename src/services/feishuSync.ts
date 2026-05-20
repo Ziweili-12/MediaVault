@@ -60,9 +60,10 @@ class FeishuSyncService {
       const fields: any = {
         album_name: vinyl.album_name || '',
         artist: vinyl.artist || '',
-        year: vinyl.year ? parseInt(vinyl.year) : null,
-        cover_url: vinyl.cover_url || '',
+        release_date: vinyl.release_date || '',
+        cover_url: vinyl.cover_url ? { link: vinyl.cover_url, text: vinyl.cover_url } : null,
         purchase_price: vinyl.purchase_price ? parseFloat(vinyl.purchase_price) : null,
+        price: vinyl.price ? parseFloat(vinyl.price) : null,
         version: vinyl.version || '',
         notes: vinyl.notes || ''
       };
@@ -123,14 +124,16 @@ class FeishuSyncService {
       
       const fields: any = {
         title: movie.title || '',
+        original_title: movie.original_title || '',
         chinese_title: movie.chinese_title || '',
         type: movie.type || 'movie',
-        year: movie.year ? parseInt(movie.year) : null,
-        poster_url: movie.poster_url || '',
+        release_date: movie.release_date || '',
+        poster_url: movie.poster_url ? { link: movie.poster_url, text: movie.poster_url } : null,
         country: movie.country || '',
-        rating: movie.rating ? parseFloat(movie.rating) : null,
+        rating: movie.personal_rating ? parseFloat(movie.personal_rating) : (movie.imdb_rating ? parseFloat(movie.imdb_rating) : null),
         watch_status: movie.watch_status || '想看',
-        season: movie.season || '',
+        watch_date: movie.watch_date || '',
+        current_season: movie.current_season || '',
         notes: movie.notes || ''
       };
 
