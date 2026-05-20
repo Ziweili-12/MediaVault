@@ -232,6 +232,11 @@ export default function MusicScreen() {
               {item.release_date || String(item.year)}
             </Text>
           )}
+          {item.price && (
+            <Text style={[styles.listPriceTag, { color: '#30d158' }]}>
+              ¥{item.price}
+            </Text>
+          )}
         </View>
         {(item.version) ? (
           <Text style={[styles.listFormat, { color: colors.accent }]} numberOfLines={1}>
@@ -593,6 +598,15 @@ const styles = StyleSheet.create({
   listMetaText: {
     fontSize: 10,
     fontWeight: '500',
+  },
+  listPriceTag: {
+    fontSize: 10,
+    fontWeight: '600',
+    backgroundColor: 'rgba(48,209,88,0.1)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    overflow: 'hidden',
   },
 
   // 排序

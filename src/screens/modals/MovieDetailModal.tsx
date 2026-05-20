@@ -145,7 +145,11 @@ export default function MovieDetailModal({ visible, movie, onClose, onDelete, on
     </View>
   );
 
-  const seasonLabel = movie.season_number ? `第${movie.season_number}季` : null;
+  const seasonLabel = movie.season_number 
+    ? `第${movie.season_number}季` 
+    : movie.current_season 
+      ? `第${movie.current_season}季` 
+      : null;
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>

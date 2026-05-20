@@ -260,59 +260,64 @@ export default function HomeScreen({ navigation }: any) {
           opacity: fadeAnim,
           transform: [{ translateY: Animated.add(slideAnim, new Animated.Value(10)) }],
         }}>
-          <TouchableOpacity
-            style={[styles.mediaCard, { borderColor: colors.cardBorder }]}
-            onPress={() => navigation.navigate('Music')}
-            activeOpacity={0.85}
-          >
-    {/* 动态封面墙背景 */}
-            <View style={[styles.coverWall, { opacity: isDark ? 0.5 : 0.85 }]}>
-              {musicWallCovers.map((item, i) => (
-                <Animated.View 
-                  key={i} 
-                  style={[
-                    styles.coverWallCell,
-                    {
-                      opacity: fadeAnim,
-                      transform: [{ 
-                        scale: fadeAnim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0.8, 1],
-                        })
-                      }],
-                    }
-                  ]}
-                >
-                  {item.cover_url ? (
-                    <Image source={{ uri: item.cover_url, headers: { 'User-Agent': 'MediaVault/1.0' } }} style={styles.coverWallImg} resizeMode="cover" />
-                  ) : (
-                    <View style={[styles.coverWallPlaceholder, { backgroundColor: colors.inputBg }]} />
-                  )}
-                </Animated.View>
-              ))}
-              {Array.from({ length: Math.max(0, 6 - musicWallCovers.length) }).map((_, i) => (
-                <View key={`empty-${i}`} style={styles.coverWallCell}>
-                  <View style={[styles.coverWallPlaceholder, { backgroundColor: colors.inputBg }]} />
-                </View>
-              ))}
-            </View>
-            {/* 半透明遮罩 - 保证文字可读 */}
-            <View style={[styles.cardOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.15)' }]} />
-            {/* Card content */}
-            <View style={styles.cardContent}>
-              <View style={styles.cardLeft}>
+          <View style={[styles.newMediaCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+            {/* 标题区域 */}
+            <TouchableOpacity 
+              style={styles.newCardHeader}
+              onPress={() => navigation.navigate('Music')}
+              activeOpacity={0.8}
+            >
+              <View style={styles.newCardHeaderLeft}>
                 <View style={[styles.iconCircle, { backgroundColor: 'rgba(10,132,255,0.15)' }]}>
                   <Ionicons name="musical-notes" size={20} color="#0a84ff" />
                 </View>
-                <Text style={[styles.cardTitle, { color: colors.text }]}>音乐</Text>
-                <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>我的黑胶收藏</Text>
+                <View>
+                  <Text style={[styles.newCardTitle, { color: colors.text }]}>音乐</Text>
+                  <Text style={[styles.newCardSubtitle, { color: colors.textSecondary }]}>我的黑胶收藏</Text>
+                </View>
               </View>
-              <View style={styles.cardRight}>
-                <Text style={[styles.cardCount, { color: '#0a84ff' }]}>{vinylStats.total}</Text>
-                <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>张专辑</Text>
+              <View style={styles.newCardHeaderRight}>
+                <Text style={[styles.newCardCount, { color: '#0a84ff' }]}>{vinylStats.total}</Text>
+                <Text style={[styles.newCardLabel, { color: colors.textSecondary }]}>张专辑</Text>
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+            
+            {/* 海报滚动区域 */}
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              style={styles.newCardScroll}
+              contentContainerStyle={styles.newCardScrollContent}
+            >
+              {musicWallCovers.map((item, i) => (
+                <TouchableOpacity
+                  key={i}
+                  style={styles.newCardCover}
+                  onPress={() => navigation.navigate('Music')}
+                  activeOpacity={0.8}
+                >
+                  {item.cover_url ? (
+                    <Image 
+                      source={{ uri: item.cover_url, headers: { 'User-Agent': 'MediaVault/1.0' } }} 
+                      style={styles.newCardCoverImg} 
+                      resizeMode="cover" 
+                    />
+                  ) : (
+                    <View style={[styles.newCardCoverImg, { backgroundColor: colors.inputBg, justifyContent: 'center', alignItems: 'center' }]}>
+                      <Ionicons name="disc-outline" size={24} color={colors.textSecondary} />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+              {Array.from({ length: Math.max(0, 8 - musicWallCovers.length) }).map((_, i) => (
+                <View key={`empty-${i}`} style={styles.newCardCover}>
+                  <View style={[styles.newCardCoverImg, { backgroundColor: colors.inputBg, justifyContent: 'center', alignItems: 'center' }]}>
+                    <Ionicons name="disc-outline" size={24} color={colors.textSecondary} />
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
         </Animated.View>
 
         {/* 影视媒体卡片 */}
@@ -320,59 +325,64 @@ export default function HomeScreen({ navigation }: any) {
           opacity: fadeAnim,
           transform: [{ translateY: Animated.add(slideAnim, new Animated.Value(20)) }],
         }}>
-          <TouchableOpacity
-            style={[styles.mediaCard, { borderColor: colors.cardBorder }]}
-            onPress={() => navigation.navigate('Movie')}
-            activeOpacity={0.85}
-          >
-            {/* 动态封面墙背景 */}
-            <View style={[styles.coverWall, { opacity: isDark ? 0.5 : 0.85 }]}>
-              {movieWallCovers.slice(0, 3).map((item, i) => (
-                <Animated.View 
-                  key={i} 
-                  style={[
-                    styles.movieWallCell,
-                    {
-                      opacity: fadeAnim,
-                      transform: [{ 
-                        scale: fadeAnim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0.8, 1],
-                        })
-                      }],
-                    }
-                  ]}
-                >
-                  {item.poster_url ? (
-                    <Image source={{ uri: item.poster_url }} style={styles.coverWallImg} resizeMode="cover" />
-                  ) : (
-                    <View style={[styles.coverWallPlaceholder, { backgroundColor: colors.inputBg }]} />
-                  )}
-                </Animated.View>
-              ))}
-              {Array.from({ length: Math.max(0, 3 - movieWallCovers.length) }).map((_, i) => (
-                <View key={`empty-${i}`} style={styles.movieWallCell}>
-                  <View style={[styles.coverWallPlaceholder, { backgroundColor: colors.inputBg }]} />
-                </View>
-              ))}
-            </View>
-            {/* 半透明遮罩 - 保证文字可读 */}
-            <View style={[styles.cardOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.15)' }]} />
-            {/* Card content */}
-            <View style={styles.cardContent}>
-              <View style={styles.cardLeft}>
+          <View style={[styles.newMediaCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+            {/* 标题区域 */}
+            <TouchableOpacity 
+              style={styles.newCardHeader}
+              onPress={() => navigation.navigate('Movie')}
+              activeOpacity={0.8}
+            >
+              <View style={styles.newCardHeaderLeft}>
                 <View style={[styles.iconCircle, { backgroundColor: 'rgba(249,115,22,0.15)' }]}>
                   <Ionicons name="film" size={20} color="#f97316" />
                 </View>
-                <Text style={[styles.cardTitle, { color: colors.text }]}>影视</Text>
-                <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>电影与剧集</Text>
+                <View>
+                  <Text style={[styles.newCardTitle, { color: colors.text }]}>影视</Text>
+                  <Text style={[styles.newCardSubtitle, { color: colors.textSecondary }]}>电影与剧集</Text>
+                </View>
               </View>
-              <View style={styles.cardRight}>
-                <Text style={[styles.cardCount, { color: '#0a84ff' }]}>{movieStats.total}</Text>
-                <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>部作品</Text>
+              <View style={styles.newCardHeaderRight}>
+                <Text style={[styles.newCardCount, { color: '#f97316' }]}>{movieStats.total}</Text>
+                <Text style={[styles.newCardLabel, { color: colors.textSecondary }]}>部作品</Text>
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+            
+            {/* 海报滚动区域 */}
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              style={styles.newCardScroll}
+              contentContainerStyle={styles.newCardScrollContent}
+            >
+              {movieWallCovers.map((item, i) => (
+                <TouchableOpacity
+                  key={i}
+                  style={[styles.newCardCover, styles.newCardCoverMovie]}
+                  onPress={() => navigation.navigate('Movie')}
+                  activeOpacity={0.8}
+                >
+                  {item.poster_url ? (
+                    <Image 
+                      source={{ uri: item.poster_url }} 
+                      style={styles.newCardCoverImg} 
+                      resizeMode="cover" 
+                    />
+                  ) : (
+                    <View style={[styles.newCardCoverImg, { backgroundColor: colors.inputBg, justifyContent: 'center', alignItems: 'center' }]}>
+                      <Ionicons name="film-outline" size={24} color={colors.textSecondary} />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+              {Array.from({ length: Math.max(0, 8 - movieWallCovers.length) }).map((_, i) => (
+                <View key={`empty-${i}`} style={[styles.newCardCover, styles.newCardCoverMovie]}>
+                  <View style={[styles.newCardCoverImg, { backgroundColor: colors.inputBg, justifyContent: 'center', alignItems: 'center' }]}>
+                    <Ionicons name="film-outline" size={24} color={colors.textSecondary} />
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
         </Animated.View>
 
         {/* 最近添加 — 黑胶 */}
@@ -639,6 +649,69 @@ const styles = StyleSheet.create({
   cardLabel: {
     fontSize: 12,
     marginTop: 2,
+  },
+
+  // 新媒体卡片样式
+  newMediaCard: {
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  newCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    paddingBottom: 12,
+  },
+  newCardHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  newCardHeaderRight: {
+    alignItems: 'flex-end',
+  },
+  newCardTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: -0.3,
+  },
+  newCardSubtitle: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  newCardCount: {
+    fontSize: 28,
+    fontWeight: '800',
+    letterSpacing: -1,
+  },
+  newCardLabel: {
+    fontSize: 11,
+    marginTop: 2,
+  },
+  newCardScroll: {
+    paddingBottom: 16,
+  },
+  newCardScrollContent: {
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  newCardCover: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    overflow: 'hidden',
+    flexShrink: 0,
+  },
+  newCardCoverMovie: {
+    width: 53,
+    height: 80,
+  },
+  newCardCoverImg: {
+    width: '100%',
+    height: '100%',
   },
 
   // Section
