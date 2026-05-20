@@ -239,8 +239,8 @@ export default function MusicScreen() {
               const parts = item.version.split(',').map((t: string) => t.trim()).filter(Boolean);
               const unique = [...new Set(parts)];
               // 去掉通用格式词，保留特色信息
-              const generic = ['Vinyl', 'LP', 'Album', 'All Media', 'Reissue'];
-              const filtered = unique.filter((t: string) => !generic.includes(t));
+              const generic = ['Vinyl', 'LP', 'Album', 'All Media', 'Reissue', 'Special Edition', 'Limited Edition', 'Deluxe Edition', 'Collector\'s Edition', 'Anniversary Edition', 'Remastered Edition', 'Edition', 'Stereo', 'Alternative Cover', 'Mono'];
+              const filtered = unique.filter((t: string) => !generic.some(g => t.toLowerCase().includes(g.toLowerCase())));
               return filtered.length > 0 ? filtered.join(' · ') : unique.join(' · ');
             })()}
           </Text>
