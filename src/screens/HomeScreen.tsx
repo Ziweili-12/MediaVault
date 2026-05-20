@@ -373,79 +373,8 @@ export default function HomeScreen({ navigation }: any) {
           </View>
         </Animated.View>
 
-        {/* 最近添加 — 黑胶 */}
-        <View style={styles.recentSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>💿 最近添加</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Music')}>
-              <Text style={[styles.seeAll, { color: colors.accent }]}>查看全部</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
-            {recentVinyls.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[styles.recentCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}
-                onPress={() => navigation.navigate('Music')}
-                activeOpacity={0.8}
-              >
-                {item.cover_url ? (
-                  <Image source={{ uri: item.cover_url, headers: { 'User-Agent': 'MediaVault/1.0' } }} style={styles.recentCover} resizeMode="cover" />
-                ) : (
-                  <View style={[styles.recentCover, { backgroundColor: colors.inputBg, justifyContent: 'center', alignItems: 'center' }]}>
-                    <Text style={{ fontSize: 36 }}>💿</Text>
-                  </View>
-                )}
-                <View style={styles.recentCardInfo}>
-                  <Text style={[styles.recentCardTitle, { color: colors.text }]} numberOfLines={2}>{item.album_name}</Text>
-                  <Text style={[styles.recentCardSub, { color: colors.textSecondary }]} numberOfLines={1}>{item.artist}</Text>
-                  <Text style={[styles.recentCardTag, { color: colors.accent }]} numberOfLines={1}>{item.version || 'Vinyl'}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-  {/* 最近观看 — 影视 */}
-        <View style={styles.recentSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>🎬 最近观看</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Movie')}>
-              <Text style={[styles.seeAll, { color: colors.accent }]}>查看全部</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
-            {recentMovies.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[styles.recentCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}
-                onPress={() => navigation.navigate('Movie')}
-                activeOpacity={0.8}
-              >
-                {item.poster_url ? (
-                  <Image source={{ uri: item.poster_url }} style={styles.recentPoster} resizeMode="cover" />
-                ) : (
-                  <View style={[styles.recentPoster, { backgroundColor: colors.inputBg, justifyContent: 'center', alignItems: 'center' }]}>
-                    <Text style={{ fontSize: 36 }}>🎬</Text>
-                  </View>
-                )}
-                <View style={styles.recentCardInfo}>
-                  <Text style={[styles.recentCardTitle, { color: colors.text }]} numberOfLines={2}>
-                    {item.original_title || item.title}
-                  </Text>
-                  <Text style={[styles.recentCardSub, { color: colors.textSecondary }]} numberOfLines={1}>
-                    {item.title}{item.country ? ` · ${item.country}` : ''}{item.year ? ` · ${item.year}` : ''}
-                  </Text>
-                  <Text style={[styles.recentCardTag, { color: item.type === 'movie' ? colors.accent : colors.orange }]} numberOfLines={1}>
-                    {item.type === 'movie' ? '电影' : '剧集'}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        <View style={{ height: 100 }} />
+        {/* 底部间距 */}
+        <View style={{ height: 40 }} />
       </ScrollView>
 
       {/* 日历模式 */}
