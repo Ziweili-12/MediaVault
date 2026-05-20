@@ -124,9 +124,9 @@ export const insertMovie = async (movie: Movie): Promise<number> => {
     `INSERT INTO movies (
       title, original_title, director, year, release_date, type, tmdb_id, imdb_id,
       poster_url, genre, country, runtime,
-      imdb_rating, personal_rating, watch_date, current_season,
-      current_episode, status, notes, notion_page_id, watched_seasons, needs_sync
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+      imdb_rating, personal_rating, watch_date, current_season, season_number,
+      current_episode, status, notes, season_poster, season_air_date, parent_tv_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       movie.title,
       movie.original_title || null,
@@ -144,11 +144,13 @@ export const insertMovie = async (movie: Movie): Promise<number> => {
       movie.personal_rating || null,
       movie.watch_date || null,
       movie.current_season || null,
+      movie.season_number || null,
       movie.current_episode || null,
       movie.status || 'watched',
       movie.notes || null,
-      movie.notion_page_id || null,
-      movie.watched_seasons || null,
+      movie.season_poster || null,
+      movie.season_air_date || null,
+      movie.parent_tv_id || null,
     ]
   );
   
