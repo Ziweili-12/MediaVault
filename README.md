@@ -10,6 +10,16 @@
 
 ---
 
+## 📱 界面预览
+
+<p align="center">
+  <img src="screenshots/preview-full.png" width="280" alt="首页" />
+  <img src="screenshots/preview-list.png" width="280" alt="列表视图" />
+  <img src="screenshots/preview-stats.png" width="280" alt="统计分析" />
+</p>
+
+---
+
 ## ✨ 功能特色
 
 ### 🎵 黑胶唱片管理
