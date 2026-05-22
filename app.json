@@ -35,7 +35,8 @@
     },
     "plugins": [
       "expo-sqlite",
-      "expo-camera"
+      "expo-camera",
+      "expo-font"
     ],
     "extra": {
       "DISCOGS_TOKEN": "${process.env.DISCOGS_TOKEN}",
