@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Main gradient: deep blue to purple -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <!-- Ring gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e94560"/>
+      <stop offset="50%" style="stop-color:#f39c12"/>
+      <stop offset="100%" style="stop-color:#e94560"/>
+    </linearGradient>
+    <!-- Film strip gradient -->
+    <linearGradient id="filmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f39c12"/>
+      <stop offset="100%" style="stop-color:#e94560"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bgGrad)"/>
+
+  <!-- Vinyl record - outer ring -->
+  <circle cx="256" cy="240" r="150" fill="none" stroke="url(#ringGrad)" stroke-width="28" opacity="0.9"/>
+  
+  <!-- Vinyl record - groove lines -->
+  <circle cx="256" cy="240" r="120" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.15"/>
+  <circle cx="256" cy="240" r="100" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.1"/>
+  <circle cx="256" cy="240" r="80" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.08"/>
+  
+  <!-- Center label -->
+  <circle cx="256" cy="240" r="45" fill="#1a1a2e"/>
+  <circle cx="256" cy="240" r="42" fill="none" stroke="url(#ringGrad)" stroke-width="2"/>
+  
+  <!-- Center hole -->
+  <circle cx="256" cy="240" r="8" fill="#ffffff" opacity="0.9"/>
+
+  <!-- Film strip - coming out from top-right of the record -->
+  <!-- Film strip body -->
+  <g transform="translate(340, 60) rotate(25)">
+    <!-- Main strip -->
+    <rect x="0" y="0" width="50" height="140" rx="4" fill="url(#filmGrad)" opacity="0.95"/>
+    <!-- Sprocket holes -->
+    <rect x="5" y="8" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="37" y="8" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="5" y="30" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="37" y="30" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="5" y="52" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="37" y="52" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="5" y="74" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="37" y="74" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="5" y="96" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="37" y="96" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="5" y="118" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="37" y="118" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <!-- Frame windows -->
+    <rect x="14" y="5" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+    <rect x="14" y="27" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+    <rect x="14" y="49" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+    <rect x="14" y="71" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+    <rect x="14" y="93" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+    <rect x="14" y="115" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+  </g>
+
+  <!-- Small film strip - bottom-left accent -->
+  <g transform="translate(80, 340) rotate(-15)">
+    <rect x="0" y="0" width="36" height="100" rx="3" fill="url(#filmGrad)" opacity="0.6"/>
+    <rect x="4" y="6" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="26" y="6" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="4" y="22" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="26" y="22" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="4" y="38" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="26" y="38" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="4" y="54" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="26" y="54" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="4" y="70" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="26" y="70" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="4" y="86" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="26" y="86" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+  </g>
+
+  <!-- App name -->
+  <text x="256" y="445" text-anchor="middle" font-family="-apple-system, SF Pro Display, Helvetica Neue, Arial, sans-serif" font-size="42" font-weight="700" fill="#ffffff" letter-spacing="3">MEDIAVAULT</text>
+  
+  <!-- Tagline -->
+  <text x="256" y="478" text-anchor="middle" font-family="-apple-system, SF Pro Display, Helvetica Neue, Arial, sans-serif" font-size="16" fill="#ffffff" opacity="0.5" letter-spacing="4">COLLECT · TRACK · ENJOY</text>
+</svg>

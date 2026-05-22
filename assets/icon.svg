@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e94560"/>
+      <stop offset="50%" style="stop-color:#f39c12"/>
+      <stop offset="100%" style="stop-color:#e94560"/>
+    </linearGradient>
+    <linearGradient id="filmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f39c12"/>
+      <stop offset="100%" style="stop-color:#e94560"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bgGrad)"/>
+
+  <!-- Vinyl record - outer ring -->
+  <circle cx="256" cy="256" r="160" fill="none" stroke="url(#ringGrad)" stroke-width="32" opacity="0.9"/>
+  
+  <!-- Groove lines -->
+  <circle cx="256" cy="256" r="126" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.15"/>
+  <circle cx="256" cy="256" r="105" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.1"/>
+  <circle cx="256" cy="256" r="84" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.08"/>
+  
+  <!-- Center label -->
+  <circle cx="256" cy="256" r="50" fill="#1a1a2e"/>
+  <circle cx="256" cy="256" r="47" fill="none" stroke="url(#ringGrad)" stroke-width="2.5"/>
+  
+  <!-- Center hole -->
+  <circle cx="256" cy="256" r="9" fill="#ffffff" opacity="0.9"/>
+
+  <!-- Film strip - top-right -->
+  <g transform="translate(360, 50) rotate(25)">
+    <rect x="0" y="0" width="52" height="150" rx="4" fill="url(#filmGrad)" opacity="0.95"/>
+    <!-- Sprocket holes -->
+    <rect x="5" y="8" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="39" y="8" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="5" y="30" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="39" y="30" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="5" y="52" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="39" y="52" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="5" y="74" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="39" y="74" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="5" y="96" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="39" y="96" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="5" y="118" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="39" y="118" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="5" y="132" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <rect x="39" y="132" width="8" height="10" rx="2" fill="#1a1a2e" opacity="0.8"/>
+    <!-- Frame windows -->
+    <rect x="15" y="5" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+    <rect x="15" y="27" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+    <rect x="15" y="49" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+    <rect x="15" y="71" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+    <rect x="15" y="93" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+    <rect x="15" y="115" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+    <rect x="15" y="130" width="22" height="16" rx="2" fill="#1a1a2e" opacity="0.5"/>
+  </g>
+
+  <!-- Small film strip - bottom-left accent -->
+  <g transform="translate(60, 350) rotate(-15)">
+    <rect x="0" y="0" width="38" height="110" rx="3" fill="url(#filmGrad)" opacity="0.55"/>
+    <rect x="4" y="6" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="28" y="6" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="4" y="22" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="28" y="22" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="4" y="38" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="28" y="38" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="4" y="54" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="28" y="54" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="4" y="70" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="28" y="70" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="4" y="86" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="28" y="86" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="4" y="96" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="28" y="96" width="6" height="7" rx="1.5" fill="#1a1a2e" opacity="0.7"/>
+  </g>
+</svg>

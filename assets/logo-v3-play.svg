@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0a"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+
+  <!-- Outer circle -->
+  <circle cx="256" cy="220" r="145" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.1"/>
+
+  <!-- Play triangle (center) -->
+  <polygon points="220,160 220,280 330,220" fill="url(#accent)" opacity="0.95"/>
+
+  <!-- Vinyl grooves wrapping around the triangle -->
+  <circle cx="256" cy="220" r="130" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.06"/>
+  <circle cx="256" cy="220" r="115" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.08"/>
+  <circle cx="256" cy="220" r="100" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.1"/>
+  <circle cx="256" cy="220" r="85" fill="none" stroke="url(#accent)" stroke-width="1.5" opacity="0.2"/>
+  <circle cx="256" cy="220" r="70" fill="none" stroke="url(#accent)" stroke-width="2" opacity="0.15"/>
+  <circle cx="256" cy="220" r="55" fill="none" stroke="url(#accent)" stroke-width="2.5" opacity="0.12"/>
+
+  <!-- Subtle film strip bottom -->
+  <rect x="120" y="400" width="272" height="32" rx="4" fill="url(#accent)" opacity="0.15"/>
+  <!-- Sprocket holes -->
+  <rect x="128" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="148" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="168" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="188" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="208" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="228" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="248" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="268" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="288" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="308" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="328" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="348" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+  <rect x="368" y="407" width="6" height="8" rx="1.5" fill="#ffffff" opacity="0.08"/>
+
+  <!-- Text -->
+  <text x="256" y="478" text-anchor="middle" font-family="-apple-system, SF Pro Display, Helvetica Neue, Arial, sans-serif" font-size="36" font-weight="600" fill="#ffffff" letter-spacing="8" opacity="0.9">MEDIAVAULT</text>
+</svg>

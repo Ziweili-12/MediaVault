@@ -1,4 +1,8 @@
-# MediaVault 📀🎬
+# MediaVault
+
+<p align="center">
+  <img src="assets/logo-v3-3.png" width="120" alt="MediaVault Logo" />
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-iOS%20%2F%20Android-blue" />
