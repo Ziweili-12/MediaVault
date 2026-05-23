@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#111827"/>
+      <stop offset="100%" style="stop-color:#1f2937"/>
+    </linearGradient>
+    <linearGradient id="ring1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#2563eb"/>
+    </linearGradient>
+    <linearGradient id="ring2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#ea580c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+
+  <!-- Interlocking rings - vinyl record feel -->
+  <!-- Blue ring (movies) -->
+  <circle cx="220" cy="256" r="110" fill="none" stroke="url(#ring1)" stroke-width="24" opacity="0.85"/>
+  <circle cx="220" cy="256" r="84" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.08"/>
+  <circle cx="220" cy="256" r="68" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.06"/>
+  
+  <!-- Orange ring (TV shows) -->
+  <circle cx="292" cy="256" r="110" fill="none" stroke="url(#ring2)" stroke-width="24" opacity="0.85"/>
+  <circle cx="292" cy="256" r="84" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.08"/>
+  <circle cx="292" cy="256" r="68" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.06"/>
+
+  <!-- Center overlap - where they merge -->
+  <ellipse cx="256" cy="256" rx="20" ry="80" fill="#1f2937" opacity="0.6"/>
+
+  <!-- Center dots -->
+  <circle cx="220" cy="256" r="10" fill="#111827"/>
+  <circle cx="220" cy="256" r="8" fill="none" stroke="url(#ring1)" stroke-width="2"/>
+  <circle cx="292" cy="256" r="10" fill="#111827"/>
+  <circle cx="292" cy="256" r="8" fill="none" stroke="url(#ring2)" stroke-width="2"/>
+
+  <!-- Tiny film frames at bottom -->
+  <rect x="188" y="410" width="18" height="13" rx="2" fill="#3b82f6" opacity="0.4"/>
+  <rect x="212" y="410" width="18" height="13" rx="2" fill="#f97316" opacity="0.4"/>
+  <rect x="236" y="410" width="18" height="13" rx="2" fill="#3b82f6" opacity="0.4"/>
+  <rect x="260" y="410" width="18" height="13" rx="2" fill="#f97316" opacity="0.4"/>
+  <rect x="284" y="410" width="18" height="13" rx="2" fill="#3b82f6" opacity="0.4"/>
+  <rect x="308" y="410" width="18" height="13" rx="2" fill="#f97316" opacity="0.4"/>
+
+  <!-- Text -->
+  <text x="256" y="475" text-anchor="middle" font-family="-apple-system, SF Pro Display, Helvetica Neue, Arial, sans-serif" font-size="36" font-weight="700" fill="#ffffff" letter-spacing="5" opacity="0.95">MEDIAVAULT</text>
+</svg>

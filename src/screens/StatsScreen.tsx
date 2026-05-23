@@ -433,7 +433,9 @@ export default function StatsScreen() {
                 <View style={styles.barChartRow}>
                   {musicMonthly.map((item, i) => {
                     const isCurrentMonth = item.month === CURRENT_MONTH;
-                    const barH = (item.count / musicMax) * 100;
+                    // 使用对数比例让差距更明显
+                    const logMax = Math.log(musicMax + 1);
+                    const barH = logMax > 0 ? (Math.log(item.count + 1) / logMax) * 90 : 0;
                     const barBg = isCurrentMonth ? colors.accent : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)');
                     const spending = monthlySpending[item.month] || 0;
                     const isTapped = tappedMonth === item.month;
@@ -452,8 +454,14 @@ export default function StatsScreen() {
                               backgroundColor: '#ff9f0a',
                             }]} />
                           )}
+                          {/* 数值标签 */}
+                          {item.count > 0 && (
+                            <Text style={[styles.barCountLabel, { color: colors.textSecondary }]}>
+                              {item.count}
+                            </Text>
+                          )}
                           <View style={[styles.bar, {
-                            height: `${Math.max(barH, item.count > 0 ? 6 : 2)}%`,
+                            height: `${Math.max(barH, item.count > 0 ? 8 : 2)}%`,
                             backgroundColor: barBg,
                             borderRadius: 3,
                           }]} />
@@ -597,8 +605,10 @@ export default function StatsScreen() {
                     {(movieMonthly as any[]).map((item: any, i: number) => {
                       const total = item.movieCount + item.seriesCount;
                       const maxVal = Math.max(...(movieMonthly as any[]).map((m: any) => m.movieCount + m.seriesCount), 1);
-                      const movieH = maxVal > 0 ? (item.movieCount / maxVal) * 80 : 0;
-                      const seriesH = maxVal > 0 ? (item.seriesCount / maxVal) * 80 : 0;
+                      // 使用对数比例让差距更明显
+                      const logMax = Math.log(maxVal + 1);
+                      const movieH = logMax > 0 ? (Math.log(item.movieCount + 1) / logMax) * 90 : 0;
+                      const seriesH = logMax > 0 ? (Math.log(item.seriesCount + 1) / logMax) * 90 : 0;
                       const isCurrentMonth = item.month === CURRENT_MONTH;
                       const movieColor = isCurrentMonth ? '#3b82f6' : (isDark ? 'rgba(59,130,246,0.6)' : 'rgba(59,130,246,0.5)');
                       const seriesColor = isCurrentMonth ? '#f97316' : (isDark ? 'rgba(249,115,22,0.6)' : 'rgba(249,115,22,0.5)');
@@ -611,6 +621,12 @@ export default function StatsScreen() {
                           onPress={() => setTappedMonth(isTapped ? null : item.month)}
                         >
                           <View style={styles.barColInner}>
+                            {/* 数值标签 */}
+                            {total > 0 && (
+                              <Text style={[styles.barCountLabel, { color: colors.textSecondary }]}>
+                                {total}
+                              </Text>
+                            )}
                             {/* TV series bar (orange, top) */}
                             {item.seriesCount > 0 && (
                               <View style={[styles.stackedBar, {
@@ -765,7 +781,7 @@ const styles = StyleSheet.create({
 
   // Bar chart (vertical columns)
   barChartRow: {
-    flexDirection: 'row', alignItems: 'flex-end', height: 160,
+    flexDirection: 'row', alignItems: 'flex-end', height: 180,
   },
   barCol: { flex: 1, alignItems: 'center', height: '100%' },
   barColInner: { flex: 1, width: '100%', justifyContent: 'flex-end', alignItems: 'center' },
@@ -824,7 +840,8 @@ const styles = StyleSheet.create({
   rankText: { fontSize: 11, fontWeight: '700' },
   topName: { flex: 1, fontSize: 13, fontWeight: '600' },
   barTrack: {
-    width: 80, height: 12, borderRadius: 6, overflow: 'hidden', flexShrink: 0,
+    flex: 1, height: 14, borderRadius: 7, overflow: 'hidden', flexShrink: 1,
+    minWidth: 40, maxWidth: 120,
   },
   barFill: { height: '100%', borderRadius: 6 },
   topCount: { width: 20, textAlign: 'right', fontSize: 13, fontWeight: '700', flexShrink: 0 },
