@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View, Text, Modal, TouchableOpacity, StyleSheet, TextInput,
   Alert, ActivityIndicator, KeyboardAvoidingView, Platform,
@@ -20,6 +20,9 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
   const [permission, requestPermission] = useCameraPermissions();
   const [step, setStep] = useState<'welcome' | 'scan' | 'search' | 'confirm'>('welcome');
   const [scanning, setScanning] = useState(false);
+  const [scanCount, setScanCount] = useState(0);
+  const lastScannedCode = useRef<string>('');
+  const scanTimer = useRef<NodeJS.Timeout | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedRelease, setSelectedRelease] = useState<any>(null);
@@ -30,7 +33,27 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
   const [personalRating, setPersonalRating] = useState<number>(0);
 
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
+    // 连续识别3次相同条码才确认，提高准确度
+    if (lastScannedCode.current === data) {
+      setScanCount(prev => prev + 1);
+    } else {
+      lastScannedCode.current = data;
+      setScanCount(1);
+    }
+
+    // 清除之前的定时器
+    if (scanTimer.current) clearTimeout(scanTimer.current);
+    // 2秒内没有继续扫到相同码则重置
+    scanTimer.current = setTimeout(() => {
+      lastScannedCode.current = '';
+      setScanCount(0);
+    }, 2000);
+
+    if (scanCount < 2) return; // 需要扫到3次
+
     setScanning(false);
+    setScanCount(0);
+    lastScannedCode.current = '';
     setLoading(true);
     try {
       const release = await searchDiscogsByBarcode(data);
@@ -223,7 +246,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
     cameraWrap: { flex: 1, borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' },
     camera: { flex: 1 },
     scanOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
-    scanFrame: { width: 260, height: 160, borderWidth: 2, borderColor: '#fff', borderRadius: 12 },
+    scanFrame: { width: 300, height: 180, borderWidth: 2, borderColor: '#fff', borderRadius: 12 },
     scanHint: { position: 'absolute', bottom: 40, color: '#fff', fontSize: 14, fontWeight: '500', backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
     searchInput: { width: '100%', borderRadius: 10, padding: 13, fontSize: 16, marginBottom: 14, backgroundColor: colors.inputBg, color: colors.text },
     searchCount: { fontSize: 13, color: colors.textSecondary, marginBottom: 8, marginLeft: 2 },
@@ -262,7 +285,7 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                       const r = await requestPermission();
                       if (!r.granted) { Alert.alert('需要相机权限', '请在设置中允许访问相机'); return; }
                     }
-                    setStep('scan'); setScanning(true);
+                    setStep('scan'); setScanning(true); setScanCount(0); lastScannedCode.current = '';
                   }}>
                   <Text style={ts.welcomeBtnText}>📷 扫描条形码</Text>
                 </TouchableOpacity>
@@ -277,10 +300,13 @@ export default function AddVinylModal({ visible, onClose, onSuccess }: Props) {
                 {scanning ? (
                   <>
                     <CameraView style={ts.camera} facing="back" onBarcodeScanned={handleBarCodeScanned}
-                      barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e'] }} />
+                      barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'itf14'] }}
+                      zoom={0.1} />
                     <View style={ts.scanOverlay}>
                       <View style={ts.scanFrame} />
-                      <Text style={ts.scanHint}>将条形码对准框内</Text>
+                      <Text style={ts.scanHint}>
+                        {scanCount === 0 ? '将条形码对准框内' : `识别中... (${scanCount}/3)`}
+                      </Text>
                     </View>
                   </>
                 ) : (
