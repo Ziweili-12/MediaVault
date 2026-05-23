@@ -433,9 +433,9 @@ export default function StatsScreen() {
                 <View style={styles.barChartRow}>
                   {musicMonthly.map((item, i) => {
                     const isCurrentMonth = item.month === CURRENT_MONTH;
-                    // 使用对数比例让差距更明显
+                    // 使用对数比例让差距更明显，最大高度140px
                     const logMax = Math.log(musicMax + 1);
-                    const barH = logMax > 0 ? (Math.log(item.count + 1) / logMax) * 90 : 0;
+                    const barHeight = logMax > 0 ? Math.round((Math.log(item.count + 1) / logMax) * 140) : 0;
                     const barBg = isCurrentMonth ? colors.accent : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)');
                     const spending = monthlySpending[item.month] || 0;
                     const isTapped = tappedMonth === item.month;
@@ -461,7 +461,7 @@ export default function StatsScreen() {
                             </Text>
                           )}
                           <View style={[styles.bar, {
-                            height: `${Math.max(barH, item.count > 0 ? 8 : 2)}%`,
+                            height: item.count > 0 ? Math.max(barHeight, 12) : 4,
                             backgroundColor: barBg,
                             borderRadius: 3,
                           }]} />
@@ -605,10 +605,10 @@ export default function StatsScreen() {
                     {(movieMonthly as any[]).map((item: any, i: number) => {
                       const total = item.movieCount + item.seriesCount;
                       const maxVal = Math.max(...(movieMonthly as any[]).map((m: any) => m.movieCount + m.seriesCount), 1);
-                      // 使用对数比例让差距更明显
+                      // 使用对数比例让差距更明显，最大高度140px
                       const logMax = Math.log(maxVal + 1);
-                      const movieH = logMax > 0 ? (Math.log(item.movieCount + 1) / logMax) * 90 : 0;
-                      const seriesH = logMax > 0 ? (Math.log(item.seriesCount + 1) / logMax) * 90 : 0;
+                      const movieHeight = logMax > 0 ? Math.round((Math.log(item.movieCount + 1) / logMax) * 140) : 0;
+                      const seriesHeight = logMax > 0 ? Math.round((Math.log(item.seriesCount + 1) / logMax) * 140) : 0;
                       const isCurrentMonth = item.month === CURRENT_MONTH;
                       const movieColor = isCurrentMonth ? '#3b82f6' : (isDark ? 'rgba(59,130,246,0.6)' : 'rgba(59,130,246,0.5)');
                       const seriesColor = isCurrentMonth ? '#f97316' : (isDark ? 'rgba(249,115,22,0.6)' : 'rgba(249,115,22,0.5)');
@@ -630,7 +630,7 @@ export default function StatsScreen() {
                             {/* TV series bar (orange, top) */}
                             {item.seriesCount > 0 && (
                               <View style={[styles.stackedBar, {
-                                height: `${seriesH}%`,
+                                height: seriesHeight,
                                 backgroundColor: seriesColor,
                                 borderTopLeftRadius: 3,
                                 borderTopRightRadius: item.movieCount === 0 ? 3 : 0,
@@ -639,7 +639,7 @@ export default function StatsScreen() {
                             {/* Movie bar (blue, bottom) */}
                             {item.movieCount > 0 && (
                               <View style={[styles.stackedBar, {
-                                height: `${movieH}%`,
+                                height: movieHeight,
                                 backgroundColor: movieColor,
                                 borderBottomLeftRadius: 3,
                                 borderBottomRightRadius: 3,
@@ -784,8 +784,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'flex-end', height: 180,
   },
   barCol: { flex: 1, alignItems: 'center', height: '100%' },
-  barColInner: { flex: 1, width: '100%', justifyContent: 'flex-end', alignItems: 'center' },
-  bar: { width: '55%', minHeight: 2 },
+  barColInner: { flex: 1, width: '100%', justifyContent: 'flex-end', alignItems: 'center', minHeight: 100 },
+  bar: { width: '55%', minHeight: 8 },
   stackedBar: { width: '55%', minHeight: 2 },
   barCountLabel: { fontSize: 10, fontWeight: '600', marginBottom: 3 },
   barMonthLabel: { fontSize: 9, marginTop: 6, fontWeight: '500' },
