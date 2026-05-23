@@ -58,20 +58,19 @@ class FeishuSyncService {
       const url = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${FEISHU_CONFIG.TABLES.vinyls}/records`;
       
       const fields: any = {
-        album_name: vinyl.album_name || '',
-        artist: vinyl.artist || '',
-        release_date: vinyl.release_date || '',
-        cover_url: vinyl.cover_url ? { link: vinyl.cover_url, text: vinyl.cover_url } : null,
-        purchase_price: vinyl.purchase_price ? parseFloat(vinyl.purchase_price) : null,
-        price: vinyl.price ? parseFloat(vinyl.price) : null,
-        version: vinyl.version || '',
-        notes: vinyl.notes || ''
+        '专辑名': vinyl.album_name || '',
+        '艺术家': vinyl.artist || '',
+        '发行日期': vinyl.release_date || '',
+        '封面': vinyl.cover_url ? { link: vinyl.cover_url, text: vinyl.cover_url } : null,
+        '购入价': vinyl.purchase_price ? parseFloat(vinyl.purchase_price) : null,
+        '价格': vinyl.price ? parseFloat(vinyl.price) : null,
+        '版本': vinyl.version || '',
+        '备注': vinyl.notes || ''
       };
 
       if (vinyl.purchase_date) {
-        // 转换日期为时间戳（毫秒）
         const date = new Date(vinyl.purchase_date);
-        fields.purchase_date = date.getTime();
+        fields['购入日期'] = date.getTime();
       }
 
       const response = await fetch(url, {
@@ -102,10 +101,21 @@ class FeishuSyncService {
       const data = await response.json();
       
       if (data.code === 0) {
-        return data.data.items.map((item: any) => ({
-          feishu_record_id: item.record_id,
-          ...item.fields
-        }));
+        return data.data.items.map((item: any) => {
+          const f = item.fields;
+          return {
+            feishu_record_id: item.record_id,
+            album_name: f['专辑名'] || '',
+            artist: f['艺术家'] || '',
+            release_date: f['发行日期'] || '',
+            cover_url: f['封面']?.link || f['封面'] || '',
+            purchase_price: f['购入价'] || null,
+            purchase_date: f['购入日期'] ? new Date(f['购入日期']).toISOString().split('T')[0] : '',
+            price: f['价格'] || null,
+            version: f['版本'] || '',
+            notes: f['备注'] || ''
+          };
+        });
       }
       return [];
     } catch (error) {
@@ -123,23 +133,23 @@ class FeishuSyncService {
       const url = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${FEISHU_CONFIG.TABLES.movies}/records`;
       
       const fields: any = {
-        title: movie.title || '',
-        original_title: movie.original_title || '',
-        chinese_title: movie.chinese_title || '',
-        type: movie.type || 'movie',
-        release_date: movie.release_date || '',
-        poster_url: movie.poster_url ? { link: movie.poster_url, text: movie.poster_url } : null,
-        country: movie.country || '',
-        rating: movie.personal_rating ? parseFloat(movie.personal_rating) : (movie.imdb_rating ? parseFloat(movie.imdb_rating) : null),
-        watch_status: movie.watch_status || '想看',
-        watch_date: movie.watch_date || '',
-        current_season: movie.current_season || '',
-        notes: movie.notes || ''
+        '标题': movie.title || '',
+        '原名': movie.original_title || '',
+        '中文名': movie.chinese_title || '',
+        '类型': movie.type || 'movie',
+        '上映日期': movie.release_date || '',
+        '海报': movie.poster_url ? { link: movie.poster_url, text: movie.poster_url } : null,
+        '国家': movie.country || '',
+        '评分': movie.personal_rating ? parseFloat(movie.personal_rating) : (movie.imdb_rating ? parseFloat(movie.imdb_rating) : null),
+        '观看状态': movie.watch_status || '想看',
+        '观看日期': movie.watch_date || '',
+        '当前季': movie.current_season || '',
+        '备注': movie.notes || ''
       };
 
       if (movie.watch_date) {
         const date = new Date(movie.watch_date);
-        fields.watch_date = date.getTime();
+        fields['观看日期'] = date.getTime();
       }
 
       const response = await fetch(url, {
@@ -170,10 +180,24 @@ class FeishuSyncService {
       const data = await response.json();
       
       if (data.code === 0) {
-        return data.data.items.map((item: any) => ({
-          feishu_record_id: item.record_id,
-          ...item.fields
-        }));
+        return data.data.items.map((item: any) => {
+          const f = item.fields;
+          return {
+            feishu_record_id: item.record_id,
+            title: f['标题'] || '',
+            original_title: f['原名'] || '',
+            chinese_title: f['中文名'] || '',
+            type: f['类型'] || 'movie',
+            release_date: f['上映日期'] || '',
+            poster_url: f['海报']?.link || f['海报'] || '',
+            country: f['国家'] || '',
+            rating: f['评分'] || null,
+            watch_status: f['观看状态'] || '想看',
+            watch_date: f['观看日期'] ? new Date(f['观看日期']).toISOString().split('T')[0] : '',
+            current_season: f['当前季'] || '',
+            notes: f['备注'] || ''
+          };
+        });
       }
       return [];
     } catch (error) {
