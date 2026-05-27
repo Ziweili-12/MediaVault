@@ -25,6 +25,9 @@ export default function VinylDetailModal({ visible, vinyl, onClose, onDelete, on
   const [editPrice, setEditPrice] = useState('');
   const [editNotes, setEditNotes] = useState('');
   const [editRating, setEditRating] = useState<number>(0);
+  const [editPurchaseDateYear, setEditPurchaseDateYear] = useState('');
+  const [editPurchaseDateMonth, setEditPurchaseDateMonth] = useState('');
+  const [editPurchaseDateDay, setEditPurchaseDateDay] = useState('');
 
   useEffect(() => {
     if (vinyl) {
@@ -34,6 +37,17 @@ export default function VinylDetailModal({ visible, vinyl, onClose, onDelete, on
       setEditPrice(vinyl.price != null ? String(vinyl.price) : '');
       setEditNotes(vinyl.notes || '');
       setEditRating(vinyl.personal_rating || 0);
+      // 解析购买日期
+      if (vinyl.purchase_date) {
+        const parts = vinyl.purchase_date.split('-');
+        setEditPurchaseDateYear(parts[0] || '');
+        setEditPurchaseDateMonth(parts[1] || '');
+        setEditPurchaseDateDay(parts[2] || '');
+      } else {
+        setEditPurchaseDateYear('');
+        setEditPurchaseDateMonth('');
+        setEditPurchaseDateDay('');
+      }
     }
   }, [vinyl]);
 
@@ -41,6 +55,15 @@ export default function VinylDetailModal({ visible, vinyl, onClose, onDelete, on
     if (!vinyl?.id) return;
     setSaving(true);
     try {
+      // 组装购买日期
+      let purchaseDate: string | undefined;
+      if (editPurchaseDateYear) {
+        const y = editPurchaseDateYear.padStart(4, '0');
+        const m = editPurchaseDateMonth ? editPurchaseDateMonth.padStart(2, '0') : '01';
+        const d = editPurchaseDateDay ? editPurchaseDateDay.padStart(2, '0') : '01';
+        purchaseDate = `${y}-${m}-${d}`;
+      }
+      
       await updateVinyl(vinyl.id, {
         album_name: editAlbumName,
         artist: editArtist,
@@ -48,6 +71,7 @@ export default function VinylDetailModal({ visible, vinyl, onClose, onDelete, on
         price: editPrice ? parseFloat(editPrice) : undefined,
         notes: editNotes || undefined,
         personal_rating: editRating > 0 ? editRating : undefined,
+        purchase_date: purchaseDate,
       });
       setEditing(false);
       onUpdate();
@@ -104,6 +128,11 @@ export default function VinylDetailModal({ visible, vinyl, onClose, onDelete, on
     syncBtnText: { color: colors.accent, fontSize: 17, fontWeight: '600', textAlign: 'center' },
     deleteBtn: { backgroundColor: 'transparent', padding: 15, marginTop: 10 },
     deleteBtnText: { color: colors.red, fontSize: 17, fontWeight: '600', textAlign: 'center' },
+    // Date input styles
+    dateRow: { flexDirection: 'row', alignItems: 'center', marginLeft: 12 },
+    dateInput: { width: 65, textAlign: 'center', fontSize: 15, fontWeight: '600', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 6, borderWidth: 1 },
+    dateInputSmall: { width: 38 },
+    dateSep: { fontSize: 15, fontWeight: '600', marginHorizontal: 2 },
   });
 
   const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -198,9 +227,34 @@ export default function VinylDetailModal({ visible, vinyl, onClose, onDelete, on
             )}
 
             {/* 购买日期 */}
-            {vinyl.purchase_date && (
+            {(vinyl.purchase_date || editing) && (
               <Field label="购买日期">
-                <Text style={s.value}>{vinyl.purchase_date}</Text>
+                {editing ? (
+                  <View style={s.dateRow}>
+                    <TextInput
+                      style={[s.dateInput, { backgroundColor: colors.inputBg, color: colors.text, borderColor: colors.cardBorder }]}
+                      placeholder="YYYY" placeholderTextColor={colors.textSecondary}
+                      value={editPurchaseDateYear} onChangeText={(t) => setEditPurchaseDateYear(t.replace(/[^0-9]/g, ''))}
+                      keyboardType="numeric" maxLength={4}
+                    />
+                    <Text style={[s.dateSep, { color: colors.textSecondary }]}>-</Text>
+                    <TextInput
+                      style={[s.dateInput, s.dateInputSmall, { backgroundColor: colors.inputBg, color: colors.text, borderColor: colors.cardBorder }]}
+                      placeholder="MM" placeholderTextColor={colors.textSecondary}
+                      value={editPurchaseDateMonth} onChangeText={(t) => setEditPurchaseDateMonth(t.replace(/[^0-9]/g, ''))}
+                      keyboardType="numeric" maxLength={2}
+                    />
+                    <Text style={[s.dateSep, { color: colors.textSecondary }]}>-</Text>
+                    <TextInput
+                      style={[s.dateInput, s.dateInputSmall, { backgroundColor: colors.inputBg, color: colors.text, borderColor: colors.cardBorder }]}
+                      placeholder="DD" placeholderTextColor={colors.textSecondary}
+                      value={editPurchaseDateDay} onChangeText={(t) => setEditPurchaseDateDay(t.replace(/[^0-9]/g, ''))}
+                      keyboardType="numeric" maxLength={2}
+                    />
+                  </View>
+                ) : (
+                  <Text style={s.value}>{vinyl.purchase_date}</Text>
+                )}
               </Field>
             )}
 

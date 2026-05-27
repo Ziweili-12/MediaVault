@@ -211,13 +211,19 @@ export const getVinylStats = async (): Promise<{
   const result = await db.getFirstAsync(`
     SELECT 
       COUNT(*) as total,
-      COALESCE(SUM(price), 0) as totalSpent,
+      COALESCE(SUM(CAST(price AS REAL)), 0) as totalSpent,
       COUNT(DISTINCT artist) as artistCount,
-      COALESCE(AVG(price), 0) as avgPrice
+      COALESCE(AVG(CAST(price AS REAL)), 0) as avgPrice
     FROM vinyls
   `);
   
-  return result as any;
+  // 确保返回的是数字类型
+  return {
+    total: Number((result as any)?.total ?? 0),
+    totalSpent: Number((result as any)?.totalSpent ?? 0),
+    artistCount: Number((result as any)?.artistCount ?? 0),
+    avgPrice: Number((result as any)?.avgPrice ?? 0),
+  };
 };
 
 export const getMovieStats = async (): Promise<{
@@ -246,19 +252,40 @@ export const getVinylStatsFiltered = async (year?: number): Promise<{
   artistCount: number;
 }> => {
   const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+  
+  // 先清理异常的price数据
+  await db.runAsync(`
+    UPDATE vinyls 
+    SET price = 0 
+    WHERE price IS NULL 
+    OR price = '' 
+    OR price = 'null'
+    OR price = 'undefined'
+    OR typeof(price) != 'real'
+    OR CAST(price AS REAL) < 0
+    OR CAST(price AS REAL) > 1000000
+  `);
+  
   // 兼容 YYYYMMDD 和 YYYY-MM-DD
   const dateExpr = `CASE WHEN purchase_date IS NULL THEN created_at WHEN length(purchase_date)=8 AND purchase_date NOT LIKE '%-%' THEN substr(purchase_date,1,4)||'-'||substr(purchase_date,5,2)||'-'||substr(purchase_date,7,2) ELSE purchase_date END`;
   const yearFilter = year ? `WHERE strftime('%Y', ${dateExpr}) = ?` : '';
   const params = year ? [String(year)] : [];
+  
   const result = await db.getFirstAsync(`
     SELECT 
       COUNT(*) as total,
-      COALESCE(SUM(price), 0) as totalSpent,
+      COALESCE(SUM(CAST(price AS REAL)), 0) as totalSpent,
       COUNT(DISTINCT artist) as artistCount
     FROM vinyls
     ${yearFilter}
   `, params);
-  return result as any;
+  
+  // 确保返回的是数字类型
+  return {
+    total: Number((result as any)?.total ?? 0),
+    totalSpent: Number((result as any)?.totalSpent ?? 0),
+    artistCount: Number((result as any)?.artistCount ?? 0),
+  };
 };
 
 export const getMovieStatsFiltered = async (year?: number): Promise<{

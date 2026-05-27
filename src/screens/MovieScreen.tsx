@@ -28,7 +28,7 @@ export default function MovieScreen() {
   const [showDetail, setShowDetail] = useState(false);
   const [filter, setFilter] = useState<'all' | 'movie' | 'series'>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'poster'>('grid');
   const [sortBy, setSortBy] = useState<'title' | 'year' | 'created_at' | 'release_date'>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showFilter, setShowFilter] = useState(false);
@@ -192,6 +192,24 @@ export default function MovieScreen() {
         </TouchableOpacity>
       );
     }
+    // Poster mode - 一行四个，只展示海报
+    if (viewMode === 'poster') {
+      return (
+        <TouchableOpacity
+          style={styles.posterItem}
+          onPress={() => handleMoviePress(item)}
+          activeOpacity={0.8}
+        >
+          {item.poster_url ? (
+            <Image source={{ uri: item.poster_url }} style={styles.posterOnlyImage} resizeMode="cover" />
+          ) : (
+            <View style={[styles.posterOnlyFallback, { backgroundColor: colors.inputBg }]}>
+              <Text style={styles.posterEmoji}>🎬</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      );
+    }
     // Grid mode
     return (
       <TouchableOpacity
@@ -251,6 +269,13 @@ export default function MovieScreen() {
             activeOpacity={0.7}
           >
             <Ionicons name="list" size={16} color={viewMode === 'list' ? '#fff' : colors.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.viewToggle, { backgroundColor: viewMode === 'poster' ? colors.accent : colors.inputBg }]}
+            onPress={() => setViewMode('poster')}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="images" size={16} color={viewMode === 'poster' ? '#fff' : colors.textSecondary} />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.addButton, { backgroundColor: colors.accent }]} onPress={() => setShowAddModal(true)} activeOpacity={0.8}>
             <Ionicons name="add" size={24} color="#fff" />
@@ -356,10 +381,10 @@ export default function MovieScreen() {
         data={filteredMovies}
         renderItem={renderMovieItem}
         keyExtractor={(item) => item.id.toString()}
-        numColumns={viewMode === 'grid' ? NUM_COLUMNS : 1}
+        numColumns={viewMode === 'poster' ? 4 : viewMode === 'grid' ? NUM_COLUMNS : 1}
         key={viewMode}
-        contentContainerStyle={viewMode === 'grid' ? styles.grid : styles.list}
-        columnWrapperStyle={viewMode === 'grid' ? styles.row : undefined}
+        contentContainerStyle={viewMode === 'poster' ? styles.posterGrid : viewMode === 'grid' ? styles.grid : styles.list}
+        columnWrapperStyle={viewMode === 'poster' ? styles.posterRow : viewMode === 'grid' ? styles.row : undefined}
         ListEmptyComponent={renderEmptyState}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.accent} />}
         showsVerticalScrollIndicator={false}
@@ -429,6 +454,10 @@ const styles = StyleSheet.create({
   // Grid mode
   grid: { paddingHorizontal: GRID_PADDING, paddingBottom: 100 },
   row: { justifyContent: 'space-between' },
+  posterRow: {
+    justifyContent: 'flex-start',
+    gap: 24, // 海报间距
+  },
   gridItem: {
     aspectRatio: 2/3,
     marginBottom: GRID_GAP,
@@ -535,6 +564,18 @@ const styles = StyleSheet.create({
   },
   emptyTitle: { fontSize: 18, fontWeight: '600', marginTop: 16 },
   emptySubtitle: { fontSize: 14, marginTop: 6 },
+  // Poster mode - 一行四个
+  posterGrid: { paddingHorizontal: GRID_PADDING, paddingBottom: 100 },
+  posterItem: {
+    width: (SCREEN_WIDTH - GRID_PADDING * 2 - 24 * 3) / 4, // 4列，间距24
+    aspectRatio: 2/3,
+    marginBottom: 24,
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  posterOnlyImage: { width: '100%', height: '100%', borderRadius: 6 },
+  posterOnlyFallback: { flex: 1, justifyContent: 'center', alignItems: 'center', borderRadius: 6 },
+  posterEmoji: { fontSize: 28 },
   sortRow: {
     flexDirection: 'row',
     paddingHorizontal: 16,

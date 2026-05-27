@@ -59,19 +59,36 @@ export default function StatsScreen() {
 
   const selectedYear = yearFilter === '全部' ? undefined : parseInt(yearFilter);
 
-  // Compute year options from actual data
+  // Compute year options from actual data - filter out invalid years and based on active tab
   const yearOptions = useMemo(() => {
     const years = new Set<string>();
-    allVinyls.forEach(v => {
-      if (v.purchase_date) years.add(v.purchase_date.substring(0, 4));
-    });
-    allMovies.forEach(m => {
-      if (m.watch_date) years.add(m.watch_date.substring(0, 4));
-    });
+    
+    if (activeTab === 'music') {
+      // 音乐tab只显示有黑胶数据的年份
+      allVinyls.forEach(v => {
+        if (v.purchase_date) {
+          const year = v.purchase_date.substring(0, 4);
+          if (/^\d{4}$/.test(year) && parseInt(year) >= 1900 && parseInt(year) <= 2100) {
+            years.add(year);
+          }
+        }
+      });
+    } else {
+      // 影视tab只显示有影视数据的年份
+      allMovies.forEach(m => {
+        if (m.watch_date) {
+          const year = m.watch_date.substring(0, 4);
+          if (/^\d{4}$/.test(year) && parseInt(year) >= 1900 && parseInt(year) <= 2100) {
+            years.add(year);
+          }
+        }
+      });
+    }
+    
     if (years.size === 0) return [];
     const sorted = Array.from(years).sort((a, b) => parseInt(b) - parseInt(a));
     return ['全部', ...sorted];
-  }, [allVinyls, allMovies]);
+  }, [allVinyls, allMovies, activeTab]);
 
   // Load all data
   const loadData = useCallback(async () => {
@@ -108,6 +125,7 @@ export default function StatsScreen() {
     try {
       if (activeTab === 'music') {
         const stats = await getVinylStatsFiltered(selectedYear);
+        console.log('📊 [StatsScreen] Loaded vinyl stats:', stats);
         setVinylStats(stats);
         const monthly = await getVinylMonthlyData(selectedYear);
         // Ensure 12 months
@@ -194,9 +212,18 @@ export default function StatsScreen() {
     filteredVinyls.forEach(v => {
       const raw = v.purchase_date || v.created_at;
       if (!raw) return;
-      const d = new Date(raw);
-      const mo = d.getMonth() + 1;
-      spending[mo] = (spending[mo] || 0) + (v.price || 0);
+      let mo: number;
+      if (raw.length === 8 && !raw.includes('-')) {
+        // YYYYMMDD格式
+        mo = parseInt(raw.substring(4, 6), 10);
+      } else {
+        // YYYY-MM-DD格式
+        const d = new Date(raw);
+        mo = d.getMonth() + 1;
+      }
+      if (mo >= 1 && mo <= 12) {
+        spending[mo] = (spending[mo] || 0) + (v.price || 0);
+      }
     });
     return spending;
   }, [filteredVinyls]);
@@ -252,7 +279,7 @@ export default function StatsScreen() {
     });
     return Object.entries(yearMap)
       .map(([yr, cnt]) => ({ year: yr, count: cnt }))
-      .sort((a, b) => parseInt(a.year) - parseInt(b.year));
+      .sort((a, b) => parseInt(b.year) - parseInt(a.year));
   }, [filteredMovies]);
 
   // Top directors — 拆分 / 分隔的多导演
@@ -359,7 +386,12 @@ export default function StatsScreen() {
 
         {/* Year Filter - only show when data exists */}
         {yearOptions.length > 1 && (
-          <View style={styles.yearFilterRow}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.yearFilterScroll}
+            contentContainerStyle={styles.yearFilterRow}
+          >
             {yearOptions.map((year) => (
               <TouchableOpacity
                 key={year}
@@ -378,7 +410,7 @@ export default function StatsScreen() {
                 </Text>
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         )}
 
         {/* ============ MUSIC STATS ============ */}
@@ -396,7 +428,7 @@ export default function StatsScreen() {
               <View style={[styles.metricCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                 <View style={styles.amountRow}>
                   <Text style={[styles.metricValue, { color: colors.text }]}>
-                    {showAmount ? `¥${(vinylStats?.totalSpent ?? 0).toLocaleString()}` : '¥••••'}
+                    {showAmount ? `¥${Math.max(0, Number(vinylStats?.totalSpent) || 0).toLocaleString()}` : '¥••••'}
                   </Text>
                   <TouchableOpacity onPress={() => setShowAmount(!showAmount)} style={styles.eyeBtn}>
                     <Ionicons
@@ -430,30 +462,22 @@ export default function StatsScreen() {
               {musicMonthly.every(m => m.count === 0) ? (
                 <Text style={[styles.emptyText, { color: colors.textSecondary }]}>该时间范围内暂无购买记录</Text>
               ) : (
-                <View style={styles.barChartRow}>
-                  {musicMonthly.map((item, i) => {
-                    const isCurrentMonth = item.month === CURRENT_MONTH;
-                    // 使用对数比例让差距更明显，最大高度140px
-                    const logMax = Math.log(musicMax + 1);
-                    const barHeight = logMax > 0 ? Math.round((Math.log(item.count + 1) / logMax) * 140) : 0;
-                    const barBg = isCurrentMonth ? colors.accent : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)');
-                    const spending = monthlySpending[item.month] || 0;
-                    const isTapped = tappedMonth === item.month;
-                    return (
-                      <TouchableOpacity
-                        key={item.month}
-                        style={styles.barCol}
-                        activeOpacity={0.7}
-                        onPress={() => setTappedMonth(isTapped ? null : item.month)}
-                      >
-                        <View style={styles.barColInner}>
-                          {/* Orange spending dot */}
-                          {spending > 0 && (
-                            <View style={[styles.spendingDot, {
-                              bottom: `${Math.max((spending / maxSpending) * 90, 8)}%`,
-                              backgroundColor: '#ff9f0a',
-                            }]} />
-                          )}
+                <View>
+                  {/* Bar chart row - only bars */}
+                  <View style={styles.barChartRow}>
+                    {musicMonthly.map((item, i) => {
+                      const logMax = Math.log(musicMax + 1);
+                      const barHeight = logMax > 0 ? Math.round((Math.log(item.count + 1) / logMax) * 140) : 0;
+                      const isTapped = tappedMonth === item.month;
+                      const barBg = isTapped ? colors.accent : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)');
+                      const spending = monthlySpending[item.month] || 0;
+                      return (
+                        <TouchableOpacity
+                          key={item.month}
+                          style={styles.barCol}
+                          activeOpacity={0.7}
+                          onPress={() => setTappedMonth(isTapped ? null : item.month)}
+                        >
                           {/* 数值标签 */}
                           {item.count > 0 && (
                             <Text style={[styles.barCountLabel, { color: colors.textSecondary }]}>
@@ -465,30 +489,17 @@ export default function StatsScreen() {
                             backgroundColor: barBg,
                             borderRadius: 3,
                           }]} />
-                        </View>
-                        <Text style={[styles.barMonthLabel, { color: colors.textSecondary }]}>
-                          {selectedYear ? `${selectedYear}年${MONTH_NAMES[i]}` : MONTH_NAMES[i]}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                  {/* Spending connecting line overlay */}
-                  <View style={styles.barChartOverlay} pointerEvents="none">
-                    {musicMonthly.map((item, i) => {
-                      const spending = monthlySpending[item.month] || 0;
-                      const dotH = maxSpending > 0 ? (spending / maxSpending) * 90 : 0;
-                      return (
-                        <View key={item.month} style={styles.barCol}>
-                          <View style={styles.barColInner}>
-                            {spending > 0 && (
-                              <View style={[styles.spendingLinePoint, {
-                                bottom: `${Math.max(dotH, 8)}%`,
-                              }]} />
-                            )}
-                          </View>
-                        </View>
+                        </TouchableOpacity>
                       );
                     })}
+                  </View>
+                  {/* Month labels row - separate from bars */}
+                  <View style={styles.monthLabelsRow}>
+                    {musicMonthly.map((item, i) => (
+                      <Text key={item.month} style={[styles.barMonthLabel, { color: colors.textSecondary }]}>
+                        {MONTH_NAMES[i]}
+                      </Text>
+                    ))}
                   </View>
                 </View>
               )}
@@ -575,59 +586,37 @@ export default function StatsScreen() {
             <View style={[styles.chartCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
               <Text style={[styles.chartTitle, { color: colors.text }]}>月度观影趋势</Text>
 
-              {/* Sub-tabs */}
-              <View style={styles.movieChartTabs}>
-                {(['all', 'movie', 'series'] as const).map((tab) => (
-                  <TouchableOpacity
-                    key={tab}
-                    style={[
-                      styles.movieChartTab,
-                      { backgroundColor: movieChartType === tab ? colors.accent : colors.inputBg },
-                    ]}
-                    onPress={() => setMovieChartType(tab)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[
-                      styles.movieChartTabText,
-                      { color: movieChartType === tab ? '#fff' : colors.textSecondary },
-                    ]}>
-                      {tab === 'all' ? '全部' : tab === 'movie' ? '电影' : '剧集'}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
               {movieMonthly.length === 0 || (movieMonthly as any[]).every((m: any) => m.count === 0 && m.movieCount === 0 && m.seriesCount === 0) ? (
                 <Text style={[styles.emptyText, { color: colors.textSecondary }]}>该时间范围内暂无观看记录</Text>
               ) : (
                 <>
-                  <View style={styles.barChartRow}>
-                    {(movieMonthly as any[]).map((item: any, i: number) => {
-                      const total = item.movieCount + item.seriesCount;
-                      const maxVal = Math.max(...(movieMonthly as any[]).map((m: any) => m.movieCount + m.seriesCount), 1);
-                      // 使用对数比例让差距更明显，最大高度140px
-                      const logMax = Math.log(maxVal + 1);
-                      const movieHeight = logMax > 0 ? Math.round((Math.log(item.movieCount + 1) / logMax) * 140) : 0;
-                      const seriesHeight = logMax > 0 ? Math.round((Math.log(item.seriesCount + 1) / logMax) * 140) : 0;
-                      const isCurrentMonth = item.month === CURRENT_MONTH;
-                      const movieColor = isCurrentMonth ? '#3b82f6' : (isDark ? 'rgba(59,130,246,0.6)' : 'rgba(59,130,246,0.5)');
-                      const seriesColor = isCurrentMonth ? '#f97316' : (isDark ? 'rgba(249,115,22,0.6)' : 'rgba(249,115,22,0.5)');
-                      const isTapped = tappedMonth === item.month;
-                      return (
-                        <TouchableOpacity
-                          key={item.month}
-                          style={styles.barCol}
-                          activeOpacity={0.7}
-                          onPress={() => setTappedMonth(isTapped ? null : item.month)}
-                        >
-                          <View style={styles.barColInner}>
+                  <View>
+                    {/* Bar chart row - only bars */}
+                    <View style={styles.barChartRow}>
+                      {(movieMonthly as any[]).map((item: any, i: number) => {
+                        const total = item.movieCount + item.seriesCount;
+                        const maxVal = Math.max(...(movieMonthly as any[]).map((m: any) => m.movieCount + m.seriesCount), 1);
+                        const logMax = Math.log(maxVal + 1);
+                        const movieHeight = logMax > 0 ? Math.round((Math.log(item.movieCount + 1) / logMax) * 100) : 0;
+                        const seriesHeight = logMax > 0 ? Math.round((Math.log(item.seriesCount + 1) / logMax) * 100) : 0;
+                        const isTapped = tappedMonth === item.month;
+                        // 默认灰色，点击后显示蓝色（电影）和橙色（剧集）
+                        const movieColor = isTapped ? '#3b82f6' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)');
+                        const seriesColor = isTapped ? '#f97316' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)');
+                        return (
+                          <TouchableOpacity
+                            key={item.month}
+                            style={styles.barCol}
+                            activeOpacity={0.7}
+                            onPress={() => setTappedMonth(isTapped ? null : item.month)}
+                          >
                             {/* 数值标签 */}
                             {total > 0 && (
                               <Text style={[styles.barCountLabel, { color: colors.textSecondary }]}>
                                 {total}
                               </Text>
                             )}
-                            {/* TV series bar (orange, top) */}
+                            {/* TV series bar (orange when tapped, top) */}
                             {item.seriesCount > 0 && (
                               <View style={[styles.stackedBar, {
                                 height: seriesHeight,
@@ -636,7 +625,7 @@ export default function StatsScreen() {
                                 borderTopRightRadius: item.movieCount === 0 ? 3 : 0,
                               }]} />
                             )}
-                            {/* Movie bar (blue, bottom) */}
+                            {/* Movie bar (blue when tapped, bottom) */}
                             {item.movieCount > 0 && (
                               <View style={[styles.stackedBar, {
                                 height: movieHeight,
@@ -647,13 +636,18 @@ export default function StatsScreen() {
                                 borderTopRightRadius: item.seriesCount === 0 ? 3 : 0,
                               }]} />
                             )}
-                          </View>
-                          <Text style={[styles.barMonthLabel, { color: colors.textSecondary }]}>
-                            {selectedYear ? `${selectedYear}年${MONTH_NAMES[i]}` : MONTH_NAMES[i]}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                    {/* Month labels row - separate from bars */}
+                    <View style={styles.monthLabelsRow}>
+                      {(movieMonthly as any[]).map((item: any, i: number) => (
+                        <Text key={item.month} style={[styles.barMonthLabel, { color: colors.textSecondary }]}>
+                          {MONTH_NAMES[i]}
+                        </Text>
+                      ))}
+                    </View>
                   </View>
                   {/* Movie month detail indicator card */}
                   {(() => {
@@ -753,7 +747,8 @@ const styles = StyleSheet.create({
   statsTabText: { fontSize: 14, fontWeight: '600' },
 
   // Year filter
-  yearFilterRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+  yearFilterScroll: { marginBottom: 16 },
+  yearFilterRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 4 },
   yearPill: {
     paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20,
   },
@@ -783,12 +778,12 @@ const styles = StyleSheet.create({
   barChartRow: {
     flexDirection: 'row', alignItems: 'flex-end', height: 180,
   },
-  barCol: { flex: 1, alignItems: 'center', height: '100%' },
-  barColInner: { flex: 1, width: '100%', justifyContent: 'flex-end', alignItems: 'center', minHeight: 100 },
+  barCol: { flex: 1, alignItems: 'center', justifyContent: 'flex-end' },
   bar: { width: '55%', minHeight: 8 },
   stackedBar: { width: '55%', minHeight: 2 },
   barCountLabel: { fontSize: 10, fontWeight: '600', marginBottom: 3 },
-  barMonthLabel: { fontSize: 9, marginTop: 6, fontWeight: '500' },
+  monthLabelsRow: { flexDirection: 'row', marginTop: 8 },
+  barMonthLabel: { flex: 1, fontSize: 9, textAlign: 'center', fontWeight: '500' },
 
   // Spending overlay
   barChartOverlay: {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
   Image, Dimensions, Animated, Platform,
@@ -25,6 +25,8 @@ export default function HomeScreen({ navigation }: any) {
 
   const [vinylStats, setVinylStats] = useState<any>({ total: 0, totalSpent: 0, artistCount: 0, avgPrice: 0 });
   const [movieStats, setMovieStats] = useState<any>({ total: 0, movieCount: 0, seriesCount: 0 });
+  const [allVinyls, setAllVinyls] = useState<any[]>([]);
+  const [allMovies, setAllMovies] = useState<any[]>([]);
   const [recentVinyls, setRecentVinyls] = useState<any[]>([]);
   const [recentMovies, setRecentMovies] = useState<any[]>([]);
   const [vinylMonthly, setVinylMonthly] = useState<{ month: number; count: number }[]>([]);
@@ -53,10 +55,12 @@ export default function HomeScreen({ navigation }: any) {
       setMovieStats(ms || { total: 0, movieCount: 0, seriesCount: 0 });
 
       const vinyls: any[] = await getAllVinyls();
-      setRecentVinyls(vinyls.slice(0, 8));
+      setAllVinyls(vinyls);
+      setRecentVinyls(vinyls);  // 展示所有数量
 
       const movies: any[] = await getAllMovies();
-      setRecentMovies(movies.slice(0, 8));
+      setAllMovies(movies);
+      setRecentMovies(movies);  // 展示所有数量
 
       const vm: any[] = await getVinylMonthlyData(currentYear);
       setVinylMonthly(vm);
@@ -141,19 +145,37 @@ export default function HomeScreen({ navigation }: any) {
   const thisMonthVinyl = vinylMonthly.find(m => m.month === currentMonth)?.count || 0;
   const thisMonthMovie = movieMonthly.find(m => m.month === currentMonth)?.count || 0;
 
-  // 本月花费（黑胶价格合计）
-  const thisMonthSpending = recentVinyls
-    .filter(v => {
-      const d = v.purchase_date || v.created_at;
-      if (!d) return false;
-      const month = parseInt(d.substring(5, 7) || '0');
-      return month === currentMonth;
-    })
-    .reduce((sum, v) => sum + (v.price || 0), 0);
+  // 本月花费（黑胶价格合计）- 需要查询所有黑胶，不仅仅是最近8条
+  const thisMonthSpending = useMemo(() => {
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    
+    return allVinyls
+      .filter(v => {
+        const d = v.purchase_date || v.created_at;
+        if (!d) return false;
+        
+        let month: number;
+        let year: number;
+        
+        if (d.length === 8 && !d.includes('-')) {
+          // YYYYMMDD格式
+          year = parseInt(d.substring(0, 4), 10);
+          month = parseInt(d.substring(4, 6), 10);
+        } else {
+          // YYYY-MM-DD格式
+          year = parseInt(d.substring(0, 4), 10);
+          month = parseInt(d.substring(5, 7), 10);
+        }
+        
+        return year === currentYear && month === currentMonth;
+      })
+      .reduce((sum, v) => sum + (v.price || 0), 0);
+  }, [allVinyls]);
 
-  // Build cover wall data: take up to 6 recent items for the 3x2 grid
-  const musicWallCovers = recentVinyls.slice(0, 6);
-  const movieWallCovers = recentMovies.slice(0, 6);
+  // Build cover wall data: use all recent items
+  const musicWallCovers = recentVinyls;
+  const movieWallCovers = recentMovies;
   const allCovers = [...recentVinyls.map(v => v.cover_url), ...recentMovies.map(m => m.poster_url)].filter(Boolean);
   const currentCover = allCovers[coverIndex];
 

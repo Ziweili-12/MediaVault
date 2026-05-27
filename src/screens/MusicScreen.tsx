@@ -29,8 +29,8 @@ export default function MusicScreen() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState<'album_name' | 'artist' | 'year' | 'created_at'>('created_at');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'poster'>('grid');
+  const [sortBy, setSortBy] = useState<'album_name' | 'artist' | 'release_date' | 'created_at'>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showFilter, setShowFilter] = useState(false);
   const [filters, setFilters] = useState<FilterState | null>(null);
@@ -127,10 +127,14 @@ export default function MusicScreen() {
           aVal = (a.artist || '').toLowerCase();
           bVal = (b.artist || '').toLowerCase();
           return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-        case 'year':
-          aVal = a.year || 0;
-          bVal = b.year || 0;
-          return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+        case 'release_date':
+          aVal = a.release_date || '';
+          bVal = b.release_date || '';
+          return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        case 'purchase_date':
+          aVal = a.purchase_date || '';
+          bVal = b.purchase_date || '';
+          return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
         case 'created_at':
         default:
           aVal = a.created_at || '';
@@ -183,7 +187,7 @@ export default function MusicScreen() {
             {(() => {
               const parts = item.version.split(',').map((t: string) => t.trim()).filter(Boolean);
               const unique = [...new Set(parts)];
-              const generic = ['Vinyl', 'LP', 'Album', 'All Media', 'Reissue', 'Special Edition', 'Limited Edition', 'Deluxe Edition', 'Collector\'s Edition', 'Anniversary Edition', 'Remastered Edition', 'Edition', 'Stereo', 'Alternative Cover', 'Mono'];
+              const generic = ['Vinyl', 'LP', 'Album', 'All Media', 'Reissue', 'Repress', 'Special Edition', 'Limited Edition', 'Deluxe Edition', 'Collector\'s Edition', 'Anniversary Edition', 'Remastered Edition', 'Edition', 'Stereo', 'Alternative Cover', 'Mono'];
               const filtered = unique.filter((t: string) => !generic.some(g => t.toLowerCase().includes(g.toLowerCase())));
               return filtered.length > 0 ? filtered.join(' · ') : '';
             })()}
@@ -244,7 +248,7 @@ export default function MusicScreen() {
               const parts = item.version.split(',').map((t: string) => t.trim()).filter(Boolean);
               const unique = [...new Set(parts)];
               // 去掉通用格式词，保留特色信息
-              const generic = ['Vinyl', 'LP', 'Album', 'All Media', 'Reissue', 'Special Edition', 'Limited Edition', 'Deluxe Edition', 'Collector\'s Edition', 'Anniversary Edition', 'Remastered Edition', 'Edition', 'Stereo', 'Alternative Cover', 'Mono'];
+              const generic = ['Vinyl', 'LP', 'Album', 'All Media', 'Reissue', 'Repress', 'Special Edition', 'Limited Edition', 'Deluxe Edition', 'Collector\'s Edition', 'Anniversary Edition', 'Remastered Edition', 'Edition', 'Stereo', 'Alternative Cover', 'Mono'];
               const filtered = unique.filter((t: string) => !generic.some(g => t.toLowerCase().includes(g.toLowerCase())));
               return filtered.length > 0 ? filtered.join(' · ') : unique.join(' · ');
             })()}
@@ -252,6 +256,27 @@ export default function MusicScreen() {
         ) : null}
       </View>
       <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+    </TouchableOpacity>
+  );
+
+  // Poster mode - 一行四个，只展示封面
+  const renderPosterItem = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      style={styles.posterItem}
+      onPress={() => handleVinylPress(item)}
+      activeOpacity={0.8}
+    >
+      {item.cover_url ? (
+        <Image
+          source={{ uri: item.cover_url, headers: { 'User-Agent': 'MediaVault/1.0' } }}
+          style={styles.posterOnlyImage}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={[styles.posterOnlyFallback, { backgroundColor: colors.inputBg }]}>
+          <Ionicons name="disc-outline" size={28} color={colors.textSecondary} />
+        </View>
+      )}
     </TouchableOpacity>
   );
 
@@ -291,6 +316,13 @@ export default function MusicScreen() {
             activeOpacity={0.7}
           >
             <Ionicons name="list" size={16} color={viewMode === 'list' ? '#fff' : colors.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.viewToggle, { backgroundColor: viewMode === 'poster' ? colors.accent : colors.inputBg }]}
+            onPress={() => setViewMode('poster')}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="images" size={16} color={viewMode === 'poster' ? '#fff' : colors.textSecondary} />
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.addButton, { backgroundColor: colors.accent }]}
@@ -341,9 +373,10 @@ export default function MusicScreen() {
       <View style={styles.sortRow}>
         {[
           { key: 'created_at', label: '添加时间' },
+          { key: 'purchase_date', label: '购买日期' },
           { key: 'album_name', label: '专辑名' },
           { key: 'artist', label: '艺术家' },
-          { key: 'year', label: '发行年份' },
+          { key: 'release_date', label: '发行日期' },
         ].map((opt) => (
           <TouchableOpacity
             key={opt.key}
@@ -379,6 +412,21 @@ export default function MusicScreen() {
           numColumns={NUM_COLUMNS}
           contentContainerStyle={styles.grid}
           columnWrapperStyle={styles.row}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.accent} />
+          }
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={renderEmptyState}
+        />
+      ) : viewMode === 'poster' ? (
+        <FlatList
+          key="poster"
+          data={filteredVinyls}
+          renderItem={renderPosterItem}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={4}
+          contentContainerStyle={styles.posterGrid}
+          columnWrapperStyle={styles.posterRow}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.accent} />
           }
@@ -480,6 +528,10 @@ const styles = StyleSheet.create({
   },
   row: {
     justifyContent: 'flex-start',
+  },
+  posterRow: {
+    justifyContent: 'flex-start',
+    gap: 24, // 海报间距
   },
   gridItem: {
     margin: ITEM_MARGIN / 2,
@@ -608,6 +660,21 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     overflow: 'hidden',
   },
+
+  // Poster mode - 一行四个
+  posterGrid: {
+    paddingHorizontal: 16,
+    paddingBottom: 100,
+  },
+  posterItem: {
+    width: (SCREEN_WIDTH - 32 - 24 * 3) / 4, // 4列，间距24
+    aspectRatio: 1,
+    marginBottom: 24,
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  posterOnlyImage: { width: '100%', height: '100%', borderRadius: 6 },
+  posterOnlyFallback: { flex: 1, justifyContent: 'center', alignItems: 'center', borderRadius: 6 },
 
   // 排序
   sortRow: {
