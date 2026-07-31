@@ -6,8 +6,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
-import feishuSync from '../services/feishuSync';
-import { getAllVinyls, getAllMovies } from '../database/database';
+import { getAllVinyls, getAllMovies, insertVinyl, insertMovie } from '../database/database';
+import feishuSync, { deduplicateVinylsInFeishu, deduplicateMoviesInFeishu } from '../services/feishuSync';
 
 export default function SettingsScreen() {
   const { isDark, colors, toggleTheme } = useTheme();
@@ -67,12 +67,106 @@ export default function SettingsScreen() {
               const feishuVinyls = await feishuSync.getAllVinylsFromFeishu();
               const feishuMovies = await feishuSync.getAllMoviesFromFeishu();
               
-              setSyncStatus(`恢复完成！获取黑胶 ${feishuVinyls.length} 条，影视 ${feishuMovies.length} 条`);
-              Alert.alert('恢复成功', `从飞书获取 ${feishuVinyls.length + feishuMovies.length} 条数据`);
+              // 获取本地数据用于去重
+              const localVinyls = await getAllVinyls();
+              const localMovies = await getAllMovies();
+              
+              // 黑胶去重：按专辑名+艺术家
+              const existingVinylKeys = new Set(
+                localVinyls.map(v => `${v.album_name || ''}|${v.artist || ''}`)
+              );
+              
+              let vinylAdded = 0;
+              let vinylSkipped = 0;
+              for (const vinyl of feishuVinyls) {
+                const key = `${vinyl.album_name || ''}|${vinyl.artist || ''}`;
+                if (key && !existingVinylKeys.has(key)) {
+                  await insertVinyl(vinyl);
+                  vinylAdded++;
+                  existingVinylKeys.add(key);
+                } else {
+                  vinylSkipped++;
+                }
+              }
+              
+              // 影视去重：按标题+原名
+              const existingMovieKeys = new Set(
+                localMovies.map(m => `${m.title || ''}|${m.original_title || ''}`)
+              );
+              
+              let movieAdded = 0;
+              let movieSkipped = 0;
+              for (const movie of feishuMovies) {
+                const key = `${movie.title || ''}|${movie.original_title || ''}`;
+                if (key && !existingMovieKeys.has(key)) {
+                  await insertMovie(movie);
+                  movieAdded++;
+                  existingMovieKeys.add(key);
+                } else {
+                  movieSkipped++;
+                }
+              }
+              
+              const totalAdded = vinylAdded + movieAdded;
+              const totalSkipped = vinylSkipped + movieSkipped;
+              
+              setSyncStatus(
+                `恢复完成！黑胶新增 ${vinylAdded} 条，影视新增 ${movieAdded} 条` +
+                (totalSkipped > 0 ? `，跳过重复 ${totalSkipped} 条` : '')
+              );
+              Alert.alert(
+                '恢复成功',
+                `黑胶：新增 ${vinylAdded} 条，跳过 ${vinylSkipped} 条\n` +
+                `影视：新增 ${movieAdded} 条，跳过 ${movieSkipped} 条`
+              );
             } catch (error) {
               console.error('恢复失败:', error);
               setSyncStatus('恢复失败');
               Alert.alert('恢复失败', '请检查网络连接');
+            } finally {
+              setSyncing(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  // 清理飞书表格中的重复记录
+  const handleDeduplicateFeishu = async () => {
+    Alert.alert(
+      '确认清理',
+      '将扫描飞书表格并删除重复的黑胶和影视记录，重复记录会保留最早的一条。继续吗？',
+      [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '继续',
+          onPress: async () => {
+            setSyncing(true);
+            setSyncStatus('正在清理重复记录...');
+            
+            try {
+              const [vinylResult, movieResult] = await Promise.all([
+                feishuSync.deduplicateVinylsInFeishu(),
+                feishuSync.deduplicateMoviesInFeishu(),
+              ]);
+              
+              const totalDeleted = vinylResult.deleted + movieResult.deleted;
+              const totalKept = vinylResult.kept + movieResult.kept;
+              
+              setSyncStatus(
+                `清理完成！黑胶保留 ${vinylResult.kept} 条，删除 ${vinylResult.deleted} 条；` +
+                `影视保留 ${movieResult.kept} 条，删除 ${movieResult.deleted} 条`
+              );
+              Alert.alert(
+                '清理完成',
+                `黑胶：保留 ${vinylResult.kept} 条，删除重复 ${vinylResult.deleted} 条\n` +
+                `影视：保留 ${movieResult.kept} 条，删除重复 ${movieResult.deleted} 条`
+              );
+            } catch (error) {
+              console.error('清理重复失败:', error);
+              setSyncStatus('清理失败');
+              Alert.alert('清理失败', '请检查网络连接');
             } finally {
               setSyncing(false);
             }
@@ -157,6 +251,27 @@ export default function SettingsScreen() {
             <View style={styles.settingLeft}>
               <Ionicons name="cloud-download-outline" size={22} color={colors.accent} />
               <Text style={[styles.settingText, { color: colors.text }]}>从飞书恢复</Text>
+            </View>
+            {syncing ? (
+              <ActivityIndicator size="small" color={colors.accent} />
+            ) : (
+              <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.settingRow} 
+            onPress={handleDeduplicateFeishu}
+            disabled={syncing}
+          >
+            <View style={styles.settingLeft}>
+              <Ionicons name="analytics-outline" size={22} color={colors.accent} />
+              <View>
+                <Text style={[styles.settingText, { color: colors.text }]}>清理飞书重复</Text>
+                <Text style={[styles.settingSubtext, { color: colors.textSecondary }]}>
+                  删除飞书表格中重复的黑胶和影视记录
+                </Text>
+              </View>
             </View>
             {syncing ? (
               <ActivityIndicator size="small" color={colors.accent} />

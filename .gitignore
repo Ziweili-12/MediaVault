@@ -11,3 +11,6 @@ build/
 *.swo
 *~
 setup-notion.js
+
+.expo/web/cache/
+.expo/web/build/

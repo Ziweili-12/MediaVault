@@ -51,46 +51,6 @@ class FeishuSyncService {
 
   // ==================== 黑胶唱片操作 ====================
 
-  // 同步黑胶唱片到飞书
-  async syncVinylToFeishu(vinyl: any): Promise<string | null> {
-    try {
-      const headers = await this.getHeaders();
-      const url = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${FEISHU_CONFIG.TABLES.vinyls}/records`;
-      
-      const fields: any = {
-        '专辑名': vinyl.album_name || '',
-        '艺术家': vinyl.artist || '',
-        '发行日期': vinyl.release_date || '',
-        '封面': vinyl.cover_url ? { link: vinyl.cover_url, text: vinyl.cover_url } : null,
-        '购入价': vinyl.purchase_price ? parseFloat(vinyl.purchase_price) : null,
-        '价格': vinyl.price ? parseFloat(vinyl.price) : null,
-        '版本': vinyl.version || '',
-        '备注': vinyl.notes || ''
-      };
-
-      if (vinyl.purchase_date) {
-        const date = new Date(vinyl.purchase_date);
-        fields['购入日期'] = date.getTime();
-      }
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ fields })
-      });
-
-      const data = await response.json();
-      if (data.code === 0) {
-        return data.data.record.record_id;
-      }
-      console.error('同步黑胶失败:', data.msg);
-      return null;
-    } catch (error) {
-      console.error('同步黑胶异常:', error);
-      return null;
-    }
-  }
-
   // 从飞书获取所有黑胶唱片
   async getAllVinylsFromFeishu(): Promise<any[]> {
     try {
@@ -124,13 +84,143 @@ class FeishuSyncService {
     }
   }
 
+  // 清理飞书黑胶重复记录（按专辑名+艺术家）
+  async deduplicateVinylsInFeishu(): Promise<{ deleted: number; kept: number }> {
+    try {
+      const headers = await this.getHeaders();
+      const tableId = FEISHU_CONFIG.TABLES.vinyls;
+      const url = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${tableId}/records?page_size=500`;
+      
+      const response = await fetch(url, { headers });
+      const data = await response.json();
+      
+      if (data.code !== 0 || !data.data.items) {
+        return { deleted: 0, kept: 0 };
+      }
+
+      const items = data.data.items;
+      const seen = new Map<string, any>();
+      const toDelete: string[] = [];
+
+      for (const item of items) {
+        const f = item.fields;
+        const key = `${f['专辑名'] || ''}|${f['艺术家'] || ''}`;
+        if (!key) continue;
+        
+        if (seen.has(key)) {
+          toDelete.push(item.record_id);
+        } else {
+          seen.set(key, item);
+        }
+      }
+
+      let deleted = 0;
+      for (const recordId of toDelete) {
+        const success = await this.deleteRecord('vinyls', recordId);
+        if (success) deleted++;
+      }
+
+      return { deleted, kept: seen.size };
+    } catch (error) {
+      console.error('清理黑胶重复失败:', error);
+      return { deleted: 0, kept: 0 };
+    }
+  }
+
+  // 同步黑胶到飞书（去重：按专辑名+艺术家判断是否已存在）
+  async syncVinylToFeishu(vinyl: any): Promise<string | null> {
+    try {
+      const headers = await this.getHeaders();
+      const tableId = FEISHU_CONFIG.TABLES.vinyls;
+      
+      // 先查询是否已存在相同记录（专辑名 + 艺术家）
+      const queryUrl = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${tableId}/records?page_size=500`;
+      const queryRes = await fetch(queryUrl, { headers });
+      const queryData = await queryRes.json();
+      
+      let existingRecordId: string | null = null;
+      if (queryData.code === 0 && queryData.data.items) {
+        const match = queryData.data.items.find((item: any) => {
+          const f = item.fields;
+          return (f['专辑名'] || '') === (vinyl.album_name || '') && 
+                 (f['艺术家'] || '') === (vinyl.artist || '');
+        });
+        if (match) {
+          existingRecordId = match.record_id;
+        }
+      }
+      
+      const fields: any = {
+        '专辑名': vinyl.album_name || '',
+        '艺术家': vinyl.artist || '',
+        '发行日期': vinyl.release_date || '',
+        '封面': vinyl.cover_url ? { link: vinyl.cover_url, text: vinyl.cover_url } : null,
+        '购入价': vinyl.purchase_price ? parseFloat(vinyl.purchase_price) : null,
+        '价格': vinyl.price ? parseFloat(vinyl.price) : null,
+        '版本': vinyl.version || '',
+        '备注': vinyl.notes || ''
+      };
+
+      if (vinyl.purchase_date) {
+        const date = new Date(vinyl.purchase_date);
+        fields['购入日期'] = date.getTime();
+      }
+
+      if (existingRecordId) {
+        // 更新已有记录
+        const url = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${tableId}/records/${existingRecordId}`;
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ fields })
+        });
+        const data = await response.json();
+        return data.code === 0 ? existingRecordId : null;
+      } else {
+        // 创建新记录
+        const url = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${tableId}/records`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ fields })
+        });
+        const data = await response.json();
+        if (data.code === 0) {
+          return data.data.record.record_id;
+        }
+        console.error('同步黑胶失败:', data.msg);
+        return null;
+      }
+    } catch (error) {
+      console.error('同步黑胶异常:', error);
+      return null;
+    }
+  }
+
   // ==================== 影视操作 ====================
 
-  // 同步影视到飞书
+  // 同步影视到飞书（去重：按标题+原名判断是否已存在）
   async syncMovieToFeishu(movie: any): Promise<string | null> {
     try {
       const headers = await this.getHeaders();
-      const url = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${FEISHU_CONFIG.TABLES.movies}/records`;
+      const tableId = FEISHU_CONFIG.TABLES.movies;
+      
+      // 先查询是否已存在相同记录（标题 + 原名）
+      const queryUrl = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${tableId}/records?page_size=500`;
+      const queryRes = await fetch(queryUrl, { headers });
+      const queryData = await queryRes.json();
+      
+      let existingRecordId: string | null = null;
+      if (queryData.code === 0 && queryData.data.items) {
+        const match = queryData.data.items.find((item: any) => {
+          const f = item.fields;
+          return (f['标题'] || '') === (movie.title || '') && 
+                 (f['原名'] || '') === (movie.original_title || '');
+        });
+        if (match) {
+          existingRecordId = match.record_id;
+        }
+      }
       
       const fields: any = {
         '标题': movie.title || '',
@@ -152,18 +242,31 @@ class FeishuSyncService {
         fields['观看日期'] = date.getTime();
       }
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ fields })
-      });
-
-      const data = await response.json();
-      if (data.code === 0) {
-        return data.data.record.record_id;
+      if (existingRecordId) {
+        // 更新已有记录
+        const url = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${tableId}/records/${existingRecordId}`;
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ fields })
+        });
+        const data = await response.json();
+        return data.code === 0 ? existingRecordId : null;
+      } else {
+        // 创建新记录
+        const url = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${tableId}/records`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ fields })
+        });
+        const data = await response.json();
+        if (data.code === 0) {
+          return data.data.record.record_id;
+        }
+        console.error('同步影视失败:', data.msg);
+        return null;
       }
-      console.error('同步影视失败:', data.msg);
-      return null;
     } catch (error) {
       console.error('同步影视异常:', error);
       return null;
@@ -203,6 +306,49 @@ class FeishuSyncService {
     } catch (error) {
       console.error('获取影视失败:', error);
       return [];
+    }
+  }
+
+  // 清理飞书影视重复记录（按标题+原名）
+  async deduplicateMoviesInFeishu(): Promise<{ deleted: number; kept: number }> {
+    try {
+      const headers = await this.getHeaders();
+      const tableId = FEISHU_CONFIG.TABLES.movies;
+      const url = `${BASE_URL}/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${tableId}/records?page_size=500`;
+      
+      const response = await fetch(url, { headers });
+      const data = await response.json();
+      
+      if (data.code !== 0 || !data.data.items) {
+        return { deleted: 0, kept: 0 };
+      }
+
+      const items = data.data.items;
+      const seen = new Map<string, any>();
+      const toDelete: string[] = [];
+
+      for (const item of items) {
+        const f = item.fields;
+        const key = `${f['标题'] || ''}|${f['原名'] || ''}`;
+        if (!key) continue;
+        
+        if (seen.has(key)) {
+          toDelete.push(item.record_id);
+        } else {
+          seen.set(key, item);
+        }
+      }
+
+      let deleted = 0;
+      for (const recordId of toDelete) {
+        const success = await this.deleteRecord('movies', recordId);
+        if (success) deleted++;
+      }
+
+      return { deleted, kept: seen.size };
+    } catch (error) {
+      console.error('清理影视重复失败:', error);
+      return { deleted: 0, kept: 0 };
     }
   }
 

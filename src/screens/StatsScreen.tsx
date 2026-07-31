@@ -597,12 +597,14 @@ export default function StatsScreen() {
                         const total = item.movieCount + item.seriesCount;
                         const maxVal = Math.max(...(movieMonthly as any[]).map((m: any) => m.movieCount + m.seriesCount), 1);
                         const logMax = Math.log(maxVal + 1);
-                        const movieHeight = logMax > 0 ? Math.round((Math.log(item.movieCount + 1) / logMax) * 100) : 0;
-                        const seriesHeight = logMax > 0 ? Math.round((Math.log(item.seriesCount + 1) / logMax) * 100) : 0;
+                        const barMax = 140;
+                        const movieHeight = logMax > 0 ? Math.round((Math.log(item.movieCount + 1) / logMax) * barMax) : 0;
+                        const seriesHeight = logMax > 0 ? Math.round((Math.log(item.seriesCount + 1) / logMax) * barMax) : 0;
                         const isTapped = tappedMonth === item.month;
-                        // 默认灰色，点击后显示蓝色（电影）和橙色（剧集）
                         const movieColor = isTapped ? '#3b82f6' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)');
                         const seriesColor = isTapped ? '#f97316' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)');
+                        const hasMovie = item.movieCount > 0;
+                        const hasSeries = item.seriesCount > 0;
                         return (
                           <TouchableOpacity
                             key={item.month}
@@ -617,23 +619,25 @@ export default function StatsScreen() {
                               </Text>
                             )}
                             {/* TV series bar (orange when tapped, top) */}
-                            {item.seriesCount > 0 && (
+                            {hasSeries && (
                               <View style={[styles.stackedBar, {
-                                height: seriesHeight,
+                                height: Math.max(seriesHeight, 4),
                                 backgroundColor: seriesColor,
-                                borderTopLeftRadius: 3,
-                                borderTopRightRadius: item.movieCount === 0 ? 3 : 0,
+                                borderTopLeftRadius: (!hasMovie) ? 3 : 0,
+                                borderTopRightRadius: (!hasMovie) ? 3 : 0,
+                                borderBottomLeftRadius: 0,
+                                borderBottomRightRadius: 0,
                               }]} />
                             )}
                             {/* Movie bar (blue when tapped, bottom) */}
-                            {item.movieCount > 0 && (
+                            {hasMovie && (
                               <View style={[styles.stackedBar, {
-                                height: movieHeight,
+                                height: Math.max(movieHeight, 4),
                                 backgroundColor: movieColor,
-                                borderBottomLeftRadius: 3,
-                                borderBottomRightRadius: 3,
-                                borderTopLeftRadius: item.seriesCount === 0 ? 3 : 0,
-                                borderTopRightRadius: item.seriesCount === 0 ? 3 : 0,
+                                borderBottomLeftRadius: (!hasSeries) ? 3 : 0,
+                                borderBottomRightRadius: (!hasSeries) ? 3 : 0,
+                                borderTopLeftRadius: 0,
+                                borderTopRightRadius: 0,
                               }]} />
                             )}
                           </TouchableOpacity>

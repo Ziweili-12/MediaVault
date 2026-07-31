@@ -25,7 +25,6 @@ import {
   extractSeasonDirectors,
 } from '../../services/api';
 import { insertMovie } from '../../database/database';
-import StarRating from '../../components/StarRating';
 
 interface Props {
   visible: boolean;
