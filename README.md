@@ -1,13 +1,14 @@
 # MediaVault
 
 <p align="center">
-  <img src="assets/logo-v3-3.png" width="120" alt="MediaVault Logo" />
-</p>
-
-<p align="center">
+  <img src="https://img.shields.io/badge/Version-v3.3.0-purple" />
   <img src="https://img.shields.io/badge/Platform-iOS%20%2F%20Android-blue" />
   <img src="https://img.shields.io/badge/Framework-React%20Native%20%2F%20Expo-0088CC" />
   <img src="https://img.shields.io/badge/Database-SQLite%20%2B%20%E9%A3%9E%E4%B9%A6-3FCF8E" />
+</p>
+
+<p align="center">
+  <img src="assets/logo-v3-3.png" width="120" alt="MediaVault Logo" />
 </p>
 
 一个精美的个人多媒体收藏管理应用，用于追踪和管理您的黑胶唱片与影视收藏。支持条码扫描、API 搜索、飞书云同步等功能。
@@ -151,6 +152,22 @@ MediaVault/
 - [ ] 数据导入 / 导出
 - [ ] 社交分享
 - [ ] iPad 适配
+
+## 📋 版本记录
+
+### v3.3.0
+- 更新 app icon（v3-3 紫色播放按钮 + SF Mono）
+- 更新 iOS/Android 开屏动画
+- 新增 Android 原生资源
+- 更新统计页、设置页、添加电影弹窗
+- 优化飞书同步
+- 新增推荐系统文档
+
+### v3.2.x
+- 新增海报视图、发行日期排序
+- 修复添加电影打分问题
+- 优化首页卡片布局
+- 更新截图与 README
 
 ---
 
